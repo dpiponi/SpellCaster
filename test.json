@@ -11,8 +11,8 @@
      "player_highlight": [0.2, 0.7, 0.2],
      "computer_highlight": [0.7, 0.2, 0.2],
      "border_line_width": 3.0,
-     "player_icon": "assets/player.png",
-     "computer_icon": "assets/computer.png",
+     "player_icon": "assets/player.jpg",
+     "computer_icon": "assets/computer.jpg",
      "background": "assets/Forest.png",
      "vertical_text_space": 0.05,
      "shader": {
