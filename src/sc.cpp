@@ -7,6 +7,8 @@
 #include <vector>
 #include <chrono>
 #include <deque>
+#include <SDL.h>
+#include <SDL_image.h>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -111,6 +113,9 @@ public:
 };
 
 int main(int argc, char *argv[]) {
+    SDL_Init(SDL_INIT_VIDEO);
+    IMG_Init(IMG_INIT_PNG);
+
     string json_data = read_file("test.json");
     string error;
     Json my_json = Json::parse(json_data, error);
