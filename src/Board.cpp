@@ -7,6 +7,7 @@
 #include "Board.h"
 
 GLuint create_texture(const char *filename) {
+    cout << "loading: " << filename << endl;
     GLuint textureID;
     glGenTextures(1, &textureID);
 
