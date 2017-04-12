@@ -1,24 +1,3 @@
-Avenging Angel
-Avenging Angel
-Avenging Angel
-Avenging Angel
-Avenging Angel
-Avenging Angel
-Avenging Angel
-Avenging Angel
-Avenging Angel
-Avenging Angel
-Avenging Angel
-Avenging Angel
-Avenging Angel
-Avenging Angel
-Avenging Angel
-Avenging Angel
-Avenging Angel
-Avenging Angel
-Avenging Angel
-Avenging Angel
-Avenging Angel
 Ambush
 An Evil Blast
 An Ill Wind
@@ -28,6 +7,7 @@ Anti-Magic
 Archers
 Artemis' Bow
 Automaton Army
+Avenging Angel
 Bat Colony
 Bite The Hand...
 Blast
@@ -68,6 +48,7 @@ Ghoul
 Giant
 Giant Boar
 Giant Lizard
+Goblin
 Golem
 Ground
 Haste
