@@ -68,7 +68,6 @@ Ghoul
 Giant
 Giant Boar
 Giant Lizard
-Goblin
 Golem
 Ground
 Haste
