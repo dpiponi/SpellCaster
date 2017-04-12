@@ -1,0 +1,36 @@
+{
+     "font": "/Library/Fonts/Luminari.ttf",
+     "in_play_left": -0.7,
+     "hand_left": -0.7,
+     "in_play_spacing": 0.15,
+     "hand_spacing": 0.15,
+     "offset_for_player": 0.025,
+     "annotation_x": -1.1,
+     "annotation_y": 0.45,
+     "annotation_height": 0.4,
+     "player_highlight": [0.2, 0.7, 0.2],
+     "computer_highlight": [0.7, 0.2, 0.2],
+     "border_line_width": 3.0,
+     "player_icon": "assets/player.png",
+     "computer_icon": "assets/computer.png",
+     "background": "assets/Forest.png",
+     "vertical_text_space": 0.05,
+     "shader": {
+         "vertex": "shaders/vertex.glsl",
+         "fragment": "shaders/fragment.glsl"
+     },
+     "shadow_shader": {
+         "vertex": "shaders/shadow_vertex.glsl",
+         "fragment": "shaders/shadow_fragment.glsl"
+     },
+     "text_shader": {
+         "vertex": "shaders/text_vertex.glsl",
+         "fragment": "shaders/text_fragment.glsl"
+     },
+     "line_shader": {
+         "geometry": "shaders/line_geometry.glsl",
+         "vertex": "shaders/line_vertex.glsl",
+         "fragment": "shaders/line_fragment.glsl"
+     }
+}
+
