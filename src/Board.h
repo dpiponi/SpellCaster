@@ -460,14 +460,14 @@ public:
         computer.visible = true;
         computer.shadow = true;
 
-        passbutton.setTexture(create_texture("assets/passbutton.jpg"));
+        passbutton.setTexture(create_texture("assets/passbutton.png"));
         passbutton.setPosition(0.0, 0.95, 0.1);
         passbutton.setSize(0.0, 0.2, 0.2/3.0);
         passbutton.setBrightness(0.0, 1.0);
         passbutton.visible = true;
         passbutton.shadow = true;
 
-        discardbutton.setTexture(create_texture("assets/discardbutton.jpg"));
+        discardbutton.setTexture(create_texture("assets/discardbutton.png"));
         discardbutton.setPosition(0.0, 0.95, -0.1);
         discardbutton.setSize(0.0, 0.2, 0.2/3.0);
         discardbutton.setBrightness(0.0, 1.0);
