@@ -16,6 +16,7 @@ Blessed Lion
 Blowfish
 Blue Skies
 Bribe
+Brick Wall
 Church
 Church
 Church
@@ -123,6 +124,7 @@ Mana
 Mana
 Mana
 Mana
+Mana Wheel
 Mephistopheles
 Mimic
 Misfire

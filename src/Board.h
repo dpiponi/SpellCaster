@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <sstream>
+#include <algorithm>
 
 #include "CardBase.h"
 #include "Rectangle.h"
@@ -21,6 +22,7 @@ using std::mutex;
 using std::lock_guard;
 using std::cout;
 using std::endl;
+using std::max;
 using std::ostringstream;
 
 GLuint create_texture(const char *filename);
@@ -219,29 +221,41 @@ class Board {
         cout << endl;
     }
 
-    void initTextures(int number_of_cards,
-                   const vector<const Definition *> &player_deck,
-                   const vector<const Definition *> &computer_deck) {
+    void initTextures(const vector<const Definition *> &player_deck,
+                      const vector<const Definition *> &computer_deck) {
+        int number_of_cards = player_deck.size()+computer_deck.size();
         cout << "Loading textures..." << endl;
         setNumCards(number_of_cards);
         tex.resize(number_of_cards);
-        back_texture = create_texture("assets/back.png");
-        for (int i = 0; i < number_of_cards/2; ++i) {
+        back_texture = create_texture("assets/back.jpg");
+
+        int i = 0;
+        for (auto p : player_deck) {
             std::stringstream filename;
-            filename << "assets/" << player_deck[i]->name << ".png";
+            //filename << "assets/" << p->name << ".png";
+            filename << "assets/" << p->name << ".jpg";
             GLuint texture = create_texture(filename.str().c_str());
             if (texture > 0) {
                 tex[i] = texture;
-                tex[number_of_cards/2+i] = texture;
             } else {
                 cout << "Couldn't load " << filename.str() << endl;
-                std::stringstream filename2;
-                filename2 << "assets/" << i << ".png";
-                GLuint texture = create_texture(filename2.str().c_str());
-                tex[i] = texture;
-                tex[number_of_cards/2+i] = texture;
+                exit(1);
             }
+            ++i;
         }
+        for (auto p : computer_deck) {
+            std::stringstream filename;
+            filename << "assets/" << p->name << ".jpg";
+            GLuint texture = create_texture(filename.str().c_str());
+            if (texture > 0) {
+                tex[i] = texture;
+            } else {
+                cout << "Couldn't load " << filename.str() << endl;
+                exit(1);
+            }
+            ++i;
+        }
+
         for (int i = 0; i < number_of_cards; ++i) {
             cards[i].setTexture(back_texture);
         }
@@ -411,11 +425,11 @@ public:
         cards[card].setTexture(back_texture);
     }
 
-    void initCards(int number_of_cards,
-                   const vector<const Definition *> &player_deck,
+    void initCards(const vector<const Definition *> &player_deck,
                    const vector<const Definition *> &computer_deck) {
         std::lock_guard<std::mutex> guard(board_mutex);
-        initTextures(number_of_cards, player_deck, computer_deck);
+        initTextures(player_deck, computer_deck);
+        int number_of_cards = player_deck.size()+computer_deck.size();
         for (int i = 0; i < number_of_cards; ++i) {
             cards[i].setTexture(back_texture);
         }
@@ -446,14 +460,14 @@ public:
         computer.visible = true;
         computer.shadow = true;
 
-        passbutton.setTexture(create_texture("assets/passbutton.png"));
+        passbutton.setTexture(create_texture("assets/passbutton.jpg"));
         passbutton.setPosition(0.0, 0.95, 0.1);
         passbutton.setSize(0.0, 0.2, 0.2/3.0);
         passbutton.setBrightness(0.0, 1.0);
         passbutton.visible = true;
         passbutton.shadow = true;
 
-        discardbutton.setTexture(create_texture("assets/discardbutton.png"));
+        discardbutton.setTexture(create_texture("assets/discardbutton.jpg"));
         discardbutton.setPosition(0.0, 0.95, -0.1);
         discardbutton.setSize(0.0, 0.2, 0.2/3.0);
         discardbutton.setBrightness(0.0, 1.0);
@@ -571,7 +585,7 @@ public:
     void draw(float ratio) {
         std::lock_guard<std::mutex> guard(board_mutex);
 
-        connect_shader();
+        //connect_shader();
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         background.draw(ratio, config.border_line_width, 0.0);
@@ -590,6 +604,13 @@ public:
         for (auto p : in_play) {
             cards[p].draw(ratio, config.border_line_width, 0.0);
         }
+#if 0
+        // Only draw last 10 or so in graveyard
+        auto g = max(0UL, graveyard.size()-10);
+        for (auto i = g; i < graveyard.size(); ++i) {
+            cards[graveyard[i]].draw(ratio, config.border_line_width, 0.0);
+        }
+#endif
         for (auto p : graveyard) {
             cards[p].draw(ratio, config.border_line_width, 0.0);
         }

@@ -38,7 +38,7 @@ GLuint create_letter(FT_Face &face) {
     return textureID;
 }
 
-void makeFont(string font_name) {
+void makeFont(string font_name, int font_size) {
     FT_Library ft;
 
     if (FT_Init_FreeType(&ft)) {
@@ -55,7 +55,7 @@ void makeFont(string font_name) {
         exit(1);
     }
 
-    FT_Set_Pixel_Sizes(face, 0, 48);
+    FT_Set_Pixel_Sizes(face, 0, font_size);
     for (int c = 32; c <= 255; ++c) {
         letters[c] = Letter(c, face);
     }

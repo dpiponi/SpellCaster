@@ -132,6 +132,8 @@ Goblin goblin;
 Shard shard;
 FieryChariot fieryChariot;
 GiantBoar giantBoar;
+PerpetualMachine perpetualMachine;
+ManaWheel manaWheel;
 HolySymbol holySymbol;
 //ARollingStone aRollingStone;
 HolyWater holyWater;
@@ -160,6 +162,7 @@ Ambush ambush;
 Sleep sleep0;
 Stampede stampede;
 Ogre ogre;
+BrickWall brickWall;
 AvengingAngel avengingAngel;
 JestersWish jestersWish;
 Giant giant;
@@ -212,6 +215,7 @@ vector<const Definition *> all_cards = {
     &antSwarm,
     &antiMagic,
     &archers,
+    &brickWall,
     &suspend,
     &fieryChariot,
     &vorpalBunny,
@@ -284,6 +288,7 @@ vector<const Definition *> all_cards = {
     &troll,
     &wormDemon,
     &perpetualMachine,
+    &manaWheel,
     &plague,
     &pop,
     &push,

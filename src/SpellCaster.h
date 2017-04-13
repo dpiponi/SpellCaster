@@ -123,7 +123,7 @@ public:
         explicit Move(int p, int c, int t) : player(p), card(c), target(t) { }
     };
     typedef vector<const Definition *> Specification;
-    const Specification &definitions;
+    Specification definitions;
     const Config &config;
 
     void checkConsistency() {
@@ -190,27 +190,31 @@ public:
     }
 
     SpellCaster(const Config &config0,
-                    int n0, int n1,
-                    const Specification &_definitions) :
-                    definitions(_definitions),
-                    config(config0),
-                    target(n0+n1),
-                    owner(n0+n1),
-                    hand(2),
-                    deck(2),
-                    exposedTo(2),
-                    location(n0+n1),
-                    nextPlayer(0) { 
-        number_of_cards = n0+n1;
-        for (int i = 0; i < n0; ++i) {
+                const Specification &definitions_player,
+                const Specification &definitions_computer) :
+//                    definitions(_definitions),
+                config(config0),
+                hand(2),
+                deck(2),
+                exposedTo(2),
+                nextPlayer(0) { 
+        int i = 0;
+        for (auto p : definitions_player) {
+            definitions.push_back(p);
             deck[0].push_back(i);
+            target.push_back(-1);
+            ++i;
         }
-        for (int i = 0; i < n1; ++i) {
-            deck[1].push_back(n0+i);
+        for (auto p : definitions_computer) {
+            definitions.push_back(p);
+            deck[1].push_back(i);
+            target.push_back(-1);
+            ++i;
         }
-        for (int i = 0; i < number_of_cards; ++i) {
-            target[i] = -1;
-        }
+        number_of_cards = i;
+        target.resize(number_of_cards);
+        owner.resize(number_of_cards);
+        location.resize(number_of_cards);
         if (!config.random_draw) {
             shuffle(deck[0]);
             shuffle(deck[1]);

@@ -69,16 +69,25 @@ public:
     virtual void executeInstant(SpellCaster *game, int c, bool verbose) const;
 };
 
-const class PerpetualMachine : public SpellDefinition {
+class PerpetualMachine : public PerpetualMachineBase {
 public:
-    PerpetualMachine() : SpellDefinition("Perpetual Machine", "⚙️ ", +1, 2, 2, 1, 1, 3,
+    PerpetualMachine() : PerpetualMachineBase("Perpetual Machine", "⚙️ ", +1, 4, 4, 1, 1, 6,
                     CardClass::ARTIFACT,
                     CardClass::PLAYER,
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::NONE) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
-} perpetualMachine;
+};
+
+class ManaWheel : public PerpetualMachineBase {
+public:
+    ManaWheel() : PerpetualMachineBase("Mana Wheel", "⚙️ ", +1, 2, 2, 1, 1, 3,
+                    CardClass::ARTIFACT,
+                    CardClass::PLAYER,
+                    CardProperty::NONE,
+                    CardProperty::NONE,
+                    CardProperty::NONE) { }
+};
 
 class Push : public SpellDefinition {
 public:
@@ -853,6 +862,17 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::ETHEREAL) { }
+};
+
+class BrickWall : public ArtifactDefinition {
+public:
+    BrickWall() : ArtifactDefinition("Brick Wall", "🔴 ", -1, 2, 2, 1, 1, 1,
+                    CardClass::ARTIFACT,
+                    CardClass::MONSTER,
+                    CardProperty::NONE,
+                    CardProperty::NONE,
+                    CardProperty::FLYING | CardProperty::ETHEREAL) { }
+    virtual void execute(SpellCaster *game, int card, bool verbose) const;
 };
 
 class BiteTheHand : public SpellDefinition {

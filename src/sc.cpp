@@ -98,23 +98,18 @@ public:
         createWindow();
         initOpenGL();
 
-        program = compileProgram(shader);
+        //glGenBuffers(1, &vertex_buffer);
+        //glGenBuffers(1, &line_vertex_buffer);
 
-        glGenBuffers(1, &vertex_buffer);
-        glGenBuffers(1, &line_vertex_buffer);
-        line_program = compileProgram(line_shader);
-        text_program = compileProgram(text_shader);
-        shadow_program = compileProgram(shadow_shader);
-
-        connect_shader();
-        connect_line_shader();
-        connect_text_shader();
+        program = Program(shader);
+        line_program = LineProgram(line_shader);
+        shadow_program = ShadowProgram(shadow_shader);
     }
 };
 
 int main(int argc, char *argv[]) {
     SDL_Init(SDL_INIT_VIDEO);
-    IMG_Init(IMG_INIT_PNG);
+    IMG_Init(IMG_INIT_PNG|IMG_INIT_JPG);
 
     string json_data = read_file("test.json");
     string error;
@@ -125,6 +120,7 @@ int main(int argc, char *argv[]) {
     }
 
     string font_name = my_json["font"].string_value();
+    int font_size = my_json["font_size"].number_value();
 
     if (argc > 1) {
         int seed = atoi(argv[1]);
@@ -136,24 +132,20 @@ int main(int argc, char *argv[]) {
 
     typedef SpellCaster Game;
     map<string, const Definition *> database = make_database(all_cards);
-    vector<const Definition *> player_deck = read_deck(database, "all.txt");
-    vector<const Definition *> computer_deck = read_deck(database, "all.txt");
-    vector<const Definition *> definitions;
+    vector<const Definition *> player_deck = read_deck(database, "player.txt");
+    vector<const Definition *> computer_deck = read_deck(database, "computer.txt");
 
-    definitions = player_deck;
-    copy(computer_deck.begin(), computer_deck.end(), back_inserter(definitions));
-    game = make_shared<SpellCaster>(default_config, player_deck.size(), computer_deck.size(), definitions);
+    game = make_shared<SpellCaster>(default_config, player_deck, computer_deck);
     game->show();
 
-    // OpenGL stuff starts here
     GameApp application(my_json);
     application.init();
 
-    makeFont(font_name);
+    makeFont(font_name, font_size);
 
     BoardConfig board_config(my_json);
     board.setConfig(board_config);
-    board.initCards(game->number_of_cards, player_deck, computer_deck);
+    board.initCards(player_deck, computer_deck);
     board.initPlayers();
     board << "SpellCaster";
     board.setNewMessage();

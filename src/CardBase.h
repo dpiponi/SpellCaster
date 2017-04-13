@@ -199,4 +199,11 @@ public:
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
+class PerpetualMachineBase : public ArtifactDefinition {
+public:
+    template<class ... types>
+    PerpetualMachineBase(types ... args) : ArtifactDefinition(args...) { }
+    virtual void execute(SpellCaster *game, int card, bool verbose) const;
+};
+
 #endif

@@ -192,6 +192,19 @@ void BlastBase::execute(SpellCaster *game, int card, bool verbose) const {
     game->card_end_from(Location::EXECUTING, card, verbose);
 }
 
+void BrickWall::execute(SpellCaster *game, int card, bool verbose) const {
+    int target = game->target[card];
+    int attack = computeAttack(game, card, target, verbose);
+    if (verbose) {
+        board << game->description(card, false) << " blocks "
+             << game->description(target, false) << "";
+        game->end_message();
+    }
+    game->properties[target] |= CardProperty::IMMOBILE;
+    game->damage_card(target, attack, verbose);
+    game->card_end_from(Location::EXECUTING, card, verbose);
+}
+
 // Write damage_player()? XXX
 void MonsterDefinition::execute(SpellCaster *game, int card, bool verbose) const {
     int target = game->target[card];
@@ -907,7 +920,7 @@ void Henge::execute(SpellCaster *game, int c, bool verbose) const {
 }
 #endif
 
-void PerpetualMachine::execute(SpellCaster *game, int c, bool verbose) const {
+void PerpetualMachineBase::execute(SpellCaster *game, int c, bool verbose) const {
     int bonus = game->attack[c];
     int player_number = game->target[c]-PLAYER0;
     game->mana[player_number] += Mana{bonus, bonus};

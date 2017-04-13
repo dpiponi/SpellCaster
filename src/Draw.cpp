@@ -1,3 +1,3 @@
 #include <glad/glad.h>
-GLuint vertex_buffer, line_vertex_buffer;
+GLuint line_vertex_buffer;
 

@@ -10,7 +10,7 @@ using std::string;
 
 #include <glad/glad.h>
 
-void makeFont(string cont_name);
+void makeFont(string font_name, int font_size);
 
 class Letter {
 public:
