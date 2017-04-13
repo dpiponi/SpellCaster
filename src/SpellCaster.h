@@ -321,9 +321,9 @@ public:
         if (m.card == -1) {
             return make_pair(0, 10);
         }
-        if (m.target == DISCARD && toBool(definitions[m.card]->card_class & CardClass::MANA)) {
-            return make_pair(100, 100);
-        }
+//        if (m.target == DISCARD && toBool(definitions[m.card]->card_class & CardClass::MANA)) {
+//            return make_pair(100, 100);
+//        }
         if (m.target == DISCARD) {
             return make_pair(0, 5);
         }

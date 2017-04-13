@@ -351,8 +351,8 @@ void SpellCaster::return_card_from(Location loc, int c, bool verbose) {
 void SpellCaster::card_end_from(Location loc, int c, bool verbose) {
     switch (card_class[c]) {
     case CardClass::PLAYER:
-    case CardClass::MANA:
-        assert(false);
+//    case CardClass::MANA:
+//        assert(false);
     case CardClass::MONSTER:
         if (hasProperty(c, CardProperty::IMMINENT_DEATH)) {
             destroy_card_from(loc, c, verbose);
@@ -390,8 +390,8 @@ bool SpellCaster::cardImmobile(int c, bool verbose) {
             board << description(c);
             switch (card_class[c]) {
             case CardClass::PLAYER:
-            case CardClass::MANA:
-                assert(false);
+//            case CardClass::MANA:
+//                assert(false);
             case CardClass::SPELL:
                 board << " fails";
                 break;
@@ -553,7 +553,7 @@ SpellCaster::doMove(Move m, bool verbose) {
         assert(config.can_self_discard || config.must_self_discard);
         hand[nextPlayer].erase(hand[nextPlayer].begin()+card_number);
         if (config.discard_for_mana) {
-#if 1
+#if 0
             if (config.can_discard_any_for_mana || toBool(card_class[c] & CardClass::MANA)) {
                 mana[nextPlayer] += cost[c];
             }

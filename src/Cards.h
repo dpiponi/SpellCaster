@@ -36,7 +36,7 @@ public:
 class ManaCard : public SpellDefinition {
 public:
     ManaCard() : SpellDefinition("Mana", "⚪ ", +1, 0, 0, 0, 0, 0,
-                    CardClass::MANA,
+                    CardClass::SPELL,
                     CardClass::PLAYER,
                     CardProperty::INSTANT,
                     CardProperty::NONE,
@@ -48,7 +48,7 @@ public:
 class Henge : public SpellDefinition {
 public:
     Henge() : SpellDefinition("Henge", "🗿 ", +1, 0, 0, 0, 0, 0,
-                    CardClass::MANA,
+                    CardClass::SPELL,
                     CardClass::PLAYER,
                     CardProperty::INSTANT,
                     CardProperty::NONE,
@@ -60,7 +60,7 @@ public:
 class Church : public SpellDefinition {
 public:
     Church() : SpellDefinition("Church", "⛪ ", +1, 0, 0, 0, 0, 0,
-                    CardClass::MANA,
+                    CardClass::SPELL,
                     CardClass::PLAYER,
                     CardProperty::INSTANT,
                     CardProperty::NONE,

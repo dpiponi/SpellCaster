@@ -88,6 +88,8 @@ class Board {
     vector<int> in_play;
     vector<Location> location;
     vector<bool> exposed;
+    vector<CardClass> card_class;
+    vector<CardClass> target_class;
     vector<int> target;
     vector<int> owner;
     vector<int> cardhp;
@@ -392,10 +394,19 @@ public:
         ostringstream summary;
         summary << definitions[card]->name << '\n';
         summary << "\n";
+        if (toBool(card_class[card])) {
+            summary << describe(card_class[card]);
+            summary << "\n";
+        }
         summary << "Base HP: " << basehp[card] << '\n';
         summary << "Current HP: " << cardhp[card] << '\n';
         summary << "Attack: " << attack[card] << '\n';
         summary << '\n';
+        if (toBool(target_class[card])) {
+            summary << "Can target:\n";
+            summary << describe(target_class[card]);
+            summary << "\n";
+        }
         if (toBool(properties[card])) {
             summary << "Properties:\n";
             summary << describe(properties[card]);
@@ -407,7 +418,7 @@ public:
             summary << "\n";
         }
         if (toBool(exclusions[card])) {
-            summary << "Target must not be:\n";
+            summary << "Target mustn't be:\n";
             summary << describe(exclusions[card]);
             summary << "\n";
         }
@@ -490,6 +501,8 @@ public:
         properties = game->properties;
         exclusions = game->exclusions;
         requirements = game->requirements;
+        card_class = game->card_class;
+        target_class = game->target_class;
         definitions = game->definitions;
         exposed = game->exposedTo[0];
         location = game->location;
