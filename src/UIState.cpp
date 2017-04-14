@@ -110,7 +110,6 @@ void playerPasses() {
 void WaitingForFirstCard::motion(Application *app) {
     Point point = app->getMousePixels();
     int first_card = board.mouse_press(point);
-//    cout << "Motion above: " << first_card << endl;
     if (first_card >= 0 && first_card < 1000 && game->exposedTo[0][first_card]) {
         board.setAnnotation(first_card);
     } else {
@@ -121,7 +120,6 @@ void WaitingForFirstCard::motion(Application *app) {
 void WaitingForSecondCard::motion(Application *app) {
     Point point = app->getMousePixels();
     int first_card = board.mouse_press(point);
-//    cout << "Motion above: " << first_card << endl;
     if (first_card >= 0 && first_card < 1000 && game->exposedTo[0][first_card]) {
         board.setAnnotation(first_card);
     } else {
@@ -240,5 +238,35 @@ void WaitingForPlayerMoveToFinish::idle(Application *) {
                 ui_state = make_shared<WaitingForFirstCard>();
             }
         }
+    }
+}
+
+void WaitingForPlayerMoveToFinish::motion(Application *app) {
+    Point point = app->getMousePixels();
+    int first_card = board.mouse_press(point);
+    if (first_card >= 0 && first_card < 1000 && game->exposedTo[0][first_card]) {
+        board.setAnnotation(first_card);
+    } else {
+        board.setNoAnnotation();
+    }
+}
+
+void WaitingForComputerMoveToFinish::motion(Application *app) {
+    Point point = app->getMousePixels();
+    int first_card = board.mouse_press(point);
+    if (first_card >= 0 && first_card < 1000 && game->exposedTo[0][first_card]) {
+        board.setAnnotation(first_card);
+    } else {
+        board.setNoAnnotation();
+    }
+}
+
+void WaitingForComputerEvaluationToFinish::motion(Application *app) {
+    Point point = app->getMousePixels();
+    int first_card = board.mouse_press(point);
+    if (first_card >= 0 && first_card < 1000 && game->exposedTo[0][first_card]) {
+        board.setAnnotation(first_card);
+    } else {
+        board.setNoAnnotation();
     }
 }

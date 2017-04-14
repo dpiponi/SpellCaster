@@ -34,3 +34,25 @@ To run it use:
 The files `player.txt` and `computer.txt` specify the decks used by you and the computer.
 Have a look in `test.json` for things you can tweak.
 You may need to modify the "key" entry to point to a .?tf font that actually exists on your machine.
+
+How to Play
+-----------
+I'll describe how to play at various levels of detail.
+We'll start at
+
+Level 0
+-------
+You lose when you have no more hit points (HP) left.
+
+Level 1
+-------
+At any moment you and your opponent are also holding a hand of cards. Each player can see their own cards but not their opponents.
+Each player also has their own deck of cards from which their hand is replenished.
+When it's your turn you pass, discard a card, or use a card to target another acrd or a player.
+When a card is targetting it goes into the _Battle Zone_ in the centre of the play field.
+
+![Annotated SpellCaster screenshot](assets/manual.jpg?raw=true "Annotated SpellCaster Screenshot")
+
+When a player passes, the cards in the Battle Zone fight things out and the cards either go to the discard pile or return to their owners.
+Along the way, cards may change their properties and players may lose hit points.
+When a player loses all of their hit points they lose.
