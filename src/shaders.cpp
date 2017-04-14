@@ -26,10 +26,11 @@ GLuint /*vao, line_vao, shadow_vao, */text_vao;
 Program program;
 ShadowProgram shadow_program;
 LineProgram line_program;
+TextProgram text_program;
 
 /*GLuint program;*/
 //GLuint line_program;
-GLuint text_program;
+//GLuint text_program;
 
 GLuint compile_shader(GLuint shader_type, const char *shader_src) {
     GLuint shader = glCreateShader(shader_type);
@@ -99,27 +100,3 @@ GLuint compileProgram(Json shader) {
                                );
     }
 }
-
-#if 0
-void connect_line_shader() {
-    glBindBuffer(GL_ARRAY_BUFFER, line_vertex_buffer);
-    line_mvp_location = glGetUniformLocation(line_program, "MVP");
-    line_brightness_location = glGetUniformLocation(line_program, "brightness");
-    line_vpos_location = glGetAttribLocation(line_program, "vPos");
-    line_vcol_location = glGetAttribLocation(line_program, "vCol");
-    line_ratio_location = glGetUniformLocation(line_program, "ratio");
-
-    glGenVertexArrays(1, &line_vao);
-    glBindVertexArray(line_vao);
-
-    glEnableVertexAttribArray(line_vpos_location);
-    glVertexAttribPointer(line_vpos_location, 2, GL_FLOAT, GL_FALSE,
-                          sizeof(float) * 7, (void*) 0);
-
-    glEnableVertexAttribArray(line_vcol_location);
-    glVertexAttribPointer(line_vcol_location, 3, GL_FLOAT, GL_FALSE,
-                          sizeof(float) * 7, (void*) (sizeof(float) * 2));
-
-    glBindVertexArray(0);
-}
-#endif

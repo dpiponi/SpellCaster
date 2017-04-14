@@ -13,19 +13,7 @@ using std::endl;
 #include "json11/json11.hpp"
 using json11::Json;
 
-//extern const char *vertex_shader_src;
-//extern const char *fragment_shader_src;
-extern const char *vertex_shader_line;
-extern const char *fragment_shader_line;
-extern const char *vertex_shader_text;
-extern const char *fragment_shader_text;
-extern const char *vertex_shader_shadow;
-extern const char *fragment_shader_shadow;
-
 GLuint compileProgram(Json shader);
-
-//extern GLuint vertex_buffer;
-//extern GLuint line_vertex_buffer;
 
 class ProgramBase {
 protected:
@@ -97,7 +85,7 @@ public:
 };
 
 class ShadowProgram : public ProgramBase {
-    GLint mvp_location, vpos_location;
+    GLint mvp_location, vpos_location, alpha_location;
 public:
     ShadowProgram () { } // XX Should go eventually
     ShadowProgram(Json shader) : ProgramBase(shader) {
@@ -107,11 +95,13 @@ public:
         bindVertexArray();
 
         vpos_location = attrib("vPos", 2, 7, 0);
+        alpha_location = uniform("alpha");
 
         unbindVertexArray();
     }
-    void set(const mat4x4 &mvp) {
+    void set(const mat4x4 &mvp, float alpha) {
         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
+        glUniform1f(alpha_location, alpha);
     }
 };
 
@@ -139,9 +129,42 @@ public:
     }
 };
 
+// XXX Duplicate
+struct RGB {
+    float r;
+    float g;
+    float b;
+};
+
+class TextProgram : public ProgramBase {
+    GLint mvp_location, brightness_location, vpos_location, color_location, uv_location;
+public:
+    TextProgram () { } // XX Should go eventually
+    TextProgram(Json shader) : ProgramBase(shader) {
+        mvp_location = uniform("MVP");
+        brightness_location = uniform("brightness");
+
+        glGenVertexArrays(1, &vao);
+        bindVertexArray();
+
+        vpos_location = attrib("vPos", 2, 7, 0);
+        uv_location = attrib("uvCoord", 2, 7, 5);
+
+        color_location = uniform("color");
+
+        unbindVertexArray();
+    }
+    void set(const mat4x4 &mvp, float brightness, RGB rgb) {
+        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
+        glUniform1f(brightness_location, brightness);
+        glUniform3f(color_location, rgb.r, rgb.g, rgb.b);
+    }
+};
+
 extern Program program;
 extern ShadowProgram shadow_program;
 extern LineProgram line_program;
+extern TextProgram text_program;
 
 extern int width, height;
 

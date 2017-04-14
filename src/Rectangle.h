@@ -76,6 +76,7 @@ public:
     void drawBorder(float ratio, float line_width);
     void drawShadow(float ratio, float is_alpha);
     void draw(float ratio, float border_line_width, float is_alpha);
+    void drawText(float ratio);
     bool contains(Point point) const;
 };
 

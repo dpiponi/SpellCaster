@@ -206,4 +206,11 @@ public:
     virtual void execute(SpellCaster *game, int card, bool verbose) const;
 };
 
+class ImminentDeathBase : public ArtifactDefinition {
+public:
+    template<class ... types>
+    ImminentDeathBase(types ... args) : ArtifactDefinition(args...) { }
+    virtual void execute(SpellCaster *game, int card, bool verbose) const;
+};
+
 #endif

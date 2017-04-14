@@ -19,7 +19,7 @@ using std::make_shared;
 #include "SpellCaster.h"
 
 Config default_config {/* draw_on_turn_end */ false,
-                       /* max_cards_in_hand */ 7,
+                       /* max_cards_in_hand */ 8,
                        false,
                        /* draw_cards_after_execution */ true,
                        /* auto_discard */ false,
@@ -113,7 +113,7 @@ Dragon dragon;
 DrainPower drainPower;
 ManaCard manaCard;
 Henge henge;
-Church church;
+Temple church;
 ZombieHorde zombieHorde;
 Fear fear;
 FireElemental fireElemental;
@@ -162,6 +162,9 @@ Ambush ambush;
 Sleep sleep0;
 Stampede stampede;
 Ogre ogre;
+WarMachine warMachine;
+RedDragon redDragon;
+BlueDragon blueDragon;
 BrickWall brickWall;
 AvengingAngel avengingAngel;
 JestersWish jestersWish;
@@ -180,6 +183,7 @@ Spectre spectre;
 Strength strength;
 SuddenDeath suddenDeath;
 DeathsDoor deathsDoor;
+Banshee banshee;
 Tornado tornado;
 BiteTheHand traitor;
 NeptunesTrident neptunesTrident;
@@ -213,6 +217,8 @@ vector<const Definition *> all_cards = {
     &anIllWind,
 //    &odinsWhetstone,
     &antSwarm,
+    &redDragon,
+    &blueDragon,
     &antiMagic,
     &archers,
     &brickWall,
@@ -232,6 +238,7 @@ vector<const Definition *> all_cards = {
     &blowfish,
     &bribe,
     &deathsDoor,
+    &banshee,
     &manaCard,
     &henge,
     &church,
@@ -247,6 +254,7 @@ vector<const Definition *> all_cards = {
     &djinn,
     &double0,
     &giantBoar,
+    &warMachine,
     &dragon,
     &drainPower,
     &dwarf,
@@ -799,8 +807,11 @@ const char *SpellCaster::cantCardTarget(int c, int t) const {
     if (toBool(requirements_of_card & CardProperty::UNDEAD) && !toBool(properties_of_target & CardProperty::UNDEAD)) {
         return "target must be undead";
     }
-    if (toBool(requirements_of_card & CardProperty::MAGIC_RESISTANT) && !toBool(properties_of_target & CardProperty::MAGIC_RESISTANT)) {
-        return "target must be magic resistant";
+    if (toBool(requirements_of_card & CardProperty::BLUE_MAGIC_RESISTANT) && !toBool(properties_of_target & CardProperty::BLUE_MAGIC_RESISTANT)) {
+        return "target must be blue magic resistant";
+    }
+    if (toBool(requirements_of_card & CardProperty::RED_MAGIC_RESISTANT) && !toBool(properties_of_target & CardProperty::RED_MAGIC_RESISTANT)) {
+        return "target must be red magic resistant";
     }
     if (toBool(requirements_of_card & CardProperty::FEARLESS) && !toBool(properties_of_target & CardProperty::FEARLESS)) {
         return "target must be fearless";
@@ -833,11 +844,14 @@ const char *SpellCaster::cantCardTarget(int c, int t) const {
     if (toBool(exclusions_of_card & CardProperty::UNDEAD) && toBool(properties_of_target & CardProperty::UNDEAD)) {
         return "can't target undead";
     }
-    if (toBool(exclusions_of_card & CardProperty::MAGIC_RESISTANT) && toBool(properties_of_target & CardProperty::MAGIC_RESISTANT)) {
-        return "can't target magic resistant";
+    if (toBool(exclusions_of_card & CardProperty::BLUE_MAGIC_RESISTANT) && toBool(properties_of_target & CardProperty::BLUE_MAGIC_RESISTANT)) {
+        return "can't target blue magic resistant";
+    }
+    if (toBool(exclusions_of_card & CardProperty::RED_MAGIC_RESISTANT) && toBool(properties_of_target & CardProperty::RED_MAGIC_RESISTANT)) {
+        return "can't target red magic resistant";
     }
     if (toBool(exclusions_of_card & CardProperty::FIRE_RESISTANT) && toBool(properties_of_target & CardProperty::FIRE_RESISTANT)) {
-        return "can't target magic resistant";
+        return "can't target fire resistant";
     }
     if (toBool(exclusions_of_card & CardProperty::FEARLESS) && toBool(properties_of_target & CardProperty::FEARLESS)) {
         return "can't target fearless";
@@ -954,7 +968,8 @@ int SpellCaster::damage_player(int player, int damage, bool verbose) {
     hp[player] = new_hp;
     int damage_done = old_hp-new_hp;
     if (verbose) {
-        board << "PLAYER " << player << " receives damage " << damage_done ;
+        board << "PLAYER " << player << " takes " << damage_done << " damage" ;
+        board.shakePlayer(player);
         end_message();
     }
     return damage_done;

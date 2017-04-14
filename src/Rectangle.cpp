@@ -6,7 +6,7 @@ void Rectangle::drawShadow(float ratio, float is_alpha) {
         return;
     }
 
-    ::drawShadow(ratio, x.get(), y.get(), angle.get(), xsize.get(), ysize.get());
+    ::drawShadow(ratio, x.get()-0.02, y.get()-0.02, angle.get(), xsize.get(), ysize.get(), 0.25);
 }
 
 void Rectangle::draw(float ratio, float border_line_width, float is_alpha) {
@@ -21,6 +21,14 @@ void Rectangle::draw(float ratio, float border_line_width, float is_alpha) {
     drawRectangle(ratio, x.get(), y.get(), angle.get(), xsize.get(), ysize.get(), brightness.get(), is_alpha, tex);
 
     drawBorder(ratio, border_line_width);
+}
+
+void Rectangle::drawText(float ratio) {
+    if (!visible || tex==0) {
+        return;
+    }
+
+    drawTextRectangle(ratio, x.get(), y.get(), angle.get(), xsize.get(), ysize.get(), brightness.get(), tex);
 }
 
 bool Rectangle::contains(Point point) const {

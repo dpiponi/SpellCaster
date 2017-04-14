@@ -13,13 +13,15 @@ using std::endl;
 #include "geometry.h"
 #include "linmath.h"
 
+#if 0
 struct RGB {
     float r;
     float g;
     float b;
 };
+#endif
 
-extern GLuint text_vertex_buffer;
+//extern GLuint text_vertex_buffer;
 
 inline void drawLine(float ratio, float line_width, RGB rgb,
                      float x0, float y0, float x1, float y1) {
@@ -36,12 +38,7 @@ inline void drawLine(float ratio, float line_width, RGB rgb,
     line_program.bindVertexArray();
     line_program.use();
     line_program.set(mvp, 1.0, ratio);
-#if 0
-    glBindBuffer(GL_ARRAY_BUFFER, line_vertex_buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
-#endif
     line_program.bufferData(sizeof(vertices), (void *)vertices);
-//    glBindTexture(GL_TEXTURE_2D, 0);
     glDrawArrays(GL_LINES, 0, 2);
     line_program.unuse();
     line_program.unbindVertexArray();
@@ -73,18 +70,34 @@ inline void drawRectangle(float ratio, float x, float y, float angle, float xsiz
 //    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-inline void drawShadow(float ratio, float x, float y, float angle, float xsize, float ysize) {
+inline void drawShadow(float ratio, float x, float y, float angle, float xsize, float ysize, float alpha) {
     mat4x4 mvp;
-    make_matrix(mvp, ratio, x-0.02, y-0.02, angle, xsize, ysize);
+    make_matrix(mvp, ratio, x, y, angle, xsize, ysize);
 
     shadow_program.use();
     shadow_program.bindVertexArray();
-    shadow_program.set(mvp);
+    shadow_program.set(mvp, alpha);
     shadow_program.bufferData(sizeof(vertices), (void *)vertices);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     shadow_program.unbindVertexArray();
     program.unuse();
 //    glBindBuffer(GL_ARRAY_BUFFER, 0); // XXX ? NEED ?
+}
+
+inline void drawTextRectangle(float ratio, float x, float y, float angle, float xsize, float ysize, float brightness, GLuint tex) {
+    mat4x4 mvp;
+    make_matrix(mvp, ratio, x, y, angle, xsize, ysize);
+
+    text_program.use();
+    text_program.bindVertexArray();
+    text_program.set(mvp, brightness, RGB {1.0, 1.0, 0.5});
+    text_program.bufferData(sizeof(vertices), (void *)vertices);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    text_program.unbindVertexArray();
+    text_program.unuse();
+    glBindTexture(GL_TEXTURE_2D, 0);
+//    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 #endif

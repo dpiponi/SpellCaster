@@ -267,7 +267,7 @@ class Board {
 
     void draw_text(float ratio, vector<Rectangle> &word) {
         for (auto p : word) {
-            p.draw(ratio, 0.0, 1.0);
+            p.drawText(ratio);
         }
     }
 
@@ -311,6 +311,23 @@ public:
             cards[c].setAngle(now()+0.05*i, -0.1+0.2*(i % 2));
         };
         cards[c].setAngle(now()+0.06*16, 0.0);
+    }
+
+    void shakePlayer(int p) {
+        std::lock_guard<std::mutex> guard(board_mutex);
+        if (p==0) {
+            cout << "!!!!!!!!!!!!!!!!!!!!!!!1 SHAKING player " << p << endl;
+            for (int i = 0; i < 16; ++i) {
+                player.setAngle(now()+0.05*i, -0.1+0.2*(i % 2));
+            };
+            player.setAngle(now()+0.06*16, 0.0);
+        } else {
+            cout << "!!!!!!!!!!!!!!!!!!!!!!!1 SHAKING player " << p << endl;
+            for (int i = 0; i < 16; ++i) {
+                computer.setAngle(now()+0.05*i, -0.1+0.2*(i % 2));
+            };
+            computer.setAngle(now()+0.06*16, 0.0);
+        }
     }
 
     void noHighlightPlayer(int p) {
@@ -398,8 +415,7 @@ public:
             summary << describe(card_class[card]);
             summary << "\n";
         }
-        summary << "Base HP: " << basehp[card] << '\n';
-        summary << "Current HP: " << cardhp[card] << '\n';
+        summary << "HP: " << cardhp[card] << '/' << basehp[card] << '\n';
         summary << "Attack: " << attack[card] << '\n';
         summary << '\n';
         if (toBool(target_class[card])) {
@@ -418,11 +434,11 @@ public:
             summary << "\n";
         }
         if (toBool(exclusions[card])) {
-            summary << "Target mustn't be:\n";
+            summary << "Target can't be:\n";
             summary << describe(exclusions[card]);
             summary << "\n";
         }
-        setText(word_annotation, summary.str().c_str(), config.annotation_x-0.5*config.annotation_height, config.annotation_y-config.annotation_height-config.vertical_text_space);
+        setText(word_annotation, summary.str().c_str(), config.annotation_x-0.5*config.annotation_height+0.01, config.annotation_y-config.annotation_height-config.vertical_text_space);
     }
 
     void setNoAnnotation() {
@@ -601,7 +617,11 @@ public:
         //connect_shader();
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         background.draw(ratio, config.border_line_width, 0.0);
+
+        ::drawShadow(ratio, -0.15, 0.95, 0.0, 0.75, 0.1, 0.35);
+
         player.draw(ratio, config.border_line_width, 0.0);
         computer.draw(ratio, config.border_line_width, 0.0);
         passbutton.draw(ratio, config.border_line_width, 0.0);
@@ -653,8 +673,11 @@ public:
                 }
             }
         }
-        annotation.draw(ratio, config.border_line_width, 0.0);
-        draw_text(ratio, word_annotation);
+        if (annotation.visible) {
+            ::drawShadow(ratio, -1.1, 0.0, 0.0, 0.2, 0.8, 0.35);
+            annotation.draw(ratio, config.border_line_width, 0.0);
+            draw_text(ratio, word_annotation);
+        }
     }
 
     int mouse_press(Point point) const {

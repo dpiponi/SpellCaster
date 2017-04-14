@@ -166,7 +166,7 @@ public:
         while (true) {
             while (SDL_PollEvent(&event)) {
                 if (event.type == SDL_QUIT) {
-                    break;
+                    exit(1);
                 } else if (event.type == SDL_MOUSEMOTION) {
                     motion();
                 } else if (event.type == SDL_MOUSEBUTTONDOWN) {

@@ -1,3 +1,9 @@
+#include <map>
+#include <string>
+
+using std::map;
+using std::string;
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -7,6 +13,13 @@
 #include "Board.h"
 
 GLuint create_texture(const char *filename) {
+    static map<string, GLuint> cache;
+
+    auto p = cache.find(filename);
+    if (p != cache.end()) {
+        return p->second;
+    }
+
     cout << "loading: " << filename << endl;
     GLuint textureID;
     glGenTextures(1, &textureID);
@@ -42,6 +55,8 @@ GLuint create_texture(const char *filename) {
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+    cache[filename] = textureID;
 
     return textureID;
 }

@@ -18,7 +18,7 @@ public:
                     CardClass::MONSTER | CardClass::SPELL | CardClass::ARTIFACT,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::BLUE_MAGIC_RESISTANT) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
@@ -57,9 +57,9 @@ public:
     virtual void executeInstant(SpellCaster *game, int c, bool verbose) const;
 };
 
-class Church : public SpellDefinition {
+class Temple : public SpellDefinition {
 public:
-    Church() : SpellDefinition("Church", "⛪ ", +1, 0, 0, 0, 0, 0,
+    Temple() : SpellDefinition("Temple", "⛪ ", +1, 0, 0, 0, 0, 0,
                     CardClass::SPELL,
                     CardClass::PLAYER,
                     CardProperty::INSTANT,
@@ -96,7 +96,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
@@ -107,7 +107,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::UNDEAD,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
@@ -118,7 +118,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::FLYING,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::BLUE_MAGIC_RESISTANT) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
@@ -129,7 +129,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT | CardProperty::ETHEREAL) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::ETHEREAL) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
@@ -141,7 +141,7 @@ public:
                     CardClass::MONSTER | CardClass::SPELL | CardClass::ARTIFACT,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
 } offByOne;
 #endif
@@ -154,7 +154,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT | CardProperty::FLYING | CardProperty::ETHEREAL) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::FLYING | CardProperty::ETHEREAL) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
 };
 #endif
@@ -166,7 +166,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
@@ -225,7 +225,7 @@ public:
     Dwarf() : MonsterDefinition("Dwarf", "⛏️ ", -1, 2, 0, 1, 1, 1,
                     CardClass::MONSTER,
                     CardClass::PLAYER | CardClass::MONSTER,
-                    CardProperty::MAGIC_RESISTANT | CardProperty::FEARLESS,
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::FEARLESS,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::ETHEREAL) { }
 } dwarf;
@@ -354,6 +354,26 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::ETHEREAL) { }
+};
+
+class RedDragon : public MonsterDefinition {
+public:
+    RedDragon() : MonsterDefinition("Red Dragon", "🐊 ", -1, 5, 0, 4, 4, 3,
+                    CardClass::MONSTER,
+                    CardClass::PLAYER | CardClass::MONSTER,
+                    CardProperty::FLYING | CardProperty::FEARLESS | CardProperty::RED_MAGIC_RESISTANT,
+                    CardProperty::NONE,
+                    CardProperty::ETHEREAL) { }
+};
+
+class BlueDragon : public MonsterDefinition {
+public:
+    BlueDragon() : MonsterDefinition("Blue Dragon", "🐊 ", -1, 0, 5, 4, 4, 3,
+                    CardClass::MONSTER,
+                    CardClass::PLAYER | CardClass::MONSTER,
+                    CardProperty::FLYING | CardProperty::FEARLESS | CardProperty::BLUE_MAGIC_RESISTANT,
+                    CardProperty::NONE,
+                    CardProperty::ETHEREAL) { }
 };
 
 class Giant : public MonsterDefinition {
@@ -521,7 +541,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT) { }
 };
 
 class FightingManual : public StrengthBase {
@@ -531,7 +551,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT) { }
 };
 
 #if 0
@@ -542,7 +562,7 @@ public:
                     CardClass::MONSTER | CardClass::ARTIFACT,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
 };
 #endif
 
@@ -553,7 +573,7 @@ public:
                     CardClass::SPELL,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
 };
 
 class Weakling : public SpellDefinition {
@@ -563,7 +583,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
     void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
@@ -574,7 +594,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT | CardProperty::FIRE_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::FIRE_RESISTANT) { }
 };
 
 class AnEvilBlast : public FollowThroughBase {
@@ -584,7 +604,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT | CardProperty::BLESSED) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::BLESSED) { }
 };
 
 class Daylight : public BlastBase {
@@ -594,7 +614,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::UNDEAD,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
 };
 
 class HolySymbol : public ArtifactDefinition {
@@ -615,7 +635,7 @@ public:
                     CardClass::SPELL,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
 };
 
 class SmashArtifact : public DestroyBase {
@@ -625,7 +645,7 @@ public:
                     CardClass::ARTIFACT,   /* target */
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT | CardProperty::ETHEREAL) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::ETHEREAL) { }
 };
 
 class SuddenDeath : public DestroyBase {
@@ -635,7 +655,7 @@ public:
                     CardClass::MONSTER,   /* target */
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT | CardProperty::BLESSED) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::BLESSED) { }
 };
 
 class Double : public DoubleBase {
@@ -645,7 +665,7 @@ public:
                     CardClass::SPELL,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
 };
 
 class UpgradeArtifact : public DoubleBase {
@@ -655,7 +675,7 @@ public:
                     CardClass::ARTIFACT,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
 };
 
 class Fortress : public ShieldBase {
@@ -665,7 +685,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT) { }
 };
 
 class Fear : public ReturnBase {
@@ -675,7 +695,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT | CardProperty::FEARLESS) { }
+                    CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::FEARLESS) { }
 };
 
 class Misfire : public ReturnBase {
@@ -685,7 +705,7 @@ public:
                     CardClass::SPELL,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::BLUE_MAGIC_RESISTANT) { }
 };
 
 class Shield : public ShieldBase {
@@ -695,7 +715,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT) { }
 };
 
 class Sickness : public SpellDefinition {
@@ -705,7 +725,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT) { }
     void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
@@ -716,7 +736,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
 };
 
 class Steal : public TakeBase {
@@ -726,7 +746,7 @@ public:
                     CardClass::ARTIFACT,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
 };
 
 class Library : public TakeBase {
@@ -736,7 +756,7 @@ public:
                     CardClass::SPELL,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::BLUE_MAGIC_RESISTANT) { }
 };
 
 class MakeArtifact : public SpellDefinition {
@@ -746,7 +766,7 @@ public:
                     CardClass::SPELL,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
     void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
@@ -757,7 +777,7 @@ public:
                     CardClass::SPELL | CardClass::MONSTER | CardClass::ARTIFACT,
                     CardProperty::INSTANT,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT) { }
     void executeInstant(SpellCaster *game, int c, bool verbose) const;
 };
 
@@ -768,7 +788,7 @@ public:
                     CardClass::SPELL,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::BLUE_MAGIC_RESISTANT) { }
     void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
@@ -789,7 +809,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::BLUE_MAGIC_RESISTANT) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
@@ -800,7 +820,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT | CardProperty::UNDEAD) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::UNDEAD) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
@@ -875,6 +895,17 @@ public:
     virtual void execute(SpellCaster *game, int card, bool verbose) const;
 };
 
+class WarMachine : public ArtifactDefinition {
+public:
+    WarMachine() : ArtifactDefinition("War Machine", "🗼 ", -1, 0, 3, 1, 1, 3,
+                    CardClass::ARTIFACT,
+                    CardClass::MONSTER,
+                    CardProperty::NONE,
+                    CardProperty::NONE,
+                    CardProperty::FLYING | CardProperty::ETHEREAL) { }
+    virtual void execute(SpellCaster *game, int card, bool verbose) const;
+};
+
 class BiteTheHand : public SpellDefinition {
 public:
     BiteTheHand() : SpellDefinition("Bite The Hand...", "🃏 ", -1, 2, 3, 0, 0, 1,
@@ -882,7 +913,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
@@ -893,7 +924,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT | CardProperty::FIRE_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::FIRE_RESISTANT) { }
 };
 
 class AnIllWind : public BlastBase {
@@ -903,7 +934,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     /* Requirements */ CardProperty::FLYING,
-                    /* Exclusions */ CardProperty::MAGIC_RESISTANT
+                    /* Exclusions */ CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT
                     ) { }
 };
 
@@ -914,7 +945,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
 };
 
 class Freeze : public BlastBase {
@@ -924,7 +955,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT) { }
 };
 
 class Lightning : public BlastBase {
@@ -934,7 +965,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::FLYING,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
     virtual int computeAttack(SpellCaster *game, int card, int target, bool verbose) const override;
 };
 
@@ -945,7 +976,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
 } comet;
 
 class Golem : public MonsterDefinition {
@@ -953,7 +984,7 @@ public:
     Golem() : MonsterDefinition("Golem", "🗿 ", -1, 4, 0, 2, 2, 2,
                     CardClass::MONSTER,
                     CardClass::PLAYER | CardClass::MONSTER,
-                    CardProperty::MAGIC_RESISTANT | CardProperty::FEARLESS,
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::FEARLESS,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::ETHEREAL) { }
 };
@@ -1092,7 +1123,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
 };
 
 class Bless : public SpellDefinition {
@@ -1102,7 +1133,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
-                    CardProperty::MAGIC_RESISTANT | CardProperty::UNDEAD) { }
+                    CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::UNDEAD) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
@@ -1113,7 +1144,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
-                    CardProperty::MAGIC_RESISTANT | CardProperty::FLYING) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::FLYING) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
@@ -1124,7 +1155,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
-                    CardProperty::MAGIC_RESISTANT | CardProperty::REGENERATING) { }
+                    CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::REGENERATING) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
@@ -1135,7 +1166,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::FLYING, /* requirements */
-                    CardProperty::MAGIC_RESISTANT | CardProperty::FLYING) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::FLYING) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
@@ -1146,7 +1177,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
@@ -1157,7 +1188,7 @@ public:
                     CardClass::MONSTER | CardClass::ARTIFACT,
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::BLUE_MAGIC_RESISTANT) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
@@ -1168,7 +1199,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::BLUE_MAGIC_RESISTANT) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
@@ -1179,19 +1210,28 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
-                    CardProperty::MAGIC_RESISTANT | CardProperty::UNDEAD) { }
+                    CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::UNDEAD) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
-class DeathsDoor : public SpellDefinition {
+class DeathsDoor : public ImminentDeathBase {
 public:
-    DeathsDoor() : SpellDefinition("Death's Door", "🚪 ", -1, 1, 1, 1, 1, 1,
+    DeathsDoor() : ImminentDeathBase("Death's Door", "🚪 ", -1, 1, 1, 1, 1, 1,
                     CardClass::SPELL,
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
-                    CardProperty::MAGIC_RESISTANT | CardProperty::BLESSED) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::BLESSED) { }
+};
+
+class Banshee : public ImminentDeathBase {
+public:
+    Banshee() : ImminentDeathBase("Banshee", "🎶 ", -1, 0, 4, 1, 1, 1,
+                    CardClass::MONSTER,
+                    CardClass::MONSTER,
+                    CardProperty::UNDEAD,
+                    CardProperty::NONE, /* requirements */
+                    CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::BLESSED) { }
 };
 
 class Sleep : public SleepBase {
@@ -1201,7 +1241,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
-                    CardProperty::MAGIC_RESISTANT | CardProperty::UNDEAD) { }
+                    CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::UNDEAD) { }
 };
 
 #if 0
@@ -1212,7 +1252,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
-                    CardProperty::MAGIC_RESISTANT | CardProperty::ETHEREAL) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::ETHEREAL) { }
 };
 #endif
 
@@ -1223,7 +1263,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
-                    CardProperty::MAGIC_RESISTANT | CardProperty::ETHEREAL) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::ETHEREAL) { }
 } web;
 
 class Loyalty : public SpellDefinition {
@@ -1233,7 +1273,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::BLUE_MAGIC_RESISTANT) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
@@ -1259,7 +1299,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
 };
 
 class FieryChariot : public ShardBase {
@@ -1269,7 +1309,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE,
-                    CardProperty::MAGIC_RESISTANT | CardProperty::FIRE_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::FIRE_RESISTANT) { }
 };
 
 #if 0
@@ -1282,7 +1322,7 @@ public:
                                   /* attack */ 2,
                     CardClass::MONSTER,
                     CardClass::PLAYER | CardClass::MONSTER,
-                    CardProperty::MAGIC_RESISTANT | CardProperty::FEARLESS,
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::FEARLESS,
                     CardProperty::NONE,
                     CardProperty::FLYING) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;

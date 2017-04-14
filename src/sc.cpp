@@ -1,6 +1,9 @@
 #include <cassert>
 #include <stdlib.h>
 #include <stdio.h>
+#include <ctime>
+
+using std::time;
 
 #include <iostream>
 #include <fstream>
@@ -104,6 +107,7 @@ public:
         program = Program(shader);
         line_program = LineProgram(line_shader);
         shadow_program = ShadowProgram(shadow_shader);
+        text_program = TextProgram(text_shader);
     }
 };
 
@@ -126,6 +130,8 @@ int main(int argc, char *argv[]) {
         int seed = atoi(argv[1]);
         cout << "Seed = " << seed << endl;
         srand(seed);
+    } else {
+        srand(time(NULL));
     }
 
     ui_state = make_shared<WaitingForFirstCard>();

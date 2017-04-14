@@ -34,4 +34,3 @@ include_directories(${PROJECT_BINARY_DIR})
 include_directories(${SDL2_INCLUDE_DIR} ${SDL2_IMAGE_INCLUDE_DIR} ${FREETYPE_INCLUDE_DIRS})
 
 target_link_libraries(sc ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY} ${FREETYPE_LIBRARY} ${CMAKE_DL_LIBS})
-

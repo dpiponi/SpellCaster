@@ -8,6 +8,7 @@ in vec2 uvCoord;
 
 out vec2 UV;
 out vec3 col;
+
 void main() {
     UV = uvCoord;
     col = vCol;
