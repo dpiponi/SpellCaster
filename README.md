@@ -67,18 +67,18 @@ In the computer game, the player's cards are arranged at the bottom and the comp
 The computer's cards are generally shown face down, but any that have been exposed at any point during the game are shown face up.
 
 A player's turn consists of one of:
-    1. Discarding a card. A player may click on any card in their hand and then click on *DISCARD*. It will go into the discard pile.
-       As soon as the card is clicked on, the *DISCARD* button should be highlighted showing it is a valid option.
-    2. Playing a card. Cards suitable for playing are highlighted in green. There may not be any suitable cards.
-       Once the chosen card is clicked on the valid targets for that card are highlighted. The player now selects a target.
-       The immediate effect of the play is executed.
-       Usually this means the card moves to the right of the Battle Zone where it is annotated by lines showing its target.
-       Some cards have an immediate effect, for example giving _mana_ to a player. (More on mana later.)
-       are highlighted.
-    3. Passing. This triggers a _Battle_. Each card in the Battle Zone is executed in turn working from right to left.
-       For cards other than straightforward monsters, the execution process for each card is written on the card itself.
-       Once the entire Battle is played out, each player draws enough cards to bring the size of their hand up to 8.
-       If a player has more than 8 cards they don't draw, but they don't have to discard either.
+1. Discarding a card. A player may click on any card in their hand and then click on *DISCARD*. It will go into the discard pile.
+   As soon as the card is clicked on, the *DISCARD* button should be highlighted showing it is a valid option.
+2. Playing a card. Cards suitable for playing are highlighted in green. There may not be any suitable cards.
+   Once the chosen card is clicked on the valid targets for that card are highlighted. The player now selects a target.
+   The immediate effect of the play is executed.
+   Usually this means the card moves to the right of the Battle Zone where it is annotated by lines showing its target.
+   Some cards have an immediate effect, for example giving _mana_ to a player. (More on mana later.)
+   are highlighted.
+3. Passing. This triggers a _Battle_. Each card in the Battle Zone is executed in turn working from right to left.
+   For cards other than straightforward monsters, the execution process for each card is written on the card itself.
+   Once the entire Battle is played out, each player draws enough cards to bring the size of their hand up to 8.
+   If a player has more than 8 cards they don't draw, but they don't have to discard either.
 Play then continues with the other player.
 
 As mentioned above, only certain cards can be played to target other cards.
@@ -87,14 +87,14 @@ There are two kinds of mana: red and blue.
 They correspond to worldly and astral magic respectively.
 The cost to cast a spell is written on each card and the mana available to each player is displayed alongside each player icon.
 Cards come in three classes:
-    1. Monsters. These typically execute by doing damage to another monster or another player.
-       The phrase "Doing damage" is another way of saying they remove hit points.
-       Some monsters may have other effects. For example a gelatinous cube can temporarily immobilise its target by paralysing it.
-       If a monster's hit points are reduced to zero it is killed and goes to the discard pile.
-       Otherwise it returns to its owner's hand.
-       (Monsters can change ownership during a Battle so it might not return to the hand it came from.)
-    2. Spells. These have a variety of effects. Usually at the end of its execution a spell goes to the discard pile.
-    3. Artifacts. These have effects similar to spells execept they return to their owner's hand after play.
+1. Monsters. These typically execute by doing damage to another monster or another player.
+   The phrase "Doing damage" is another way of saying they remove hit points.
+   Some monsters may have other effects. For example a gelatinous cube can temporarily immobilise its target by paralysing it.
+   If a monster's hit points are reduced to zero it is killed and goes to the discard pile.
+   Otherwise it returns to its owner's hand.
+   (Monsters can change ownership during a Battle so it might not return to the hand it came from.)
+2. Spells. These have a variety of effects. Usually at the end of its execution a spell goes to the discard pile.
+3. Artifacts. These have effects similar to spells execept they return to their owner's hand after play.
 Each card can only target certain classes of card. The type of card it can target can be viewed by hovering over the card with the mouse.
 Hovering causes detailed information about the card to be displayed at the left.
 
