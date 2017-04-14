@@ -61,16 +61,17 @@ Level 2
 -------
 Before the game starts, each player has a deck of SpellCaster cards obtained from wherever.
 Each player shuffles the other player's deck and places it face down.
-At the start of the game, each player draws eight cards to form their hand.
+At the start of the game, each player draws eight cards from the top of their own deck to form their hand.
 Each player can see only their own hand, although cards in the other player's hand may become exposed during play.
 In the computer game, the player's cards are arranged at the bottom and the computer's cards are along the top.
 The computer's cards are generally shown face down, but any that have been exposed at any point during the game are shown face up.
 
 A player's turn consists of one of:
 1. Discarding a card. A player may click on any card in their hand and then click on *DISCARD*. It will go into the discard pile.
-   As soon as the card is clicked on, the *DISCARD* button should be highlighted showing it is a valid option.
+   As soon as the card is clicked on, the *DISCARD* button will be highlighted showing it is a valid option.
 2. Playing a card. Cards suitable for playing are highlighted in green. There may not be any suitable cards.
    Once the chosen card is clicked on the valid targets for that card are highlighted. The player now selects a target.
+   Valid targets can be cards already in the Battle Zone or players.
    The immediate effect of the play is executed.
    Usually this means the card moves to the right of the Battle Zone where it is annotated by lines showing its target.
    Some cards have an immediate effect, for example giving _mana_ to a player. (More on mana later.)
@@ -94,6 +95,8 @@ Cards come in three classes:
    Otherwise it returns to its owner's hand.
    (Monsters can change ownership during a Battle so it might not return to the hand it came from.)
 2. Spells. These have a variety of effects. Usually at the end of its execution a spell goes to the discard pile.
+   Spells include the Mana cards.
+   These usually have zero cost and immediately give the target player the amount of Mana on the card.
 3. Artifacts. These have effects similar to spells execept they return to their owner's hand after play.
 Each card can only target certain classes of card. The type of card it can target can be viewed by hovering over the card with the mouse.
 Hovering causes detailed information about the card to be displayed at the left.
