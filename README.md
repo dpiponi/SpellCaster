@@ -96,15 +96,17 @@ Cards come in three classes:
    (Monsters can change ownership during a Battle so it might not return to the hand it came from.)
 2. Spells. These have a variety of effects. Usually at the end of its execution a spell goes to the discard pile.
    Spells include the Mana cards.
-   These usually have zero cost and immediately give the target player the amount of Mana on the card.
+   These usually have zero cost and immediately give the target player the amount of Mana indicated on the card.
 3. Artifacts. These have effects similar to spells execept they return to their owner's hand after play.
 Each card can only target certain classes of card. The type of card it can target can be viewed by hovering over the card with the mouse.
 Hovering causes detailed information about the card to be displayed at the left.
 
 In addition to being members of classes, there are properties cards can have, for example they can be _undead_, or _fire resistant_, or _blessed_.
 Cards may have some requirements that need to be satisfied before they can target another card.
-For example _Holy Water_ can only target undead.
+For example _Holy Water_ can only target undead monsters.
 In addition, some cards have exclusions.
 For example _Ant Swarm_ cards can't (usually) target flying monsters.
+Cards can change the properties of other cards.
+For example the _Flight_ spell can make any other card fly. So the _Ant Swarm_ mentioned aboce could attack a flying _Dragon_ once it has _Flight_ cast on it.
 
 More to come...
