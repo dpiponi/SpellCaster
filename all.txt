@@ -1,34 +1,14 @@
-Banshee
-Banshee
-Banshee
-Banshee
-Banshee
-Banshee
-Banshee
-Banshee
-Banshee
-Banshee
-Banshee
-Banshee
-Banshee
-Banshee
-Banshee
-Banshee
-Banshee
-Banshee
-Banshee
-Banshee
-Banshee
+Shooting Stars
 Ambush
 An Evil Blast
 An Ill Wind
 Angry Ghost
 Ant Swarm
-Anti-Magic
 Archers
 Artemis' Bow
 Automaton Army
 Avenging Angel
+Banshee
 Bat Colony
 Bite The Hand...
 Blast
@@ -39,7 +19,6 @@ Blue Dragon
 Blue Skies
 Bribe
 Brick Wall
-Temple
 Comet
 Crocodile
 Darkness
@@ -154,6 +133,8 @@ Rage
 Rat Swarm
 Recall
 Red Dragon
+Resist Astral Magic
+Resist Worldly Magic
 Roc
 Sacrifice
 Scorpion
@@ -175,6 +156,7 @@ Strength
 Sudden Death
 Suspend
 Tempest
+Temple
 Tornado
 Troll
 Unicorn

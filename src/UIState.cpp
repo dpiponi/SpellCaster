@@ -47,6 +47,11 @@ void WaitingForSecondCard::mouse(Application *app, int button, int action, int m
 
     if (second_card >= 0) {
         board.unHighlightAll();
+#if 0
+        if (game->location[second_card] != Location::HAND0) {
+            return;
+        }
+#endif
         SpellCaster::Move id = SpellCaster::Move(0, first_card, second_card == 3000 ? DISCARD : second_card);
         if (!game->isLegalId(id, true)) {
             cout << "ILLEGAL!!!!!!!!!!!!!!" << endl;
@@ -114,6 +119,7 @@ void WaitingForFirstCard::motion(Application *app) {
         board.setAnnotation(first_card);
     } else {
         board.setNoAnnotation();
+        //board.setUpHand(0, -1, 0.1);
     }
 }
 
@@ -142,6 +148,10 @@ void WaitingForFirstCard::mouse(Application *app, int button, int action, int mo
         if (first_card < 1000) {
             board.highlightCard(first_card);
             cout << "Highlighting card " << first_card << endl;
+            int pos = find(game->hand[0].begin(), game->hand[0].end(), first_card)-game->hand[0].begin();
+            assert(game->hand[0][pos] == first_card);
+            board.setUpHand(0, pos, 0.5);
+            cout << pos << endl;
         }
         cout << "state = State::WAITING_FOR_SECOND_CARD" << endl;
         board << "Select target";

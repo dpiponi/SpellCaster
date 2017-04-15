@@ -109,4 +109,21 @@ For example _Ant Swarm_ cards can't (usually) target flying monsters.
 Cards can change the properties of other cards.
 For example the _Flight_ spell can make any other card fly. So the _Ant Swarm_ mentioned aboce could attack a flying _Dragon_ once it has _Flight_ cast on it.
 
-More to come...
+Level 3
+-------
+Some details:
+
+**Hit Points**
+Each card has base hit points and current hit points.
+In the detail panel this is presented as X/Y where X represents the current hit points and Y the base hit points.
+The current HP score is what matters most of the time.
+If a monster (such as a troll) regenerates then its current HP is returned to its base HP value.
+
+**Summoning Spells**
+The _Djinn_ and the _Fire Elemental_ are summoning spells.
+When initially cast they are spells and so cannot be attacked by ordinary monsters although they can be affected by spells like _Misfire_.
+After the initial summoning turn they become monsters.
+
+Notes
+=====
+* The game ends without fanfare by returning you to the console. I'll add the fanfare eventually.

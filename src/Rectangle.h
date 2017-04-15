@@ -24,6 +24,7 @@ class Rectangle {
     mutable Animated<float> angle;
     mutable Animated<float> x;
     mutable Animated<float> y;
+    mutable Animated<float> z;
     mutable Animated<float> xsize;
     mutable Animated<float> ysize;
     mutable Animated<float> brightness;
@@ -36,6 +37,9 @@ public:
     bool shadow;
     bool visible;
     float getX() {
+        return x.get();
+    }
+    float getZ() {
         return x.get();
     }
     float getY() {
@@ -61,6 +65,9 @@ public:
     void setPosition(double time, double x0, double y0) {
         x.addEvent(time, x0);
         y.addEvent(time, y0);
+    }
+    void setZ(double time, double z0) {
+        z.addEvent(time, z0);
     }
     void setSize(double time, double x0, double y0) {
         xsize.addEvent(time, x0);

@@ -969,7 +969,7 @@ public:
     virtual int computeAttack(SpellCaster *game, int card, int target, bool verbose) const override;
 };
 
-const class Comet : public BlastBase {
+class Comet : public BlastBase {
 public:
     Comet() : BlastBase("Comet", "☄ ", -1, 3, 2, 0, 0, 4,
                     CardClass::SPELL,
@@ -977,7 +977,17 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
-} comet;
+};
+
+class ShootingStars : public BlastBase {
+public:
+    ShootingStars() : BlastBase("Shooting Stars", "✨ ", -1, 4, 0, 0, 0, 4,
+                    CardClass::SPELL,
+                    CardClass::MONSTER,
+                    CardProperty::NONE,
+                    CardProperty::NONE,
+                    CardProperty::RED_MAGIC_RESISTANT) { }
+};
 
 class Golem : public MonsterDefinition {
 public:
@@ -1116,14 +1126,24 @@ public:
     virtual int computeAttack(SpellCaster *game, int card, int target, bool verbose) const;
 };
 
-class AntiMagic : public AntiMagicBase {
+class ResistAstralMagic : public AntiAstralBase {
 public:
-    AntiMagic() : AntiMagicBase("Anti-Magic", "✨ ", 0, 1, 1, 1, 1, 1,
+    ResistAstralMagic() : AntiAstralBase("Resist Astral Magic", "✨ ", 0, 2, 0, 1, 1, 1,
                     CardClass::SPELL,
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
-                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
+                    CardProperty::RED_MAGIC_RESISTANT) { }
+};
+
+class ResistWorldlyMagic : public AntiWorldlyBase {
+public:
+    ResistWorldlyMagic() : AntiWorldlyBase("Resist Worldly Magic", "✨ ", 0, 0, 2, 1, 1, 1,
+                    CardClass::SPELL,
+                    CardClass::MONSTER,
+                    CardProperty::NONE,
+                    CardProperty::NONE, /* requirements */
+                    CardProperty::BLUE_MAGIC_RESISTANT) { }
 };
 
 class Bless : public SpellDefinition {

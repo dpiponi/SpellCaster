@@ -759,13 +759,23 @@ void VorpalBunny::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void AntiMagicBase::execute(SpellCaster *game, int c, bool verbose) const {
+void AntiAstralBase::execute(SpellCaster *game, int c, bool verbose) const {
     if (verbose) {
-        board << game->description(c, false) << " giving magic-resistance to "
+        board << game->description(c, false) << " giving astral magic-resistance to "
              << game->description(game->target[c], false);
         game->end_message();
     }
-    game->properties[game->target[c]] |= CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT;
+    game->properties[game->target[c]] |= CardProperty::BLUE_MAGIC_RESISTANT;
+    game->card_end_from(Location::EXECUTING, c, verbose);
+}
+
+void AntiWorldlyBase::execute(SpellCaster *game, int c, bool verbose) const {
+    if (verbose) {
+        board << game->description(c, false) << " giving worldly magic-resistance to "
+             << game->description(game->target[c], false);
+        game->end_message();
+    }
+    game->properties[game->target[c]] |= CardProperty::RED_MAGIC_RESISTANT;
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 

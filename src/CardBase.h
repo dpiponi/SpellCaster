@@ -157,10 +157,17 @@ public:
     void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
-class AntiMagicBase : public SpellDefinition {
+class AntiAstralBase : public SpellDefinition {
 public:
     template<class ... types>
-        AntiMagicBase(types ... args) : SpellDefinition(args...) { }
+        AntiAstralBase(types ... args) : SpellDefinition(args...) { }
+    void execute(SpellCaster *game, int c, bool verbose) const;
+};
+
+class AntiWorldlyBase : public SpellDefinition {
+public:
+    template<class ... types>
+        AntiWorldlyBase(types ... args) : SpellDefinition(args...) { }
     void execute(SpellCaster *game, int c, bool verbose) const;
 };
 

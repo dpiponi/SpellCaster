@@ -93,7 +93,8 @@ read_deck(const map<string, const Definition *> &database,
     return deck;
 }
 
-AntiMagic antiMagic;
+ResistWorldlyMagic resistWorldlyMagic;
+ResistAstralMagic resistAstralMagic;
 AnEvilBlast anEvilBlast;
 Octopus octopus;
 //OdinsWhetstone odinsWhetstone;
@@ -133,6 +134,8 @@ Shard shard;
 FieryChariot fieryChariot;
 GiantBoar giantBoar;
 PerpetualMachine perpetualMachine;
+Comet comet;
+ShootingStars shootingStars;
 ManaWheel manaWheel;
 HolySymbol holySymbol;
 //ARollingStone aRollingStone;
@@ -219,7 +222,9 @@ vector<const Definition *> all_cards = {
     &antSwarm,
     &redDragon,
     &blueDragon,
-    &antiMagic,
+    &shootingStars,
+    &resistAstralMagic,
+    &resistWorldlyMagic,
     &archers,
     &brickWall,
     &suspend,

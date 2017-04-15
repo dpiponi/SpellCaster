@@ -46,7 +46,15 @@ inline void drawLine(float ratio, float line_width, RGB rgb,
 
 inline void make_matrix(mat4x4 mvp, float ratio, float x, float y, float angle, float xsize, float ysize) {
     mat4x4 m, p;
-    mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
+    //mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
+    mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 0.0f, 1.0f);
+#if 0
+    cout << p[0][0] << ' ' << p[0][1] << ' ' << p[0][2] << ' ' << p[0][3] << endl;
+    cout << p[1][0] << ' ' << p[1][1] << ' ' << p[1][2] << ' ' << p[1][3] << endl;
+    cout << p[2][0] << ' ' << p[2][1] << ' ' << p[2][2] << ' ' << p[2][3] << endl;
+    cout << p[3][0] << ' ' << p[3][1] << ' ' << p[3][2] << ' ' << p[3][3] << endl;
+    cout << endl;
+#endif
     mat4x4_identity(m);
     mat4x4_translate_in_place(m, x, y, 0.0);
     mat4x4_rotate_Z(m, m, angle);
@@ -54,13 +62,13 @@ inline void make_matrix(mat4x4 mvp, float ratio, float x, float y, float angle, 
     mat4x4_mul(mvp, p, m);
 }
 
-inline void drawRectangle(float ratio, float x, float y, float angle, float xsize, float ysize, float brightness, float is_alpha, GLuint tex) {
+inline void drawRectangle(float ratio, float x, float y, float z, float angle, float xsize, float ysize, float brightness, float is_alpha, GLuint tex) {
     mat4x4 mvp;
     make_matrix(mvp, ratio, x, y, angle, xsize, ysize);
 
     program.use();
     program.bindVertexArray();
-    program.set(mvp, brightness, is_alpha);
+    program.set(mvp, brightness, is_alpha, z);
     program.bufferData(sizeof(vertices), (void *)vertices);
     glBindTexture(GL_TEXTURE_2D, tex);
     glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -70,13 +78,13 @@ inline void drawRectangle(float ratio, float x, float y, float angle, float xsiz
 //    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-inline void drawShadow(float ratio, float x, float y, float angle, float xsize, float ysize, float alpha) {
+inline void drawShadow(float ratio, float x, float y, float z, float angle, float xsize, float ysize, float alpha) {
     mat4x4 mvp;
     make_matrix(mvp, ratio, x, y, angle, xsize, ysize);
 
     shadow_program.use();
     shadow_program.bindVertexArray();
-    shadow_program.set(mvp, alpha);
+    shadow_program.set(mvp, alpha, z);
     shadow_program.bufferData(sizeof(vertices), (void *)vertices);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     shadow_program.unbindVertexArray();
