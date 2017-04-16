@@ -300,15 +300,28 @@ public:
         hand.resize(2);
     }
 
-    void launch(int source_card, int target_card) {
+    void launch(int source_card) {
         std::lock_guard<std::mutex> guard(board_mutex);
+        cout << "ACTUAL LAUNCH = " << source_card << ' ' << target[source_card] << endl;
 
 //        static GLuint blob_tex = create_texture("assets/blob.png");
 
         float sx = cards[source_card].getX();
         float sy = cards[source_card].getY();
-        float tx = cards[target_card].getX();
-        float ty = cards[target_card].getY();
+        float tx, ty;
+        if (target[source_card] == PLAYER0) {
+            cout << "Target = PLAYER0" << endl;
+            tx = player.getX();
+            ty = player.getY();
+        } else if (target[source_card] == PLAYER1) {
+            tx = computer.getX();
+            ty = computer.getY();
+        } else {
+            cout << "Target = PLAYER1" << endl;
+            int target_card = target[source_card];
+            tx = cards[target_card].getX();
+            ty = cards[target_card].getY();
+        }
         for (int i = 0; i < 20; ++i) {
             particles.push_back(Rectangle());
             particles.back().setTexture(blob_tex);

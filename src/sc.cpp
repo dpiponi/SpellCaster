@@ -44,8 +44,8 @@ UCTParameters params {
     /* McRaveSchedule */            MINIMUM_MSE,
     /* k */                         0,
     /* bias */                      0.1,
-    /* heuristic_amaf_multiplier */ 1,
-    /* heuristic_mc_multiplier */   1,
+    /* heuristic_amaf_multiplier */ 10,
+    /* heuristic_mc_multiplier */   10,
     /* use_heuristic */             false};
 
 // Globals

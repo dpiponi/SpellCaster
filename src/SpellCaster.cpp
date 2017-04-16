@@ -607,6 +607,11 @@ SpellCaster::doMove(Move m, bool verbose) {
         location[c] = Location::EXECUTING;
         int t = m.target;//m.target >= 1000 ? m.target : in_play[m.target];
         target[c] = t;
+        if (verbose) {
+            cout << "Instant Launch from " << c << " to " << target[c] << endl;
+            board.setUpBoard(this);
+            board.launch(c);
+        }
         executeInstant(c, verbose);
         location[c] = Location::GRAVEYARD;
         graveyard.push_back(c);
@@ -889,12 +894,11 @@ void SpellCaster::execute(bool verbose) {
         int c = in_play.back();
         assert(location[c] == Location::IN_PLAY);
         if (verbose) {
-            if (c != PLAYER0 && c != PLAYER1 && target[c] != PLAYER0 && target[c] != PLAYER1) {
-                board.launch(c, target[c]);
-                board << "Executing ";
-                board << description(c);
-                end_message();
-            }
+            cout << "Launch from " << c << " to " << target[c] << endl;
+            board.launch(c);
+            board << "Executing ";
+            board << description(c);
+            end_message();
         }
         in_play.pop_back();
         location[c] = Location::EXECUTING;

@@ -118,7 +118,7 @@ void ManaCard::executeInstant(SpellCaster *game, int c, bool verbose) const {
         board << "Some mana for you";
         game->end_message();
     }
-    game->mana[game->owner[c]] += Mana {3, 2};
+    game->mana[game->owner[c]] += Mana {3, 2}; // XXX Should be target no?
 };
 
 void Henge::executeInstant(SpellCaster *game, int c, bool verbose) const {
