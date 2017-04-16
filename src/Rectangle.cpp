@@ -6,7 +6,7 @@ void Rectangle::drawShadow(float ratio, float is_alpha) {
         return;
     }
 
-    ::drawShadow(ratio, x.get()-0.02, y.get()-0.02, z.get()-0.001, angle.get(), xsize.get(), ysize.get(), 0.25);
+    ::drawShadow(ratio, x.get()-0.02, y.get()-0.02, z.get()-0.001, angle.get(), xsize.get(), ysize.get(), 0.35);
 }
 
 void Rectangle::draw(float ratio, float border_line_width, float is_alpha) {

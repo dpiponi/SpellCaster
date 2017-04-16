@@ -889,9 +889,12 @@ void SpellCaster::execute(bool verbose) {
         int c = in_play.back();
         assert(location[c] == Location::IN_PLAY);
         if (verbose) {
-            board << "Executing ";
-            board << description(c);
-            end_message();
+            if (c != PLAYER0 && c != PLAYER1 && target[c] != PLAYER0 && target[c] != PLAYER1) {
+                board.launch(c, target[c]);
+                board << "Executing ";
+                board << description(c);
+                end_message();
+            }
         }
         in_play.pop_back();
         location[c] = Location::EXECUTING;

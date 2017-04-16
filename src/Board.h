@@ -26,6 +26,7 @@ using std::max;
 using std::ostringstream;
 
 GLuint create_texture(const char *filename);
+extern GLuint blob_tex;
 
 struct BoardConfig {
     float in_play_left;
@@ -73,7 +74,6 @@ class Board {
     BoardConfig config;
     mutable std::mutex board_mutex;
     int ncards;
-    vector<Rectangle> cards;
     vector<GLuint> tex;
     GLuint back_texture;
     Rectangle background, player, computer, passbutton, discardbutton;
@@ -83,7 +83,10 @@ class Board {
     vector<Rectangle> word_stats0;
     vector<Rectangle> word_stats1;
 
+public:
+    vector<Rectangle> cards;
     vector<vector<int>> hand;
+private:
     vector<int> graveyard;
     vector<int> in_play;
     vector<Location> location;
@@ -256,6 +259,8 @@ class Board {
             cards[i].setTexture(back_texture);
         }
 
+        blob_tex = create_texture("assets/blob.png");
+
         cout << "...done" << endl;
     }
 
@@ -280,6 +285,7 @@ class Board {
     }
 
 public:
+    vector<Rectangle> particles; // XXX
 
     Board() : new_message(true) { }
 
@@ -292,6 +298,51 @@ public:
         ncards = n;
         cards.resize(n);
         hand.resize(2);
+    }
+
+    void launch(int source_card, int target_card) {
+        std::lock_guard<std::mutex> guard(board_mutex);
+
+//        static GLuint blob_tex = create_texture("assets/blob.png");
+
+        float sx = cards[source_card].getX();
+        float sy = cards[source_card].getY();
+        float tx = cards[target_card].getX();
+        float ty = cards[target_card].getY();
+        for (int i = 0; i < 20; ++i) {
+            particles.push_back(Rectangle());
+            particles.back().setTexture(blob_tex);
+
+            float start_time = now()+0.05*i;
+            float arrival_time = start_time+0.25;
+            float interval = 0.25;
+            float max_size = 0.05;
+            particles.back().setAngle(start_time, 2*M_PI*rand()/float(RAND_MAX));
+            particles.back().setZ(start_time, 0.95);
+            particles.back().setPosition(start_time, sx, sy);
+            particles.back().setSize(start_time, 0.0, 0.0);
+            particles.back().setPosition(arrival_time+interval, tx-0.125, ty-0.25);
+            particles.back().setSize(arrival_time+interval, max_size, max_size);
+            particles.back().setPosition(arrival_time+2.0*interval, tx-0.125, ty+0.25);
+            particles.back().setPosition(arrival_time+3.0*interval, tx+0.125, ty+0.25);
+            particles.back().setPosition(arrival_time+4.0*interval, tx+0.125, ty-0.25);
+            particles.back().setSize(arrival_time+4.0*interval, max_size, max_size);
+            particles.back().setPosition(arrival_time+5.0*interval, tx, ty);
+            particles.back().setSize(arrival_time+5.0*interval, 0.0, 0.0);
+#if 0
+            particles.back().setPosition(now(), -0.5, -0.5);
+            particles.back().setPosition(now()+0.1*j+0.1*i,
+                                -0.5+0.1*j,                    
+                                -0.5+0.1*j);
+            float s = 0.01*triangle(2.0*j/10-1);
+            particles.back().setSize(now()+0.1*j+0.1*i, s, s);
+#endif
+
+            particles.back().setZ(0.0, 0.9);
+            particles.back().setBrightness(0.0, 1.0);
+            particles.back().visible = true;
+            particles.back().setNoHighlight();
+        }
     }
 
     //
@@ -585,6 +636,9 @@ public:
                 setHandPosition(now(), p, player, centres[i], 0.125, 0.2, 0.0, 0.0);
                 setHandPosition(now()+0.25*delay, p, player, centres[i], 1.1*0.125, 0.5, 0.0, 0.0);
                 setHandPosition(now()+0.5*delay, p, player, centres[i], 1.2*0.125, 1.0, 0.0, 0.0);
+                for (int k = 0; k < 100; ++k) {
+                    setHandPosition(now()+0.5*delay+0.3*k, p, player, centres[i], 1.2*0.125, 1.0, 0.004*cos(k), -0.004*sin(k));
+                }
             }
             ++i;
         }
@@ -737,6 +791,12 @@ public:
             ::drawShadow(ratio, -1.1, 0.0, 0.0, 0.0, 0.2, 0.8, 0.35);
             annotation.draw(ratio, config.border_line_width, 0.0);
             draw_text(ratio, word_annotation);
+        }
+        // Particles
+        if (particles.size() > 0) {
+            for (auto p : particles) {
+                p.draw(ratio, 0.0, 0.0);
+            }
         }
     }
 

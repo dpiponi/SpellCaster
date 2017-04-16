@@ -12,6 +12,8 @@ using std::string;
 #include "SpellCaster.h"
 #include "Board.h"
 
+GLuint blob_tex;
+
 GLuint create_texture(const char *filename) {
     static map<string, GLuint> cache;
 
