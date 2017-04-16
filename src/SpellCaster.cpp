@@ -19,7 +19,7 @@ using std::make_shared;
 #include "SpellCaster.h"
 
 Config default_config {/* draw_on_turn_end */ false,
-                       /* max_cards_in_hand */ 7,
+                       /* max_cards_in_hand */ 8,
                        false,
                        /* draw_cards_after_execution */ true,
                        /* auto_discard */ false,
@@ -93,7 +93,8 @@ read_deck(const map<string, const Definition *> &database,
     return deck;
 }
 
-AntiMagic antiMagic;
+ResistWorldlyMagic resistWorldlyMagic;
+ResistAstralMagic resistAstralMagic;
 AnEvilBlast anEvilBlast;
 Octopus octopus;
 //OdinsWhetstone odinsWhetstone;
@@ -113,7 +114,7 @@ Dragon dragon;
 DrainPower drainPower;
 ManaCard manaCard;
 Henge henge;
-Church church;
+Temple church;
 ZombieHorde zombieHorde;
 Fear fear;
 FireElemental fireElemental;
@@ -132,6 +133,10 @@ Goblin goblin;
 Shard shard;
 FieryChariot fieryChariot;
 GiantBoar giantBoar;
+PerpetualMachine perpetualMachine;
+Comet comet;
+ShootingStars shootingStars;
+ManaWheel manaWheel;
 HolySymbol holySymbol;
 //ARollingStone aRollingStone;
 HolyWater holyWater;
@@ -160,6 +165,10 @@ Ambush ambush;
 Sleep sleep0;
 Stampede stampede;
 Ogre ogre;
+WarMachine warMachine;
+RedDragon redDragon;
+BlueDragon blueDragon;
+BrickWall brickWall;
 AvengingAngel avengingAngel;
 JestersWish jestersWish;
 Giant giant;
@@ -177,6 +186,7 @@ Spectre spectre;
 Strength strength;
 SuddenDeath suddenDeath;
 DeathsDoor deathsDoor;
+Banshee banshee;
 Tornado tornado;
 BiteTheHand traitor;
 NeptunesTrident neptunesTrident;
@@ -210,8 +220,13 @@ vector<const Definition *> all_cards = {
     &anIllWind,
 //    &odinsWhetstone,
     &antSwarm,
-    &antiMagic,
+    &redDragon,
+    &blueDragon,
+    &shootingStars,
+    &resistAstralMagic,
+    &resistWorldlyMagic,
     &archers,
+    &brickWall,
     &suspend,
     &fieryChariot,
     &vorpalBunny,
@@ -228,6 +243,7 @@ vector<const Definition *> all_cards = {
     &blowfish,
     &bribe,
     &deathsDoor,
+    &banshee,
     &manaCard,
     &henge,
     &church,
@@ -243,6 +259,7 @@ vector<const Definition *> all_cards = {
     &djinn,
     &double0,
     &giantBoar,
+    &warMachine,
     &dragon,
     &drainPower,
     &dwarf,
@@ -284,6 +301,7 @@ vector<const Definition *> all_cards = {
     &troll,
     &wormDemon,
     &perpetualMachine,
+    &manaWheel,
     &plague,
     &pop,
     &push,
@@ -346,8 +364,8 @@ void SpellCaster::return_card_from(Location loc, int c, bool verbose) {
 void SpellCaster::card_end_from(Location loc, int c, bool verbose) {
     switch (card_class[c]) {
     case CardClass::PLAYER:
-    case CardClass::MANA:
-        assert(false);
+//    case CardClass::MANA:
+//        assert(false);
     case CardClass::MONSTER:
         if (hasProperty(c, CardProperty::IMMINENT_DEATH)) {
             destroy_card_from(loc, c, verbose);
@@ -385,8 +403,8 @@ bool SpellCaster::cardImmobile(int c, bool verbose) {
             board << description(c);
             switch (card_class[c]) {
             case CardClass::PLAYER:
-            case CardClass::MANA:
-                assert(false);
+//            case CardClass::MANA:
+//                assert(false);
             case CardClass::SPELL:
                 board << " fails";
                 break;
@@ -548,7 +566,7 @@ SpellCaster::doMove(Move m, bool verbose) {
         assert(config.can_self_discard || config.must_self_discard);
         hand[nextPlayer].erase(hand[nextPlayer].begin()+card_number);
         if (config.discard_for_mana) {
-#if 1
+#if 0
             if (config.can_discard_any_for_mana || toBool(card_class[c] & CardClass::MANA)) {
                 mana[nextPlayer] += cost[c];
             }
@@ -589,6 +607,11 @@ SpellCaster::doMove(Move m, bool verbose) {
         location[c] = Location::EXECUTING;
         int t = m.target;//m.target >= 1000 ? m.target : in_play[m.target];
         target[c] = t;
+        if (verbose) {
+            cout << "Instant Launch from " << c << " to " << target[c] << endl;
+            board.setUpBoard(this);
+            board.launch(c);
+        }
         executeInstant(c, verbose);
         location[c] = Location::GRAVEYARD;
         graveyard.push_back(c);
@@ -794,8 +817,11 @@ const char *SpellCaster::cantCardTarget(int c, int t) const {
     if (toBool(requirements_of_card & CardProperty::UNDEAD) && !toBool(properties_of_target & CardProperty::UNDEAD)) {
         return "target must be undead";
     }
-    if (toBool(requirements_of_card & CardProperty::MAGIC_RESISTANT) && !toBool(properties_of_target & CardProperty::MAGIC_RESISTANT)) {
-        return "target must be magic resistant";
+    if (toBool(requirements_of_card & CardProperty::BLUE_MAGIC_RESISTANT) && !toBool(properties_of_target & CardProperty::BLUE_MAGIC_RESISTANT)) {
+        return "target must be blue magic resistant";
+    }
+    if (toBool(requirements_of_card & CardProperty::RED_MAGIC_RESISTANT) && !toBool(properties_of_target & CardProperty::RED_MAGIC_RESISTANT)) {
+        return "target must be red magic resistant";
     }
     if (toBool(requirements_of_card & CardProperty::FEARLESS) && !toBool(properties_of_target & CardProperty::FEARLESS)) {
         return "target must be fearless";
@@ -828,11 +854,14 @@ const char *SpellCaster::cantCardTarget(int c, int t) const {
     if (toBool(exclusions_of_card & CardProperty::UNDEAD) && toBool(properties_of_target & CardProperty::UNDEAD)) {
         return "can't target undead";
     }
-    if (toBool(exclusions_of_card & CardProperty::MAGIC_RESISTANT) && toBool(properties_of_target & CardProperty::MAGIC_RESISTANT)) {
-        return "can't target magic resistant";
+    if (toBool(exclusions_of_card & CardProperty::BLUE_MAGIC_RESISTANT) && toBool(properties_of_target & CardProperty::BLUE_MAGIC_RESISTANT)) {
+        return "can't target blue magic resistant";
+    }
+    if (toBool(exclusions_of_card & CardProperty::RED_MAGIC_RESISTANT) && toBool(properties_of_target & CardProperty::RED_MAGIC_RESISTANT)) {
+        return "can't target red magic resistant";
     }
     if (toBool(exclusions_of_card & CardProperty::FIRE_RESISTANT) && toBool(properties_of_target & CardProperty::FIRE_RESISTANT)) {
-        return "can't target magic resistant";
+        return "can't target fire resistant";
     }
     if (toBool(exclusions_of_card & CardProperty::FEARLESS) && toBool(properties_of_target & CardProperty::FEARLESS)) {
         return "can't target fearless";
@@ -865,6 +894,8 @@ void SpellCaster::execute(bool verbose) {
         int c = in_play.back();
         assert(location[c] == Location::IN_PLAY);
         if (verbose) {
+            cout << "Launch from " << c << " to " << target[c] << endl;
+            board.launch(c);
             board << "Executing ";
             board << description(c);
             end_message();
@@ -949,7 +980,8 @@ int SpellCaster::damage_player(int player, int damage, bool verbose) {
     hp[player] = new_hp;
     int damage_done = old_hp-new_hp;
     if (verbose) {
-        board << "PLAYER " << player << " receives damage " << damage_done ;
+        board << "PLAYER " << player << " takes " << damage_done << " damage" ;
+        board.shakePlayer(player);
         end_message();
     }
     return damage_done;

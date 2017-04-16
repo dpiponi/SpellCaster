@@ -24,6 +24,7 @@ class Rectangle {
     mutable Animated<float> angle;
     mutable Animated<float> x;
     mutable Animated<float> y;
+    mutable Animated<float> z;
     mutable Animated<float> xsize;
     mutable Animated<float> ysize;
     mutable Animated<float> brightness;
@@ -36,6 +37,9 @@ public:
     bool shadow;
     bool visible;
     float getX() {
+        return x.get();
+    }
+    float getZ() {
         return x.get();
     }
     float getY() {
@@ -62,6 +66,9 @@ public:
         x.addEvent(time, x0);
         y.addEvent(time, y0);
     }
+    void setZ(double time, double z0) {
+        z.addEvent(time, z0);
+    }
     void setSize(double time, double x0, double y0) {
         xsize.addEvent(time, x0);
         ysize.addEvent(time, y0);
@@ -76,6 +83,7 @@ public:
     void drawBorder(float ratio, float line_width);
     void drawShadow(float ratio, float is_alpha);
     void draw(float ratio, float border_line_width, float is_alpha);
+    void drawText(float ratio);
     bool contains(Point point) const;
 };
 

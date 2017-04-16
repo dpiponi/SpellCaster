@@ -1,27 +1,30 @@
+<<<<<<< HEAD
+=======
+Shooting Stars
+>>>>>>> 98851d5f381beeb18a9a6df4e9eb07e54078ac98
 Ambush
 An Evil Blast
 An Ill Wind
 Angry Ghost
 Ant Swarm
-Anti-Magic
 Archers
 Artemis' Bow
 Automaton Army
 Avenging Angel
+<<<<<<< HEAD
+=======
+Banshee
+>>>>>>> 98851d5f381beeb18a9a6df4e9eb07e54078ac98
 Bat Colony
 Bite The Hand...
 Blast
 Bless
 Blessed Lion
 Blowfish
+Blue Dragon
 Blue Skies
 Bribe
-Church
-Church
-Church
-Church
-Church
-Church
+Brick Wall
 Comet
 Crocodile
 Darkness
@@ -123,6 +126,7 @@ Mana
 Mana
 Mana
 Mana
+Mana Wheel
 Mephistopheles
 Mimic
 Misfire
@@ -134,6 +138,9 @@ Plague
 Rage
 Rat Swarm
 Recall
+Red Dragon
+Resist Astral Magic
+Resist Worldly Magic
 Roc
 Sacrifice
 Scorpion
@@ -155,6 +162,7 @@ Strength
 Sudden Death
 Suspend
 Tempest
+Temple
 Tornado
 Troll
 Unicorn
@@ -163,6 +171,7 @@ Upgrade Artifact
 Vampire
 Volcano
 Vorpal Bunny
+War Machine
 Weakling
 Web
 Wight

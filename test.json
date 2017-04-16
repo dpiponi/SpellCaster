@@ -1,5 +1,6 @@
 {
      "font": "/Library/Fonts/Luminari.ttf",
+     "font_size": 48,
      "in_play_left": -0.7,
      "hand_left": -0.7,
      "in_play_spacing": 0.15,

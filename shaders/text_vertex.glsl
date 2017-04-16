@@ -1,7 +1,13 @@
 #version 410
-in vec4 coord;
-out vec2 texcoord;
-void main(void) {
-      gl_Position = vec4(coord.xy, 0, 1);
-      texcoord = coord.zw;
+
+uniform mat4 MVP;
+
+in vec2 vPos;
+in vec2 uvCoord;
+
+out vec2 UV;
+
+void main() {
+    UV = uvCoord;
+    gl_Position = MVP * vec4(vPos, 0.0, 1.0);
 }

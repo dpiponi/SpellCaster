@@ -7,10 +7,9 @@
 using std::ostringstream;
 using std::string;
 
-enum class CardProperty : unsigned short {
+enum class CardProperty : unsigned int {
     NONE            = 0,
     UNDEAD          = 1,
-    MAGIC_RESISTANT = 2,
     FEARLESS        = 4,
     FLYING          = 8, 
     FIRE_RESISTANT  = 16,
@@ -22,7 +21,9 @@ enum class CardProperty : unsigned short {
     ETHEREAL        = 1024,
     AQUATIC         = 2048,
     REGENERATING    = 4096,
-    INSTANT         = 8192
+    INSTANT         = 8192,
+    RED_MAGIC_RESISTANT = 16384,
+    BLUE_MAGIC_RESISTANT = 32768,
 };
 
 inline CardProperty operator&(CardProperty a, CardProperty b) {
@@ -54,8 +55,11 @@ static string describe(CardProperty property) {
     if (toBool(property & CardProperty::UNDEAD)) {
         description << "Undead\n";
     }
-    if (toBool(property & CardProperty::MAGIC_RESISTANT)) {
-        description << "Magic Resistant\n";
+    if (toBool(property & CardProperty::RED_MAGIC_RESISTANT)) {
+        description << "Red Resistant\n";
+    }
+    if (toBool(property & CardProperty::BLUE_MAGIC_RESISTANT)) {
+        description << "Blue Resistant\n";
     }
     if (toBool(property & CardProperty::FEARLESS)) {
         description << "Fearless\n";
@@ -76,7 +80,7 @@ static string describe(CardProperty property) {
         description << "Combinable\n";
     }
     if (toBool(property & CardProperty::IMMINENT_DEATH)) {
-        description << "About to die\n";
+        description << "Fated";
     }
     if (toBool(property & CardProperty::LINKED)) {
         description << "Damage Linked\n";

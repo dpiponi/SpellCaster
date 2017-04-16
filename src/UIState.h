@@ -23,19 +23,21 @@ public:
     WaitingForPlayerMoveToFinish() { }
     void mouse(Application *app, int button, int action, int mode) override { }
     void idle(Application *app) override;
-    void motion(Application *app) override { }
+    void motion(Application *app) override;
 };
 
 class WaitingForComputerEvaluationToFinish : public UIState {
 public:
     void mouse(Application *app, int button, int action, int mode) override { }
     void idle(Application *) override;
+    void motion(Application *app) override;
 };
 
 class WaitingForComputerMoveToFinish : public UIState {
 public:
     void mouse(Application *app, int button, int action, int mode) override { }
     void idle(Application *app) override;
+    void motion(Application *app) override;
 };
 
 class WaitingForFirstCard : public UIState {

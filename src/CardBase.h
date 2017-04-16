@@ -157,10 +157,17 @@ public:
     void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
-class AntiMagicBase : public SpellDefinition {
+class AntiAstralBase : public SpellDefinition {
 public:
     template<class ... types>
-        AntiMagicBase(types ... args) : SpellDefinition(args...) { }
+        AntiAstralBase(types ... args) : SpellDefinition(args...) { }
+    void execute(SpellCaster *game, int c, bool verbose) const;
+};
+
+class AntiWorldlyBase : public SpellDefinition {
+public:
+    template<class ... types>
+        AntiWorldlyBase(types ... args) : SpellDefinition(args...) { }
     void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
@@ -197,6 +204,20 @@ public:
     template<class ... types>
     ShardBase(types ... args) : SpellDefinition(args...) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
+};
+
+class PerpetualMachineBase : public ArtifactDefinition {
+public:
+    template<class ... types>
+    PerpetualMachineBase(types ... args) : ArtifactDefinition(args...) { }
+    virtual void execute(SpellCaster *game, int card, bool verbose) const;
+};
+
+class ImminentDeathBase : public ArtifactDefinition {
+public:
+    template<class ... types>
+    ImminentDeathBase(types ... args) : ArtifactDefinition(args...) { }
+    virtual void execute(SpellCaster *game, int card, bool verbose) const;
 };
 
 #endif

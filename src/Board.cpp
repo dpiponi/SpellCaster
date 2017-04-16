@@ -1,3 +1,9 @@
+#include <map>
+#include <string>
+
+using std::map;
+using std::string;
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -6,7 +12,16 @@
 #include "SpellCaster.h"
 #include "Board.h"
 
+GLuint blob_tex;
+
 GLuint create_texture(const char *filename) {
+    static map<string, GLuint> cache;
+
+    auto p = cache.find(filename);
+    if (p != cache.end()) {
+        return p->second;
+    }
+
     cout << "loading: " << filename << endl;
     GLuint textureID;
     glGenTextures(1, &textureID);
@@ -19,47 +34,31 @@ GLuint create_texture(const char *filename) {
          exit(1);
     }
 
-#if 0
-    std::vector<unsigned char> image;
-    unsigned int width, height;
-    unsigned int error = lodepng::decode(image, width, height, filename);
-    if (error) {
-        return 0; // I think 0 is reserved for other use so OK
-    }
-#endif
-    //cout << error << endl;
-
     // Give the image to OpenGL
     SDL_LockSurface(texture_data);
 
     GLint nOfColors = texture_data->format->BytesPerPixel;
     GLenum texture_format;
-    if (nOfColors == 4)     // contains an alpha channel
-    {
-            if (texture_data->format->Rmask == 0x000000ff)
-                    texture_format = GL_RGBA;
-            //else
-                    //texture_format = GL_BGRA;
-    } else if (nOfColors == 3)     // no alpha channel
-    {
-            if (texture_data->format->Rmask == 0x000000ff)
-                    texture_format = GL_RGB;
-            //else
-                    //texture_format = GL_BGR;
+    if (nOfColors == 4) {
+        if (texture_data->format->Rmask == 0x000000ff)
+            texture_format = GL_RGBA;
+    } else if (nOfColors == 3) {
+        if (texture_data->format->Rmask == 0x000000ff)
+            texture_format = GL_RGB;
     } else {
-            printf("warning: the image is not truecolor..  this will probably break\n");
-            // this error should not go unhandled
+        cout << "warning: the image is not truecolor..  this will probably break" << endl;
+        exit(1);
     }
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_data->w, texture_data->h, 0, texture_format, GL_UNSIGNED_BYTE, texture_data->pixels);
     SDL_UnlockSurface(texture_data);
-    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
     glGenerateMipmap(GL_TEXTURE_2D);
     SDL_FreeSurface(texture_data);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+    cache[filename] = textureID;
 
     return textureID;
 }

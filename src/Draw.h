@@ -13,13 +13,15 @@ using std::endl;
 #include "geometry.h"
 #include "linmath.h"
 
+#if 0
 struct RGB {
     float r;
     float g;
     float b;
 };
+#endif
 
-extern GLuint vertex_buffer, line_vertex_buffer, text_vertex_buffer;;
+//extern GLuint text_vertex_buffer;
 
 inline void drawLine(float ratio, float line_width, RGB rgb,
                      float x0, float y0, float x1, float y1) {
@@ -28,99 +30,82 @@ inline void drawLine(float ratio, float line_width, RGB rgb,
         { x1, y1, rgb.r, rgb.g, rgb.b, 0.5f, 0.5f }
     };
 
-    connect_line_shader();
     mat4x4 m, p, mvp;
-
     mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
-
     mat4x4_identity(m);
-
     mat4x4_mul(mvp, p, m);
-//        glBindVertexArray(line_vertex_buffer);
-    glUseProgram(line_program);
-    glUniformMatrix4fv(line_mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
-    glUniform1f(line_brightness_location, 1.0);
-    glUniform1f(line_ratio_location, ratio);
-    glBindBuffer(GL_ARRAY_BUFFER, line_vertex_buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    //cout << "wi=" << line_width << endl;
-    //glLineWidth(line_width);
+
+    line_program.bindVertexArray();
+    line_program.use();
+    line_program.set(mvp, 1.0, ratio);
+    line_program.bufferData(sizeof(vertices), (void *)vertices);
     glDrawArrays(GL_LINES, 0, 2);
+    line_program.unuse();
+    line_program.unbindVertexArray();
 }
 
+inline void make_matrix(mat4x4 mvp, float ratio, float x, float y, float angle, float xsize, float ysize) {
+    mat4x4 m, p;
+    //mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
+    mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 0.0f, 1.0f);
 #if 0
-extern FT_Face face;
-inline void render_text(const char *text, float x, float y, float sx, float sy) {
-    GLuint tex;
-    glActiveTexture(GL_TEXTURE0);
-    glGenTextures(1, &tex);
-    glBindTexture(GL_TEXTURE_2D, tex);
-    glUniform1i(uniform_tex, 0);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-    GLuint vbo; //XXX Temp1
-    glGenBuffers(1, &vbo);
-    cout << vbo << endl;
-    //glEnableVertexAttribArray(attribute_coord);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-    GLuint vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-    glEnableVertexAttribArray(attribute_coord);
-    //glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-    glVertexAttribPointer(attribute_coord, 4, GL_FLOAT, GL_FALSE, 0, 0);
-
-  FT_GlyphSlot g = face->glyph;
-  const char *p;
-
-  for(p = text; *p; p++) {
-    if(FT_Load_Char(face, *p, FT_LOAD_RENDER))
-        continue;
- 
-	std::cout << g->bitmap.width << ' ' << g->bitmap.rows << std::endl;
-
-    glTexImage2D(
-      GL_TEXTURE_2D,
-      0,
-      GL_RED,
-      g->bitmap.width,
-      g->bitmap.rows,
-      0,
-      GL_RED,
-      GL_UNSIGNED_BYTE,
-      g->bitmap.buffer
-    );
- 
-    float x2 = x + g->bitmap_left * sx;
-    float y2 = -y - g->bitmap_top * sy;
-    float w = g->bitmap.width * sx;
-    float h = g->bitmap.rows * sy;
- 
-    GLfloat box[4][4] = {
-        {x2,     -y2    , 0, 0},
-        {x2 + w, -y2    , 1, 0},
-        {x2,     -y2 - h, 0, 1},
-        {x2 + w, -y2 - h, 1, 1},
-    };
- 
-    glBufferData(GL_ARRAY_BUFFER, sizeof box, box, GL_DYNAMIC_DRAW);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
- 
-    x += (g->advance.x/64) * sx;
-    y += (g->advance.y/64) * sy;
-  }
-}
+    cout << p[0][0] << ' ' << p[0][1] << ' ' << p[0][2] << ' ' << p[0][3] << endl;
+    cout << p[1][0] << ' ' << p[1][1] << ' ' << p[1][2] << ' ' << p[1][3] << endl;
+    cout << p[2][0] << ' ' << p[2][1] << ' ' << p[2][2] << ' ' << p[2][3] << endl;
+    cout << p[3][0] << ' ' << p[3][1] << ' ' << p[3][2] << ' ' << p[3][3] << endl;
+    cout << endl;
 #endif
+    mat4x4_identity(m);
+    mat4x4_translate_in_place(m, x, y, 0.0);
+    mat4x4_rotate_Z(m, m, angle);
+    mat4x4_scale_aniso(m, m, xsize, -ysize, 1.0f);
+    mat4x4_mul(mvp, p, m);
+}
+
+inline void drawRectangle(float ratio, float x, float y, float z, float angle, float xsize, float ysize, float brightness, float is_alpha, GLuint tex) {
+    mat4x4 mvp;
+    make_matrix(mvp, ratio, x, y, angle, xsize, ysize);
+
+    program.use();
+    program.bindVertexArray();
+    program.set(mvp, brightness, is_alpha, z);
+    program.bufferData(sizeof(vertices), (void *)vertices);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    program.unbindVertexArray();
+    program.unuse();
+    glBindTexture(GL_TEXTURE_2D, 0);
+//    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+inline void drawShadow(float ratio, float x, float y, float z, float angle, float xsize, float ysize, float alpha) {
+    mat4x4 mvp;
+    make_matrix(mvp, ratio, x, y, angle, xsize, ysize);
+
+    shadow_program.use();
+    shadow_program.bindVertexArray();
+    shadow_program.set(mvp, alpha, z);
+    shadow_program.bufferData(sizeof(vertices), (void *)vertices);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    shadow_program.unbindVertexArray();
+    program.unuse();
+//    glBindBuffer(GL_ARRAY_BUFFER, 0); // XXX ? NEED ?
+}
+
+inline void drawTextRectangle(float ratio, float x, float y, float angle, float xsize, float ysize, float brightness, GLuint tex) {
+    mat4x4 mvp;
+    make_matrix(mvp, ratio, x, y, angle, xsize, ysize);
+
+    text_program.use();
+    text_program.bindVertexArray();
+    text_program.set(mvp, brightness, RGB {1.0, 1.0, 0.5});
+    text_program.bufferData(sizeof(vertices), (void *)vertices);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    text_program.unbindVertexArray();
+    text_program.unuse();
+    glBindTexture(GL_TEXTURE_2D, 0);
+//    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
 
 #endif
