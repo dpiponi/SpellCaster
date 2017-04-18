@@ -1,4 +1,3 @@
-
 #include <vector>
 #include <map>
 #include <iostream>
@@ -18,19 +17,20 @@ using std::make_shared;
 
 #include "SpellCaster.h"
 
-Config default_config {/* draw_on_turn_end */ false,
-                       /* max_cards_in_hand */ 8,
+Config default_config {/* draw_on_turn_end */           false,
+                       /* max_cards_in_hand */          8,
                        false,
                        /* draw_cards_after_execution */ true,
-                       /* auto_discard */ false,
-                       /* must_self_discard */ false,
-                       /* can_self_discard */ true,
-                       /* auto_mana */ false,
+                       /* auto_discard */               false,
+                       /* must_self_discard */          false,
+                       /* can_self_discard */           true,
+                       /* auto_mana */                  false,
                        /* single pass */ true,
                        /* random_draw */ false,
-                       /* draw_to_fill_hand */ true,
+                       /* draw_to_fill_hand */          true,
                        /* discard_for_mana */ true,
-                       /* can_discard_any_for_mana */ false};
+                       /* can_discard_any_for_mana */   false,
+                       /* initial_hp */                 10};
 
 map<string, const Definition *>
 make_database(const vector<const Definition *> &definitions) {
@@ -339,13 +339,11 @@ vector<const Definition *> all_cards = {
 
 void SpellCaster::return_card_from(Location loc, int c, bool verbose) {
     assert(location[c] == loc);
+#ifdef BOARD
     if (verbose) {
-#if 0
-        board << description(c, verbose) << " returning to hand";
-        end_message();
-#endif
         board.noHighlightCard(c);
     }
+#endif
     location[c] = owner[c] ? Location::HAND1 : Location::HAND0;
     if (config.restore_hp_on_return || hasProperty(c, CardProperty::REGENERATING)) {
         cardhp[c] = basehp[c];
@@ -355,10 +353,12 @@ void SpellCaster::return_card_from(Location loc, int c, bool verbose) {
     in_play.erase(std::remove(in_play.begin(), in_play.end(), c), in_play.end());
     hand[owner[c]].push_back(c);
     // YYY
+#ifdef BOARD
     if (verbose) {
         board.setUpBoard(this);
         end_message();
     }
+#endif
 }
 
 void SpellCaster::card_end_from(Location loc, int c, bool verbose) {
@@ -386,10 +386,12 @@ void SpellCaster::card_end_from(Location loc, int c, bool verbose) {
 bool SpellCaster::targetNotLegal(int c, bool verbose) {
     const char *reason = cantCardTarget(c, target[c]);
     if (reason) {
+#ifdef BOARD
         if (verbose) {
             board << description(c) << ' ' << reason;
             end_message();
         }
+#endif
         card_end_from(Location::EXECUTING, c, verbose);
         return true;
     } else {
@@ -399,6 +401,7 @@ bool SpellCaster::targetNotLegal(int c, bool verbose) {
 
 bool SpellCaster::cardImmobile(int c, bool verbose) {
     if (hasProperty(c, CardProperty::IMMOBILE)) {
+#ifdef BOARD
         if (verbose) {
             board << description(c);
             switch (card_class[c]) {
@@ -417,6 +420,7 @@ bool SpellCaster::cardImmobile(int c, bool verbose) {
             }
             end_message();
         }
+#endif
 
         card_end_from(Location::EXECUTING, c, verbose);
 
@@ -436,10 +440,12 @@ bool SpellCaster::cardCombining(int c, bool verbose) {
         basehp[t] += basehp[c];
         cardhp[t] += cardhp[c];
         attack[t] += attack[c];
+#ifdef BOARD
         if (verbose) {
             board << description(c) << " combines with " << description(t);
             end_message();
         }
+#endif
         kill_card(c);
         return true;
     } else {
@@ -502,10 +508,12 @@ SpellCaster::doExecution(bool verbose) {
             }
         }
     }
+#ifdef BOARD
     if (verbose) {
         board.setUpBoard(this);
         end_message();
     }
+#endif
     checkConsistency();
     return;
 }
@@ -520,10 +528,12 @@ SpellCaster::doMove(Move m, bool verbose) {
     assert(m.target != DISCARD || location[m.card] == Location::HAND0 || location[m.card] == Location::HAND1);
 
     if (m.card == PASS) {
+#ifdef BOARD
         if (verbose) {
             board << "PASS";
             end_message();
         }
+#endif
 
         if (config.single_pass || passed) {
             doExecution(verbose);
@@ -550,10 +560,12 @@ SpellCaster::doMove(Move m, bool verbose) {
                     }
                 }
             }
+#ifdef BOARD
             if (verbose) {
                 board.setUpBoard(this);
                 end_message();
             }
+#endif
             checkConsistency();
             return;
         }
@@ -576,23 +588,29 @@ SpellCaster::doMove(Move m, bool verbose) {
         assert(location[c] == Location::HAND0 || location[c] == Location::HAND1);
         location[c] = Location::GRAVEYARD;
         checkConsistency();
+#ifdef BOARD
         if (verbose) cout << "!!!!!!!!!!!!!GONETOGRAVEYARD!!!!!!!!!!!!!!!!!!!" << endl;
+#endif
         graveyard.push_back(c);
         exposedTo[0][c] = true;
         exposedTo[1][c] = true;
+#ifdef BOARD
         if (verbose) {
             board.setUpBoard(this);
             end_message();
         }
+#endif
 #if 0
         if (hasProperty(c, CardProperty::INSTANT)) {
             executeInstant(c, verbose);
         }
 #endif
+#ifdef BOARD
         if (verbose) {
             board << description(c, verbose) << " discarded";
             end_message();
         }
+#endif
         // swap YYY
         nextPlayer = 1-nextPlayer;
         passed = false;
@@ -607,18 +625,22 @@ SpellCaster::doMove(Move m, bool verbose) {
         location[c] = Location::EXECUTING;
         int t = m.target;//m.target >= 1000 ? m.target : in_play[m.target];
         target[c] = t;
+#ifdef BOARD
         if (verbose) {
             cout << "Instant Launch from " << c << " to " << target[c] << endl;
             board.setUpBoard(this);
             board.launch(c);
         }
+#endif
         executeInstant(c, verbose);
         location[c] = Location::GRAVEYARD;
         graveyard.push_back(c);
+#ifdef BOARD
         if (verbose) {
             board.setUpBoard(this);
             end_message();
         }
+#endif
         nextPlayer = 1-nextPlayer;
         passed = false;
         checkConsistency();
@@ -638,10 +660,12 @@ SpellCaster::doMove(Move m, bool verbose) {
     target[c] = t;
     location[c] = Location::IN_PLAY;
 
+#ifdef BOARD
     if (verbose) {
         board.setUpBoard(this);
         end_message();
     }
+#endif
 
     nextPlayer = otherPlayer;
     if (config.draw_on_turn_end) {
@@ -660,10 +684,12 @@ SpellCaster::doMove(Move m, bool verbose) {
         }
     }
     // YYY
+#ifdef BOARD
     if (verbose) {
         board.setUpBoard(this);
         end_message();
     }
+#endif
     checkConsistency();
 }
 
@@ -708,18 +734,22 @@ bool SpellCaster::isLegalId(Move m, bool verbose) const {
             return true;
         }
         if (m.card < 0) {
+#ifdef BOARD
             if (verbose) {
                 board << "Not a valid card" ;
                 cout << "Not a valid card" << endl;
             }
+#endif
             return false;
         }
         
         if (find(hand[nextPlayer].begin(), hand[nextPlayer].end(), m.card) == hand[nextPlayer].end()) {
+#ifdef BOARD
             if (verbose) {
                 board << "That card isn't in hand" ;
                 cout << "Card not in hand" << endl;
             }
+#endif
             return false;
         }
         // We've established it's a valid card.
@@ -730,41 +760,51 @@ bool SpellCaster::isLegalId(Move m, bool verbose) const {
             }
         }
         if (m.target < 0) {
+#ifdef BOARD
             if (verbose) {
                 board << "Not a valid target" ;
                 cout << "Invalid target" << endl;
             }
+#endif
             return false;
         }
         if (!(find(in_play.begin(), in_play.end(), m.target) != in_play.end() || m.target == PLAYER0 || m.target == PLAYER1 || m.target == DISCARD)) {
+#ifdef BOARD
             if (verbose) {
                 board << "Target is neither a player nor in-play";
                 cout << "Target not player or in play" << endl;
             }
+#endif
             return false;
         }
         if (m.target != DISCARD && cost[m.card].world > mana[nextPlayer].world) {
+#ifdef BOARD
             if (verbose) {
                 board << "Not enough world mana" ;
                 cout << "Not enough world mana" << endl;
             }
+#endif
             return false;
         }
         if (m.target != DISCARD && cost[m.card].astral > mana[nextPlayer].astral) {
+#ifdef BOARD
             if (verbose) {
                 board << "Not enough astral mana" ;
                 cout << "Not enough astral mana" << endl;
             }
+#endif
             return false;
         }
 
         if (m.target != DISCARD) {
             const char *reason = cantCardTarget(m.card, m.target);
             if (reason) {
+#ifdef BOARD
                 if (verbose) {
                     board << reason ;
                     cout << reason << endl;
                 }
+#endif
                 return false;
             } else {
                 return true;
@@ -775,9 +815,11 @@ bool SpellCaster::isLegalId(Move m, bool verbose) const {
         if (m.card >= 0 && find(hand[nextPlayer].begin(), hand[nextPlayer].end(), m.card) != hand[nextPlayer].end() && m.target == DISCARD) {
             return true;
         }
+#ifdef BOARD
         if (verbose) {
             cout << "Illegal discard" << endl;
         }
+#endif
         return false;
     }
 }
@@ -893,6 +935,7 @@ void SpellCaster::execute(bool verbose) {
     while (in_play.size() > 0) {
         int c = in_play.back();
         assert(location[c] == Location::IN_PLAY);
+#ifdef BOARD
         if (verbose) {
             cout << "Launch from " << c << " to " << target[c] << endl;
             board.launch(c);
@@ -900,6 +943,7 @@ void SpellCaster::execute(bool verbose) {
             board << description(c);
             end_message();
         }
+#endif
         in_play.pop_back();
         location[c] = Location::EXECUTING;
         checkConsistency();
@@ -907,10 +951,12 @@ void SpellCaster::execute(bool verbose) {
         checkConsistency();
         assert(location[c] != Location::EXECUTING);
         // YYY
+#ifdef BOARD
         if (verbose) {
             board.setUpBoard(this);
             end_message();
         }
+#endif
     }
     checkConsistency();
     if (config.draw_cards_after_execution) {
@@ -947,6 +993,7 @@ int SpellCaster::damage_card(int card, int damage, bool verbose) {
     int new_hp = max(0, old_hp-damage);
     cardhp[card] = new_hp;
     int damage_done = old_hp-new_hp;
+#ifdef BOARD
     if (verbose) {
         board.highlightCard(card);
         board << description(card, false) << " takes "
@@ -956,6 +1003,7 @@ int SpellCaster::damage_card(int card, int damage, bool verbose) {
         end_message();
         board.noHighlightCard(card);
     }
+#endif
     if (cardhp[card] <= 0) {
         kill_card(card);
     }
@@ -964,11 +1012,13 @@ int SpellCaster::damage_card(int card, int damage, bool verbose) {
         int new_hp = max(0, old_hp-damage_done);
         hp[owner[card]] = new_hp;
         damage_done = old_hp-new_hp;
+#ifdef BOARD
         if (verbose) {
             board << "Link means player " << owner[card] << " takes "
                  << damage_done << " damage." ;
             end_message();
         }
+#endif
 
     }
     return damage_done;
@@ -979,11 +1029,13 @@ int SpellCaster::damage_player(int player, int damage, bool verbose) {
     int new_hp = max(0, old_hp-damage);
     hp[player] = new_hp;
     int damage_done = old_hp-new_hp;
+#ifdef BOARD
     if (verbose) {
         board << "PLAYER " << player << " takes " << damage_done << " damage" ;
         board.shakePlayer(player);
         end_message();
     }
+#endif
     return damage_done;
 }
 
@@ -994,34 +1046,42 @@ void SpellCaster::kill_card(int c, bool verbose) {
     graveyard.push_back(c);
     exposedTo[0][c] = true;
     exposedTo[1][c] = true;
+#ifdef BOARD
     if (verbose) {
         board << description(c, false)
              << " is killed." ;
         end_message();
     }
+#endif
     // YYY
+#ifdef BOARD
     if (verbose) {
         board.setUpBoard(this);
         end_message();
     }
+#endif
 }
 
 void SpellCaster::destroy_card_from(Location loc, int c, bool verbose) {
 //    cout << "dcf " << int(loc) << ' ' << int(location[c]) << endl;
     assert(location[c] == loc);
+#ifdef BOARD
     if (verbose) {
         board << description(c, verbose) << " to GRAVEYARD" ;
     }
+#endif
     in_play.erase(std::remove(in_play.begin(), in_play.end(), c), in_play.end());
     location[c] = Location::GRAVEYARD;
     graveyard.push_back(c);
     exposedTo[0][c] = true;
     exposedTo[1][c] = true;
     // YYY
+#ifdef BOARD
     if (verbose) {
         board.setUpBoard(this);
         end_message();
     }
+#endif
 }
 
 bool SpellCaster::targetNotInPlay(int c, bool verbose) {
@@ -1031,11 +1091,13 @@ bool SpellCaster::targetNotInPlay(int c, bool verbose) {
     if (location[target[c]] == Location::IN_PLAY) {
         return false;
     }
+#ifdef BOARD
     if (verbose) {
         board << description(c);
         board << " target no longer in play" ;
         end_message();
     }
+#endif
     card_end_from(Location::EXECUTING, c, verbose);
     return true;
 }

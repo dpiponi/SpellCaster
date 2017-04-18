@@ -124,7 +124,7 @@ public:
 
 class Plague : public SpellDefinition {
 public:
-    Plague() : SpellDefinition("Plague", "☣️ ", 0, 2, 0, 1, 1, 1,
+    Plague() : SpellDefinition("Plague", "☣️ ", -1, 2, 0, 1, 1, 1,
                     CardClass::SPELL,
                     CardClass::MONSTER,
                     CardProperty::NONE,

@@ -30,6 +30,11 @@ double score(const UCTParameters &params,
         break;
     }
 
+#if 0
+    // XXX
+    beta = 0.0;
+#endif
+
     double s = qchild/nchild;
     double sid = nidchild ? qidchild/nidchild : 0.0;
     double mix = (1-beta)*s+beta*sid;

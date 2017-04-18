@@ -73,6 +73,7 @@ public:
     bool draw_to_fill_hand;
     bool discard_for_mana;
     bool can_discard_any_for_mana;
+    int initial_hp;
 };
 
 extern Config default_config;
@@ -85,7 +86,9 @@ const int PASS = -1;
 #include "Mana.h"
 #include "Board.h"
 
+#ifdef BOARD
 extern Board<SpellCaster> board;
+#endif
 
 class SpellCaster {
 public:
@@ -141,6 +144,16 @@ public:
         }
         for (auto p : hand[1]) {
             assert(location[p] == Location::HAND1);
+            assert(!card_flags[p]);
+            card_flags[p] = true;
+        }
+        for (auto p : deck[0]) {
+            assert(location[p] == Location::DECK);
+            assert(!card_flags[p]);
+            card_flags[p] = true;
+        }
+        for (auto p : deck[1]) {
+            assert(location[p] == Location::DECK);
             assert(!card_flags[p]);
             card_flags[p] = true;
         }
@@ -228,8 +241,8 @@ public:
             location[i] = Location::DECK;
         }
 
-        hp[0] = 10;
-        hp[1] = 10;
+        hp[0] = config.initial_hp;
+        hp[1] = config.initial_hp;
         mana[0] = Mana {0, 0};
         mana[1] = Mana {0, 0};
         passed = false;
@@ -245,8 +258,10 @@ public:
     }
 
     void end_message() const {
+#ifdef BOARD
         board.setNewMessage();
         usleep(PAUSE);
+#endif
     }
 
     bool hasProperty(int card, CardProperty property) {
@@ -286,10 +301,12 @@ public:
     void trimExcess(int player, bool verbose = false) {
         while (hand[player].size() > config.max_cards_in_hand) {
             int c = hand[player].front();
+#ifdef BOARD
             if (verbose) {
                 board << "Player " << player << " loses ";
                 board << description(c, false) ;
             }
+#endif
             //hand[player].pop_front();
             hand[player].erase(hand[player].begin(), hand[player].begin()+1);
             location[c] = Location::GRAVEYARD;
@@ -319,6 +336,7 @@ public:
 
     pair<int, int> heuristicValue(Move m) const {
         if (m.card == -1) {
+            // PASS
             return make_pair(0, 10);
         }
 //        if (m.target == DISCARD && toBool(definitions[m.card]->card_class & CardClass::MANA)) {
@@ -337,6 +355,7 @@ public:
 
     vector<Move> legalMoves() const;
 
+    // Value for player who just moved.
     double evaluate() const {
         int currentPlayer = 1-nextPlayer;
         if (hp[currentPlayer] <= 0 && hp[nextPlayer] <= 0) {
@@ -409,9 +428,11 @@ public:
         if (cardImmobile(c, verbose)) return;
         if (cardCombining(c, verbose)) return;
         definitions[c]->execute(this, c, verbose);
+#ifdef BOARD
         if (verbose) {
             board.setUpBoard(this);
         }
+#endif
     }
 
     void executeInstant(int c, bool verbose) {
@@ -431,11 +452,11 @@ public:
 
     void describeId(Move m) const {
         if (m.card == PASS) {
-            board << "PASS";
+            cout << "PASS";
         } else if (m.target == DISCARD) {
-            board << "DISCARD " << description(m.card);
+            cout << "DISCARD " << description(m.card);
         } else {
-            board << description(m.card, false) << " targetting " << description(m.target, false);
+            cout << description(m.card, false) << " targetting " << description(m.target, false);
         }
     }
 

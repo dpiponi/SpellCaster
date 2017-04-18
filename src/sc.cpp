@@ -40,13 +40,13 @@ using std::ifstream;
 
 UCTParameters params {
     /* allowed_time */              5.0,
-    /* c */                         0.5,
+    /* c */                         2.0,
     /* McRaveSchedule */            MINIMUM_MSE,
     /* k */                         0,
-    /* bias */                      0.1,
+    /* bias */                      2.0,
     /* heuristic_amaf_multiplier */ 10,
     /* heuristic_mc_multiplier */   10,
-    /* use_heuristic */             false};
+    /* use_heuristic */             true};
 
 // Globals
 shared_ptr<SpellCaster> game;

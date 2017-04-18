@@ -130,8 +130,10 @@ public:
                               shared_ptr<Node> v,
                               vector<typename Game::Move> &ids) {
         position->checkConsistency();
+
         float value = position->evaluate();
         auto moves = position->legalMoves();
+
         if (value == NON_TERMINAL) {
             if (v->isThereUntried(moves)) {
                 auto untriedMove = v->findFirstUntried(moves);
@@ -202,13 +204,14 @@ public:
     }
     
 #if 1
-    void diagnostics(const UCTParameters &params) {
+    void diagnostics(shared_ptr<Game> game, const UCTParameters &params) {
         cout << "Diagnostics:" << endl;
         for (auto p : n_mc) {
             typename Game::Move id = p.first;
             float s = score(params, false, n_avail[id],
                        n_mc[id], q_mc[id], n_amaf[id], q_amaf[id]);
-            cout << id << " n = " << ntot << ": " << s
+            game->describeId(id);
+            cout << " n = " << ntot << ": " << s
                  << " mc: " << q_mc[id] << '/' << n_mc[id]
                  << " amaf: " << q_amaf[id] << '/' << n_amaf[id]
                  << " avail: " << n_avail[id] << endl;
@@ -244,6 +247,7 @@ void defaultPolicy(shared_ptr<Node<Game>> v, int treeMoves,
             cout << "No legal moves" << endl;
             exit(1);
         }
+#if HEURISTIC_ROLLOUT
         vector<double> probs;
         double t = 0.0;
         double lambda = 1.0;
@@ -261,10 +265,11 @@ void defaultPolicy(shared_ptr<Node<Game>> v, int treeMoves,
                 break;
             }
         }
+#else
+        int i = rand() % n_mc;
+#endif
         typename Game::Move chosen = moves[i];
-        shared_ptr<Game> oldGame = game;
-        auto id = chosen;
-        ids.push_back(id);
+        ids.push_back(chosen);
         game->doMove(chosen);
         gameIsOriginal = false;
         sign = -sign;
@@ -298,13 +303,15 @@ Best<Game> uctSearch(const UCTParameters &params,
            steady_clock::period::num/static_cast<float>(steady_clock::period::den)
            < params.allowed_time) {
         vector<typename Game::Move> ids;
+
         auto determinised = make_shared<Game>(*start);
         determinised->determinise();
         determinised->checkConsistency();
-        auto v = Node<Game>::treePolicy(params, determinised, root, ids);
-        auto treePolicyTree = v;
+
+        auto treePolicyTree = Node<Game>::treePolicy(params, determinised, root, ids);
         int treeMoves = ids.size();
         defaultPolicy(treePolicyTree, treeMoves, determinised, ids);
+
         // ids[0..treeMoves-1] came from tree policy
         // ids[treeMoves ..] came from default policy
         ++count;
@@ -313,8 +320,9 @@ Best<Game> uctSearch(const UCTParameters &params,
     cout << "!!!!!!!!!!!!!! Considered " << count << " plays" << endl;
     assert(did_some_work);
     if (verbose) {
-        root->diagnostics(params);
+        root->diagnostics(start, params);
     }
+
 #if 0 // Check consistency
     for (auto p = root->n_avail.begin(); p != root->n_avail.end(); ++p) {
         assert(p->first.getPlayer() == start->nextPlayer);
@@ -332,6 +340,7 @@ Best<Game> uctSearch(const UCTParameters &params,
         assert(p->first.getPlayer() == start->nextPlayer);
     }
 #endif
+
     auto moves = start->legalMoves();
     auto bestMove = root->bestChild(params, moves, false);
 
