@@ -302,6 +302,61 @@ public:
 
     void launch(int source_card) {
         std::lock_guard<std::mutex> guard(board_mutex);
+        particles.resize(0);
+        cout << "ACTUAL LAUNCH = " << source_card << ' ' << target[source_card] << endl;
+
+//        static GLuint blob_tex = create_texture("assets/blob.png");
+
+        float sx = cards[source_card].getX();
+        float sy = cards[source_card].getY();
+        float tx, ty;
+        if (target[source_card] == PLAYER0) {
+            cout << "Target = PLAYER0" << endl;
+            tx = player.getX();
+            ty = player.getY();
+        } else if (target[source_card] == PLAYER1) {
+            tx = computer.getX();
+            ty = computer.getY();
+        } else {
+            cout << "Target = PLAYER1" << endl;
+            int target_card = target[source_card];
+            tx = cards[target_card].getX();
+            ty = cards[target_card].getY();
+        }
+        Point target {tx, ty};
+        for (int i = 0; i < 30; ++i) {
+            Point x {sx, sy};
+            float velocity_variation = 5.0;
+            Point v {velocity_variation*(rand()/float(RAND_MAX)-0.5f), velocity_variation*(rand()/float(RAND_MAX)-0.5f) };
+
+            particles.push_back(Rectangle());
+            particles.back().setTexture(blob_tex);
+
+            float dt = 0.02;
+            float start_time = now()+0.05*i;
+            particles.back().setAngle(start_time, 2*M_PI*rand()/float(RAND_MAX));
+            particles.back().setZ(start_time, 0.95);
+            particles.back().setPosition(now(), x.x, x.y);
+            float animation_length = 2.0;
+            for (float t = 0; t < 1.5; t += dt) {
+                particles.back().setPosition(start_time+t, x.x, x.y);
+                float size = 0.05*triangle(2.0*(t-0.5*animation_length)/animation_length);
+                particles.back().setSize(start_time+t, size, size);
+                x += dt*v;
+                v = (1-15*dt)*v+200.0*dt*(target-x);
+                t += dt;
+            }
+            particles.back().setSize(start_time+1.5, 0.0, 0.0);
+
+            particles.back().setZ(0.0, 0.9);
+            particles.back().setBrightness(0.0, 1.0);
+            particles.back().visible = true;
+            particles.back().setNoHighlight();
+        }
+    }
+
+    void launch2(int source_card) {
+        std::lock_guard<std::mutex> guard(board_mutex);
         cout << "ACTUAL LAUNCH = " << source_card << ' ' << target[source_card] << endl;
 
 //        static GLuint blob_tex = create_texture("assets/blob.png");

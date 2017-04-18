@@ -134,19 +134,6 @@ void WaitingForSecondCard::motion(Application *app) {
     }
 }
 
-static float triangle(float x) {
-    if (x < -1) {
-        return 0.0;
-    }
-    if (x > 1) {
-        return 0.0;
-    }
-    if (x > 0) {
-        return 1-x;
-    }
-    return x-1;
-}
-
 
 static void WaitingForFirstCardReceived(int first_card) {
     // Launch some particles XXX!!!

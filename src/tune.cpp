@@ -92,13 +92,13 @@ int main(int argc, char *argv[]) {
 
     UCTParameters player_params {
         /* allowed_time */              5.0,
-        /* c */                         1/sqrt(2.0),
+        /* c */                         2.0,
         /* McRaveSchedule */            MINIMUM_MSE,
         /* k */                         0,
         /* bias */                      2.0,
         /* heuristic_amaf_multiplier */ 10,
-        /* heuristic_mc_multiplier */   1000,
-        /* use_heuristic */             false};
+        /* heuristic_mc_multiplier */   10,
+        /* use_heuristic */             true};
 
     UCTParameters computer_params {
         /* allowed_time */              0.5,
@@ -111,7 +111,7 @@ int main(int argc, char *argv[]) {
         /* use_heuristic */             false};
 
     Config config {/* draw_on_turn_end */ false,
-                   /* max_cards_in_hand */ 7,
+                   /* max_cards_in_hand */ 8,
                    false,
                    /* draw_cards_after_execution */ true,
                    /* auto_discard */ false,

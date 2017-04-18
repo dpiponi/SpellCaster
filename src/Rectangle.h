@@ -18,6 +18,42 @@ struct Point {
     float y;
 };
 
+inline Point operator*(float a, Point x) {
+    return Point {a*x.x, a*x.y};
+}
+
+inline Point operator-(Point x, Point y) {
+    return Point {x.x-y.x, x.y-y.y};
+}
+
+inline Point operator+(Point x, Point y) {
+    return Point {x.x+y.x, x.y+y.y};
+}
+
+inline Point normalise(Point x) {
+    float h = 1.0f/hypot(x.x, x.y);
+    return h*x;
+}
+
+inline Point &operator+=(Point &x, Point y) {
+    x.x += y.x;
+    x.y += y.y;
+    return x;
+}
+
+static float triangle(float x) {
+    if (x < -1) {
+        return 0.0;
+    }
+    if (x > 1) {
+        return 0.0;
+    }
+    if (x > 0) {
+        return 1-x;
+    }
+    return x-1;
+}
+
 class Rectangle {
     // Not happy about these mutables
     // but class does housekeeping in background.
