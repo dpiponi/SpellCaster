@@ -46,21 +46,50 @@ static void WaitingForFirstCardReceived(int first_card);
 void WaitingForSecondCard::mouse(Application *app, int button, int action, int mode) {
     Point point = app->getMousePixels();
     int second_card = board.mouse_press(point);
+    cout << "Hello0" << endl;
 
     if (second_card >= 0) {
-        if (game->location[second_card] == Location::HAND0) {
+        cout << "Hello1" << endl;
+        if (second_card == first_card) {
+            cout << "Hello1.5" << endl;
+            // Unselection
             board.unHighlightAll();
+
+            int pos = find(game->hand[0].begin(), game->hand[0].end(), first_card)-game->hand[0].begin();
+            assert(game->hand[0][pos] == first_card);
+            board.unFocus(0, pos, 0.1);
+
+            ui_state = make_shared<WaitingForFirstCard>();
+            return;
+        }
+        // XXX Bug! second_card might point to player, not actual card
+        if (game->location[second_card] == Location::HAND0) {
+            cout << "Hello2" << endl;
+            board.unHighlightAll();
+
+            int pos = find(game->hand[0].begin(), game->hand[0].end(), first_card)-game->hand[0].begin();
+            assert(game->hand[0][pos] == first_card);
+            board.unFocus(0, pos, 0.1);
+
             WaitingForFirstCardReceived(second_card);
             return;
         }
         SpellCaster::Move id = SpellCaster::Move(0, first_card, second_card == 3000 ? DISCARD : second_card);
         if (!game->isLegalId(id, true)) {
+            cout << "Hello3" << endl;
             cout << "ILLEGAL!!!!!!!!!!!!!!" << endl;
-            cout << "state = State::WAITING_FOR_FIRST_CARD" << endl;
+            //cout << "state = State::WAITING_FOR_FIRST_CARD" << endl;
             highlightLegalFirstCard(game);
-            ui_state = make_shared<WaitingForFirstCard>();
+            cout << "Carry on waiting for second card???" << endl;
+//            ui_state = make_shared<WaitingForFirstCard>();
             return;
         }
+
+        cout << "Hello4" << endl;
+
+        int pos = find(game->hand[0].begin(), game->hand[0].end(), first_card)-game->hand[0].begin();
+        assert(game->hand[0][pos] == first_card);
+        board.unFocus(0, pos, 0.1);
 
         cout << first_card << " THEN " << second_card << endl;
 
@@ -74,6 +103,7 @@ void WaitingForSecondCard::mouse(Application *app, int button, int action, int m
         });
 
         if (analysis_game->evaluate() == NON_TERMINAL) {
+            cout << "Hello5" << endl;
             future_best = std::async(std::launch::async, [analysis_game]() {
                 //UCTParameters params{5.0, 1.0, MINIMUM_MSE, 0, 0.5, 10, 10, true};
                 cout << "!!!!! Starting AI" << endl;
@@ -85,6 +115,7 @@ void WaitingForSecondCard::mouse(Application *app, int button, int action, int m
 
         cout << "state = State::WAITING_FOR_PLAYER_MOVE_TO_FINISH" << endl;
         ui_state = make_shared<WaitingForPlayerMoveToFinish>();
+        cout << "Hello6" << endl;
     }
 }
 
@@ -136,22 +167,39 @@ void WaitingForSecondCard::motion(Application *app) {
 
 
 static void WaitingForFirstCardReceived(int first_card) {
+#if 0
     // Launch some particles XXX!!!
     int source_card = board.hand[0][0];
     int target_card = board.hand[1][0];
 //    board.launch(source_card, target_card);
+#endif
 
     cout << "first_card = " << first_card << endl;
 
-    if (first_card == 2000) { // PASS
+    if (first_card == 3000) {
+        // Can't discard when no card is selected.
+        // Ignore this mouse event.
+
+        board << "Can't discard when no card is selected";
+        board.setNewMessage();
+
+        return;
+    } if (first_card == 2000) { // PASS
         playerPasses();
     } else if (first_card >= 0) {
         if (first_card < 1000) {
+            if (game->location[first_card] != Location::HAND0) {
+                board << "You can only select cards in your hand";
+                board.setNewMessage();
+
+                return;
+            }
             board.highlightCard(first_card);
             cout << "Highlighting card " << first_card << endl;
             int pos = find(game->hand[0].begin(), game->hand[0].end(), first_card)-game->hand[0].begin();
             assert(game->hand[0][pos] == first_card);
-            board.setUpHand(0, pos, 0.5);
+            //board.setUpHand(0, pos, 0.5);
+            board.focus(0, pos, 0.5);
             cout << pos << endl;
         }
         cout << "state = State::WAITING_FOR_SECOND_CARD" << endl;
@@ -178,35 +226,6 @@ void WaitingForFirstCard::mouse(Application *app, int button, int action, int mo
     Point point = app->getMousePixels();
     int first_card = board.mouse_press(point);
     WaitingForFirstCardReceived(first_card);
-#if 0    
-    cout << "first_card = " << first_card << endl;
-
-    if (first_card == 2000) { // PASS
-        playerPasses();
-    } else if (first_card >= 0) {
-        if (first_card < 1000) {
-            board.highlightCard(first_card);
-            cout << "Highlighting card " << first_card << endl;
-            int pos = find(game->hand[0].begin(), game->hand[0].end(), first_card)-game->hand[0].begin();
-            assert(game->hand[0][pos] == first_card);
-            board.setUpHand(0, pos, 0.5);
-            cout << pos << endl;
-        }
-        cout << "state = State::WAITING_FOR_SECOND_CARD" << endl;
-        board << "Select target";
-        board.unHighlightAll();
-        highlightLegalSecondCard(first_card, game);
-        board.setNewMessage();
-        ui_state = make_shared<WaitingForSecondCard>(first_card);
-    } else {
-        cout << "state = State::WAITING_FOR_FIRST_CARD" << endl;
-        board << "Select card or pass";
-        board.setNewMessage();
-        board.unHighlightAll();
-        highlightLegalFirstCard(game);
-        ui_state = make_shared<WaitingForFirstCard>();
-    }
-#endif
 }
 
 void WaitingForComputerMoveToFinish::idle(Application *) {

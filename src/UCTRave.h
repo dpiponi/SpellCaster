@@ -35,8 +35,8 @@ public:
     int k;
     double bias;
 
-    int heuristic_amaf_multiplier;
-    int heuristic_mc_multiplier;
+    float heuristic_amaf_multiplier;
+    float heuristic_mc_multiplier;
     
     bool use_heuristic;
 };
