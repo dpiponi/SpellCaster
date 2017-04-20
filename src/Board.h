@@ -6,6 +6,9 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
+#include <Eigen/Core>
+
+using Eigen::Vector2f;
 
 #include "CardBase.h"
 #include "Rectangle.h"
@@ -363,9 +366,10 @@ public:
         cout << "ACTUAL LAUNCH = " << source_card << ' ' << target[source_card] << endl;
 
 //        static GLuint blob_tex = create_texture("assets/blob.png");
-
+        
         float sx = cards[source_card].getX();
         float sy = cards[source_card].getY();
+        Vector2f source(sx, sy);
         float tx, ty;
         if (target[source_card] == PLAYER0) {
             cout << "Target = PLAYER0" << endl;
@@ -380,21 +384,24 @@ public:
             tx = cards[target_card].getX();
             ty = cards[target_card].getY();
         }
+        Vector2f target(tx, ty);
 
-        float mx = 0.5*(sx+tx);
-        float my = 0.5*(sy+ty);
-        float dx = tx-sx;
-        float dy = ty-sy;
-        float l = hypot(dx, dy);
+        Vector2f middle = 0.5*(source+target);
+        //float mx = 0.5*(sx+tx);
+        //float my = 0.5*(sy+ty);
+        Vector2f delta = target-source;
+        //float dx = tx-sx;
+        //float dy = ty-sy;
+        float l = delta.norm();
         cout << "l = " << l << endl;
 
         particles.push_back(Rectangle());
         particles.back().setTexture(fire_tex);
 
         double start_time = now();
-        particles.back().setAngle(start_time, atan2(-dx, dy));
+        particles.back().setAngle(start_time, atan2(-delta[0], delta[1]));
         particles.back().setZ(start_time, 0.95);
-        particles.back().setPosition(start_time, mx, my);
+        particles.back().setPosition(start_time, middle);
         particles.back().setSize(start_time, 0.1, 0.5*l);
         particles.back().setBrightness(start_time, 1.0);
         particles.back().visible = true;

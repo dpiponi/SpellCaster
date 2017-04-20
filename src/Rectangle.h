@@ -3,6 +3,9 @@
 
 #include <chrono>
 #include <iostream>
+#include <Eigen/Core>
+
+using Eigen::Vector2f;
 
 #include <glad/glad.h>
 
@@ -101,6 +104,10 @@ public:
     void setPosition(double time, double x0, double y0) {
         x.addEvent(time, x0);
         y.addEvent(time, y0);
+    }
+    void setPosition(double time, Vector2f x0) {
+        x.addEvent(time, x0[0]);
+        y.addEvent(time, x0[1]);
     }
     void setZ(double time, double z0) {
         z.addEvent(time, z0);
