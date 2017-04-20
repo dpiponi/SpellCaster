@@ -125,9 +125,9 @@ private:
             if (c >= 32 && c <= 127) {
                 word.push_back(Rectangle());
                 word.back().setTexture(letters[c].texture);
-                word.back().setPosition(0.0,
+                word.back().setPosition(0.0, Vector2f(
                                     x+0.5*letter_size*letters[c].width+letter_size*letters[c].left,
-                                    y-0.5*letter_size*letters[c].height+letter_size*letters[c].top);
+                                    y-0.5*letter_size*letters[c].height+letter_size*letters[c].top));
                 word.back().setZ(0.0, 0.9);
                 word.back().setSize(0.0,
                                 0.5*letter_size*letters[c].width,
@@ -144,7 +144,7 @@ private:
     }
 
     void setGraveyardPosition(double time, int c) {
-        cards[c].setPosition(time, 1.3, 0.0);
+        cards[c].setPosition(time, Vector2f(1.3, 0.0));
         cards[c].setZ(time, 0.0);
         cards[c].setSize(time, 0.0625*1.5, 0.125*1.5);
         cards[c].setBrightness(0.0, 1.0);
@@ -155,8 +155,8 @@ private:
 
     void setInPlayPosition(double time, int c, int i) {
         //cards[c].setPosition(time, -1.1+0.27*i, owner[c] ==0 ? -0.025 : 0.025);
-        cards[c].setPosition(time, config.in_play_left+config.in_play_spacing*i,
-                                   owner[c] == 0 ? -config.offset_for_player : config.offset_for_player);
+        cards[c].setPosition(time, Vector2f(config.in_play_left+config.in_play_spacing*i,
+                                            owner[c] == 0 ? -config.offset_for_player : config.offset_for_player));
         cards[c].setZ(time, 0.0);
         cards[c].setSize(0.0, 0.125, 0.25);
         cards[c].setBrightness(0.0, 1.0);
@@ -365,8 +365,6 @@ public:
         particles.resize(0);
         cout << "ACTUAL LAUNCH = " << source_card << ' ' << target[source_card] << endl;
 
-//        static GLuint blob_tex = create_texture("assets/blob.png");
-        
         float sx = cards[source_card].getX();
         float sy = cards[source_card].getY();
         Vector2f source(sx, sy);
@@ -387,11 +385,7 @@ public:
         Vector2f target(tx, ty);
 
         Vector2f middle = 0.5*(source+target);
-        //float mx = 0.5*(sx+tx);
-        //float my = 0.5*(sy+ty);
         Vector2f delta = target-source;
-        //float dx = tx-sx;
-        //float dy = ty-sy;
         float l = delta.norm();
         cout << "l = " << l << endl;
 
@@ -586,7 +580,7 @@ public:
     void setAnnotation(int card) {
         std::lock_guard<std::mutex> guard(board_mutex);
         annotation.setTexture(tex[card]);;
-        annotation.setPosition(now(), config.annotation_x, config.annotation_y);
+        annotation.setPosition(now(), Vector2f(config.annotation_x, config.annotation_y));
         annotation.setZ(now(), 0.9);
         annotation.setSize(0.0, 0.5*config.annotation_height, config.annotation_height);
         annotation.setBrightness(0.0, 1.0);
@@ -650,7 +644,7 @@ public:
         std::lock_guard<std::mutex> guard(board_mutex);
         //background.setTexture(create_texture("assets/Forest.png"));
         background.setTexture(create_texture(config.background.c_str()));
-        background.setPosition(0.0, 0.0, 0.0);
+        background.setPosition(0.0, Vector2f(0.0, 0.0));
         background.setZ(0.0, 0.0);
         background.setSize(0.0, 1600.0/1172.0, 1.0);
         background.setBrightness(0.0, 1.0);
@@ -693,7 +687,7 @@ public:
 
     void setHandPosition(double time, int c, int h, float x, float size, float z, float offsetx, float offsety) {
         //cards[c].setPosition(time, -1.1+0.27*i, 1.2*h-0.6);
-        cards[c].setPosition(time, x+offsetx, (h ? 0.6 : -0.6)+offsety);
+        cards[c].setPosition(time, Vector2f(x+offsetx, (h ? 0.6 : -0.6)+offsety));
         cards[c].setZ(time, z);
         cards[c].setSize(time, size, 2*size);
         cards[c].setBrightness(0.0, 1.0);
