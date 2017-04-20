@@ -12,9 +12,9 @@ using std::string;
 #include "SpellCaster.h"
 #include "Board.h"
 
-GLuint blob_tex;
+GLuint blob_tex, fire_tex;
 
-GLuint create_texture(const char *filename) {
+GLuint create_texture(const char *filename, bool repeat) {
     static map<string, GLuint> cache;
 
     auto p = cache.find(filename);
@@ -55,6 +55,13 @@ GLuint create_texture(const char *filename) {
     glGenerateMipmap(GL_TEXTURE_2D);
     SDL_FreeSurface(texture_data);
 
+    if (repeat) {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    } else {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    }
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 

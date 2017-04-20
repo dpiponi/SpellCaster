@@ -32,6 +32,10 @@
          "geometry": "shaders/line_geometry.glsl",
          "vertex": "shaders/line_vertex.glsl",
          "fragment": "shaders/line_fragment.glsl"
+     },
+     "fire_shader": {
+         "vertex": "shaders/fire_vertex.glsl",
+         "fragment": "shaders/fire_fragment.glsl"
      }
 }
 

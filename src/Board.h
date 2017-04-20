@@ -25,8 +25,8 @@ using std::endl;
 using std::max;
 using std::ostringstream;
 
-GLuint create_texture(const char *filename);
-extern GLuint blob_tex;
+GLuint create_texture(const char *filename, bool repeat = false);
+extern GLuint blob_tex, fire_tex;
 
 struct BoardConfig {
     float in_play_left;
@@ -260,6 +260,7 @@ private:
         }
 
         blob_tex = create_texture("assets/blob.png");
+        fire_tex = create_texture("assets/fire.png", true);
 
         cout << "...done" << endl;
     }
@@ -300,7 +301,7 @@ public:
         hand.resize(2);
     }
 
-    void launch(int source_card) {
+    void launch3(int source_card) {
         std::lock_guard<std::mutex> guard(board_mutex);
         particles.resize(0);
         cout << "ACTUAL LAUNCH = " << source_card << ' ' << target[source_card] << endl;
@@ -355,8 +356,56 @@ public:
         }
     }
 
+    // Fire
+    void launch(int source_card) {
+        std::lock_guard<std::mutex> guard(board_mutex);
+        particles.resize(0);
+        cout << "ACTUAL LAUNCH = " << source_card << ' ' << target[source_card] << endl;
+
+//        static GLuint blob_tex = create_texture("assets/blob.png");
+
+        float sx = cards[source_card].getX();
+        float sy = cards[source_card].getY();
+        float tx, ty;
+        if (target[source_card] == PLAYER0) {
+            cout << "Target = PLAYER0" << endl;
+            tx = player.getX();
+            ty = player.getY();
+        } else if (target[source_card] == PLAYER1) {
+            tx = computer.getX();
+            ty = computer.getY();
+        } else {
+            cout << "Target = PLAYER1" << endl;
+            int target_card = target[source_card];
+            tx = cards[target_card].getX();
+            ty = cards[target_card].getY();
+        }
+
+        float mx = 0.5*(sx+tx);
+        float my = 0.5*(sy+ty);
+        float dx = tx-sx;
+        float dy = ty-sy;
+        float l = hypot(dx, dy);
+        cout << "l = " << l << endl;
+
+        particles.push_back(Rectangle());
+        particles.back().setTexture(fire_tex);
+
+        double start_time = now();
+        particles.back().setAngle(start_time, atan2(-dx, dy));
+        particles.back().setZ(start_time, 0.95);
+        particles.back().setPosition(start_time, mx, my);
+        particles.back().setSize(start_time, 0.1, 0.5*l);
+        particles.back().setBrightness(start_time, 1.0);
+        particles.back().visible = true;
+
+        particles.back().setSize(start_time+2.0, 0.1, 0.5*l);
+        particles.back().setSize(start_time+2.1, 0.0, 0.0);
+    }
+
     void launch2(int source_card) {
         std::lock_guard<std::mutex> guard(board_mutex);
+        particles.resize(0);
         cout << "ACTUAL LAUNCH = " << source_card << ' ' << target[source_card] << endl;
 
 //        static GLuint blob_tex = create_texture("assets/blob.png");
@@ -678,6 +727,41 @@ public:
         }
     }
 
+    void unFocus(int player, int focus, float delay) {
+        int n = hand[player].size();
+        float left_edge = config.hand_left-0.5*0.125;
+        float right_edge = config.hand_left+config.hand_spacing*(n-1)+0.5*0.125;
+
+        float left_centre = left_edge+0.5*0.125;
+        float right_centre = right_edge-0.5*0.125;
+
+        vector<float> centres;
+        pack(n, 2.0*0.125, left_edge, right_edge, centres);
+
+        auto p = hand[player][focus];
+        setHandPosition(now()+delay, p, player, centres[focus], 0.125, 0.1+0.001*focus, 0.0, 0.0);
+    }
+
+    void focus(int player, int focus, float delay) {
+        int n = hand[player].size();
+        float left_edge = config.hand_left-0.5*0.125;
+        float right_edge = config.hand_left+config.hand_spacing*(n-1)+0.5*0.125;
+
+        float left_centre = left_edge+0.5*0.125;
+        float right_centre = right_edge-0.5*0.125;
+
+        vector<float> centres;
+        pack(n, 2.0*0.125, left_edge, right_edge, centres);
+
+        auto p = hand[player][focus];
+        setHandPosition(now(), p, player, centres[focus], 0.125, 0.2, 0.0, 0.0);
+        setHandPosition(now()+0.25*delay, p, player, centres[focus], 1.1*0.125, 0.5, 0.0, 0.0);
+        setHandPosition(now()+0.5*delay, p, player, centres[focus], 1.2*0.125, 1.0, 0.0, 0.0);
+        for (int k = 0; k < 100; ++k) {
+            setHandPosition(now()+0.5*delay+0.3*k, p, player, centres[focus], 1.2*0.125, 1.0, 0.004*cos(k), -0.004*sin(k));
+        }
+    }
+
     void setUpHand(int player, int focus = -1, float delay = 0.5) {
         int n = hand[player].size();
         float left_edge = config.hand_left-0.5*0.125;
@@ -687,27 +771,22 @@ public:
         float right_centre = right_edge-0.5*0.125;
 
         vector<float> centres;
-        if (0 && focus >= 0) {
-            assert(0 <= focus && focus < hand[player].size());
-            packFocus(n, 2.0*0.125, left_edge, right_edge, focus, centres);
-        } else {
-            pack(n, 2.0*0.125, left_edge, right_edge, centres);
-        }
+        pack(n, 2.0*0.125, left_edge, right_edge, centres);
 
         int i = 0;
         for (auto p : hand[player]) {
             cards[p].visible = true;
             float a = n-1 > 0 ? float(i)/(n-1) : 0;
-            if (i != focus) {
+//            if (i != focus) {
                 setHandPosition(now()+delay, p, player, centres[i], 0.125, 0.1+0.001*i, 0.0, 0.0);
-            } else {
-                setHandPosition(now(), p, player, centres[i], 0.125, 0.2, 0.0, 0.0);
-                setHandPosition(now()+0.25*delay, p, player, centres[i], 1.1*0.125, 0.5, 0.0, 0.0);
-                setHandPosition(now()+0.5*delay, p, player, centres[i], 1.2*0.125, 1.0, 0.0, 0.0);
-                for (int k = 0; k < 100; ++k) {
-                    setHandPosition(now()+0.5*delay+0.3*k, p, player, centres[i], 1.2*0.125, 1.0, 0.004*cos(k), -0.004*sin(k));
-                }
-            }
+//            } else {
+//                setHandPosition(now(), p, player, centres[i], 0.125, 0.2, 0.0, 0.0);
+//                setHandPosition(now()+0.25*delay, p, player, centres[i], 1.1*0.125, 0.5, 0.0, 0.0);
+//                setHandPosition(now()+0.5*delay, p, player, centres[i], 1.2*0.125, 1.0, 0.0, 0.0);
+//                for (int k = 0; k < 100; ++k) {
+//                    setHandPosition(now()+0.5*delay+0.3*k, p, player, centres[i], 1.2*0.125, 1.0, 0.004*cos(k), -0.004*sin(k));
+//                }
+//            }
             ++i;
         }
 #if 0

@@ -27,6 +27,7 @@ Program program;
 ShadowProgram shadow_program;
 LineProgram line_program;
 TextProgram text_program;
+FireProgram fire_program;
 
 /*GLuint program;*/
 //GLuint line_program;

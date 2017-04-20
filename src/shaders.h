@@ -165,10 +165,36 @@ public:
     }
 };
 
+class FireProgram : public ProgramBase {
+    GLint mvp_location, z_location, vpos_location, uv_location, time_location;
+public:
+    FireProgram () { } // XX Should go eventually
+    FireProgram(Json shader) : ProgramBase(shader) {
+        mvp_location = uniform("MVP");
+        z_location = uniform("z");
+
+        glGenVertexArrays(1, &vao);
+        bindVertexArray();
+
+        vpos_location = attrib("vPos", 2, 7, 0);
+        uv_location = attrib("uvCoord", 2, 7, 5);
+
+        time_location = uniform("time");
+
+        unbindVertexArray();
+    }
+    void set(const mat4x4 &mvp, float time, float z) {
+        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
+        glUniform1f(time_location, time);
+        glUniform1f(z_location, z);
+    }
+};
+
 extern Program program;
 extern ShadowProgram shadow_program;
 extern LineProgram line_program;
 extern TextProgram text_program;
+extern FireProgram fire_program;
 
 extern int width, height;
 

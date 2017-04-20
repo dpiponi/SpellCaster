@@ -9,6 +9,7 @@ using std::endl;
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#include "Animated.h"
 #include "shaders.h"
 #include "geometry.h"
 #include "linmath.h"
@@ -62,10 +63,31 @@ inline void make_matrix(mat4x4 mvp, float ratio, float x, float y, float angle, 
     mat4x4_mul(mvp, p, m);
 }
 
+#if 1
+inline void drawFire(float ratio, float x, float y, float z, float angle, float xsize, float ysize, float brightness, float is_alpha, GLuint tex) {
+    mat4x4 mvp;
+    make_matrix(mvp, ratio, x, y, angle, xsize, ysize);
+
+    fire_program.use();
+    fire_program.bindVertexArray();
+    fire_program.set(mvp, now(), z);
+    fire_program.bufferData(sizeof(vertices), (void *)vertices);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    fire_program.unbindVertexArray();
+    fire_program.unuse();
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 inline void drawRectangle(float ratio, float x, float y, float z, float angle, float xsize, float ysize, float brightness, float is_alpha, GLuint tex) {
     mat4x4 mvp;
     make_matrix(mvp, ratio, x, y, angle, xsize, ysize);
 
+    extern GLuint fire_tex;
+
+    if (tex==fire_tex) {
+        drawFire(ratio, x, y, z, angle, xsize, ysize, brightness, is_alpha, tex);
+    }
     program.use();
     program.bindVertexArray();
     program.set(mvp, brightness, is_alpha, z);
@@ -77,6 +99,10 @@ inline void drawRectangle(float ratio, float x, float y, float z, float angle, f
     glBindTexture(GL_TEXTURE_2D, 0);
 //    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
+#endif
+
+#if 1
+#endif
 
 inline void drawShadow(float ratio, float x, float y, float z, float angle, float xsize, float ysize, float alpha) {
     mat4x4 mvp;
