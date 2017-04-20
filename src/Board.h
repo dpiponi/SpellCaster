@@ -710,6 +710,7 @@ public:
         }
     }
 
+#if 0
     void packFocus(int n, float width, float l, float r, int i, vector<float> &centres) {
         float l_centre = l+width/2.0;
         float r_centre = r-width/2.0;
@@ -726,8 +727,17 @@ public:
 //            assert(centres[i]+0.5*width <= r+eps);
         }
     }
+#endif
 
-    void unFocus(int player, int focus, float delay) {
+#if 0
+    void arena(int focus1, int focus2, float delay) {
+    }
+#endif
+
+    void unFocus(int player, int card, float delay) {
+        int focus = find(hand[0].begin(), hand[0].end(), card)-hand[0].begin();
+        assert(game->hand[0][focus] == card);
+
         int n = hand[player].size();
         float left_edge = config.hand_left-0.5*0.125;
         float right_edge = config.hand_left+config.hand_spacing*(n-1)+0.5*0.125;
@@ -742,7 +752,10 @@ public:
         setHandPosition(now()+delay, p, player, centres[focus], 0.125, 0.1+0.001*focus, 0.0, 0.0);
     }
 
-    void focus(int player, int focus, float delay) {
+    void focus(int player, int card, float delay) {
+        int focus = find(hand[0].begin(), hand[0].end(), card)-hand[0].begin();
+        assert(hand[0][focus] == card);
+
         int n = hand[player].size();
         float left_edge = config.hand_left-0.5*0.125;
         float right_edge = config.hand_left+config.hand_spacing*(n-1)+0.5*0.125;

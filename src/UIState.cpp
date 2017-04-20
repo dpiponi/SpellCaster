@@ -55,21 +55,21 @@ void WaitingForSecondCard::mouse(Application *app, int button, int action, int m
             // Unselection
             board.unHighlightAll();
 
-            int pos = find(game->hand[0].begin(), game->hand[0].end(), first_card)-game->hand[0].begin();
-            assert(game->hand[0][pos] == first_card);
-            board.unFocus(0, pos, 0.1);
+//            int pos = find(game->hand[0].begin(), game->hand[0].end(), first_card)-game->hand[0].begin();
+//            assert(game->hand[0][pos] == first_card);
+            board.unFocus(0, first_card, 0.1);
 
             ui_state = make_shared<WaitingForFirstCard>();
             return;
         }
         // XXX Bug! second_card might point to player, not actual card
-        if (game->location[second_card] == Location::HAND0) {
+        if (second_card < 1000 && game->location[second_card] == Location::HAND0) {
             cout << "Hello2" << endl;
             board.unHighlightAll();
 
-            int pos = find(game->hand[0].begin(), game->hand[0].end(), first_card)-game->hand[0].begin();
-            assert(game->hand[0][pos] == first_card);
-            board.unFocus(0, pos, 0.1);
+//            int pos = find(game->hand[0].begin(), game->hand[0].end(), first_card)-game->hand[0].begin();
+//            assert(game->hand[0][pos] == first_card);
+            board.unFocus(0, first_card, 0.1);
 
             WaitingForFirstCardReceived(second_card);
             return;
@@ -87,9 +87,9 @@ void WaitingForSecondCard::mouse(Application *app, int button, int action, int m
 
         cout << "Hello4" << endl;
 
-        int pos = find(game->hand[0].begin(), game->hand[0].end(), first_card)-game->hand[0].begin();
-        assert(game->hand[0][pos] == first_card);
-        board.unFocus(0, pos, 0.1);
+//        int pos = find(game->hand[0].begin(), game->hand[0].end(), first_card)-game->hand[0].begin();
+//        assert(game->hand[0][pos] == first_card);
+        board.unFocus(0, first_card, 0.1);
 
         cout << first_card << " THEN " << second_card << endl;
 
@@ -196,11 +196,15 @@ static void WaitingForFirstCardReceived(int first_card) {
             }
             board.highlightCard(first_card);
             cout << "Highlighting card " << first_card << endl;
+
+#if 0
             int pos = find(game->hand[0].begin(), game->hand[0].end(), first_card)-game->hand[0].begin();
             assert(game->hand[0][pos] == first_card);
             //board.setUpHand(0, pos, 0.5);
-            board.focus(0, pos, 0.5);
-            cout << pos << endl;
+#endif
+            
+            board.focus(0, first_card, 0.5);
+//            cout << pos << endl;
         }
         cout << "state = State::WAITING_FOR_SECOND_CARD" << endl;
         board << "Select target";
