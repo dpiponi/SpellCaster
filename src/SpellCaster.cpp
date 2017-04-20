@@ -629,7 +629,7 @@ SpellCaster::doMove(Move m, bool verbose) {
         if (verbose) {
             cout << "Instant Launch from " << c << " to " << target[c] << endl;
             board.setUpBoard(this);
-            board.launch(c);
+            board.launch(c, now()+1.0, 2.0);
         }
 #endif
         executeInstant(c, verbose);
@@ -935,13 +935,16 @@ void SpellCaster::execute(bool verbose) {
     while (in_play.size() > 0) {
         int c = in_play.back();
         assert(location[c] == Location::IN_PLAY);
+
 #ifdef BOARD
         if (verbose) {
+            board.arena(c, target[c], now(), now()+1.0);
             cout << "Launch from " << c << " to " << target[c] << endl;
-            board.launch(c);
+            board.launch(c, now()+1.0, 2.0);
             board << "Executing ";
             board << description(c);
             end_message();
+            board.unArena(now()+3.0);
         }
 #endif
         in_play.pop_back();

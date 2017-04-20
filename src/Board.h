@@ -287,8 +287,11 @@ private:
 
 public:
     vector<Rectangle> particles; // XXX
+    Animated<float> arenaVisible;
 
-    Board() : new_message(true) { }
+    Board() : new_message(true) {
+        arenaVisible.addEvent(0.0, 0.0);
+    }
 
     // Shouldn't need mutex as this is done during startup.
     void setConfig(const BoardConfig &config0) {
@@ -357,15 +360,15 @@ public:
     }
 
     // Fire
-    void launch(int source_card) {
+    void launch(int source_card, double start_time, double duration) {
         std::lock_guard<std::mutex> guard(board_mutex);
         particles.resize(0);
         cout << "ACTUAL LAUNCH = " << source_card << ' ' << target[source_card] << endl;
 
 //        static GLuint blob_tex = create_texture("assets/blob.png");
 
-        float sx = cards[source_card].getX();
-        float sy = cards[source_card].getY();
+        float sx = -0.5;//cards[source_card].getX();
+        float sy = 0.0;//cards[source_card].getY();
         float tx, ty;
         if (target[source_card] == PLAYER0) {
             cout << "Target = PLAYER0" << endl;
@@ -377,8 +380,8 @@ public:
         } else {
             cout << "Target = PLAYER1" << endl;
             int target_card = target[source_card];
-            tx = cards[target_card].getX();
-            ty = cards[target_card].getY();
+            tx = 0.5;//cards[target_card].getX();
+            ty = 0.0;//cards[target_card].getY();
         }
 
         float mx = 0.5*(sx+tx);
@@ -391,16 +394,23 @@ public:
         particles.push_back(Rectangle());
         particles.back().setTexture(fire_tex);
 
-        double start_time = now();
-        particles.back().setAngle(start_time, atan2(-dx, dy));
-        particles.back().setZ(start_time, 0.95);
-        particles.back().setPosition(start_time, mx, my);
-        particles.back().setSize(start_time, 0.1, 0.5*l);
-        particles.back().setBrightness(start_time, 1.0);
+        //double start_time = now();
+        particles.back().setAngle(start_time);
+        particles.back().setZ(start_time);
+        particles.back().setPosition(start_time);
+        particles.back().setSize(start_time);
+        particles.back().setBrightness(start_time);
+
+        particles.back().setAngle(start_time+0.01, atan2(-dx, dy));
+        particles.back().setZ(start_time+0.01, 0.95);
+        particles.back().setPosition(start_time+0.01, mx, my);
+        particles.back().setSize(start_time+0.01, 0.1, 0.5*l);
+        particles.back().setBrightness(start_time+0.01, 1.0);
+
         particles.back().visible = true;
 
-        particles.back().setSize(start_time+2.0, 0.1, 0.5*l);
-        particles.back().setSize(start_time+2.1, 0.0, 0.0);
+        particles.back().setSize(start_time+duration, 0.1, 0.5*l);
+        particles.back().setSize(start_time+duration+0.01, 0.0, 0.0);
     }
 
     void launch2(int source_card) {
@@ -729,10 +739,37 @@ public:
     }
 #endif
 
-#if 0
-    void arena(int focus1, int focus2, float delay) {
+    void arena(int card1, int card2, double start_time, double end_time) {
+        float size = 0.125;
+
+        cards[card1].setZ(start_time, 0.95);
+
+        arenaVisible.addEvent(end_time, 1.0);
+        cards[card1].setPosition(end_time, -0.5, 0);
+        cards[card1].setZ(end_time, 0.95);
+        cards[card1].setSize(end_time, size, 2*size);
+        cards[card1].setBrightness(0.0, 1.0);
+        cards[card1].visible = true;
+        cards[card1].shadow = true;
+
+        if (card2 >= 1000) {
+            return;
+        }
+
+        cards[card1].setZ(start_time, 0.95);
+
+        cards[card2].setPosition(end_time, 0.5, 0);
+        cards[card2].setZ(end_time, 0.95);
+        cards[card2].setSize(end_time, size, 2*size);
+        cards[card2].setBrightness(0.0, 1.0);
+        cards[card2].visible = true;
+        cards[card2].shadow = true;
     }
-#endif
+
+    void unArena(double end_time) {
+        arenaVisible.addEvent(end_time, 1.0);
+        arenaVisible.addEvent(end_time+0.01, 0.0);
+    }
 
     void unFocus(int player, int card, float delay) {
         int focus = find(hand[0].begin(), hand[0].end(), card)-hand[0].begin();
@@ -951,6 +988,9 @@ public:
             ::drawShadow(ratio, -1.1, 0.0, 0.0, 0.0, 0.2, 0.8, 0.35);
             annotation.draw(ratio, config.border_line_width, 0.0);
             draw_text(ratio, word_annotation);
+        }
+        if (arenaVisible.get()) {
+            ::drawShadow(ratio, 0.0, 0.0, 0.8, 0.0, 0.75, 0.35, 0.50);
         }
         // Particles
         if (particles.size() > 0) {

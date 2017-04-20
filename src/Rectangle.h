@@ -13,6 +13,7 @@
 using std::cout;
 using std::endl;
 
+#if 0
 struct Point {
     float x;
     float y;
@@ -40,6 +41,7 @@ inline Point &operator+=(Point &x, Point y) {
     x.y += y.y;
     return x;
 }
+#endif
 
 static float triangle(float x) {
     if (x < -1) {
@@ -98,19 +100,36 @@ public:
     }
     Rectangle() : highlight(false), visible(false), tex(0), shadow(false) { }
     void setTexture(GLuint t) { tex = t; }
+    void setPosition(double time) {
+        x.addEvent(time);
+        y.addEvent(time);
+    }
     void setPosition(double time, double x0, double y0) {
         x.addEvent(time, x0);
         y.addEvent(time, y0);
     }
+    void setZ(double time) {
+        z.addEvent(time);
+    }
     void setZ(double time, double z0) {
         z.addEvent(time, z0);
+    }
+    void setSize(double time) {
+        xsize.addEvent(time);
+        ysize.addEvent(time);
     }
     void setSize(double time, double x0, double y0) {
         xsize.addEvent(time, x0);
         ysize.addEvent(time, y0);
     }
+    void setBrightness(double time) {
+        brightness.addEvent(time);
+    }
     void setBrightness(double time, double b) {
         brightness.addEvent(time, b);
+    }
+    void setAngle(double time) {
+        angle.addEvent(time);
     }
     void setAngle(double time, double a) {
         angle.addEvent(time, a);

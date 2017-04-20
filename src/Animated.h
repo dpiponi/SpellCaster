@@ -27,6 +27,10 @@ template<class X> class Animated {
 public:
     Animated() : t_last(now()), x_last(0) { }
 
+    void addEvent(double t) {
+        addEvent(t, x_last); // XXX ???
+    }
+
     void addEvent(double t, const X &k) {
         update(now());
 

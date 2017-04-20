@@ -167,10 +167,10 @@ int main(int argc, char *argv[]) {
     // Mutation
     UCTParameters params2 {
         /* allowed_time */              2.5,
-        /* c */                         0.0,
+        /* c */                         0.5,
         /* McRaveSchedule */            MINIMUM_MSE,
         /* k */                         0,
-        /* bias */                      0.0,
+        /* bias */                      2.0,
         /* heuristic_amaf_multiplier */ 0,
         /* heuristic_mc_multiplier */   10,
         /* use_heuristic */             true};
