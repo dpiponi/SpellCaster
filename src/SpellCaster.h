@@ -60,19 +60,7 @@ void shuffle(vector<X> &v) {
 
 class Config {
 public:
-    bool draw_on_turn_end;
     int max_cards_in_hand;
-    bool restore_hp_on_return;
-    bool draw_cards_after_execution;
-    bool auto_discard;
-    bool must_self_discard;
-    bool can_self_discard;
-    bool auto_mana;
-    bool single_pass;
-    bool random_draw;
-    bool draw_to_fill_hand;
-    bool discard_for_mana;
-    bool can_discard_any_for_mana;
     int initial_hp;
 };
 
@@ -228,10 +216,8 @@ public:
         target.resize(number_of_cards);
         owner.resize(number_of_cards);
         location.resize(number_of_cards);
-        if (!config.random_draw) {
-            shuffle(deck[0]);
-            shuffle(deck[1]);
-        }
+        shuffle(deck[0]);
+        shuffle(deck[1]);
         exposedTo[0].resize(number_of_cards, false);
         exposedTo[1].resize(number_of_cards, false);
         for (int i = 0; i < number_of_cards; ++i) {
@@ -250,10 +236,6 @@ public:
         // Initial constructor needs verbosity???
         _drawCard(0);
         _drawCard(1);
-        if (config.auto_mana) {
-            mana[0] += Mana {1, 1};
-            mana[1] += Mana {1, 1};
-        }
         checkConsistency();
     }
 
@@ -269,10 +251,6 @@ public:
     }
 
     int __drawCard(int player, bool verbose = false) {
-        if (config.random_draw) {
-            int i = rand() % deck[player].size();
-            swap(deck[player][i], deck[player].back());
-        }
         int c = deck[player].back();
         assert(location[c] == Location::DECK);
         deck[player].pop_back();
@@ -285,11 +263,7 @@ public:
     }
 
     void _drawCard(int player, bool verbose = false) {
-        if (config.draw_to_fill_hand) {
-            while (deck[player].size() > 0 && hand[player].size() < config.max_cards_in_hand) {
-                __drawCard(player, verbose);
-            }
-        } else {
+        while (deck[player].size() > 0 && hand[player].size() < config.max_cards_in_hand) {
             __drawCard(player, verbose);
         }
     }
@@ -440,7 +414,20 @@ public:
 //        if (verbose) {
 //            board.setUpBoard(this);
 //        }
+#ifdef BOARD
+        if (verbose) {
+            board.arena(c, target[c], now(), now()+1.0);
+            cout << "Instant Launch from " << c << " to " << target[c] << endl;
+            board.launch(c, now()+1.0, 2.0);
+            board << "Executing ";
+            board << description(c);
+            end_message();
+            board.unArena(now()+3.0);
+        }
+#endif
     }
+
+    void handleInstant(int c, int card_number, int t, bool verbose);
 
     void execute(bool verbose);
 

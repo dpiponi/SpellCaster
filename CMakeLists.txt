@@ -6,6 +6,7 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 find_package(Freetype REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 set(SC_SOURCE_FILES src/Board.cpp
                     src/Cards.cpp
@@ -45,6 +46,7 @@ target_compile_features(tune PRIVATE cxx_strong_enums)
 target_compile_features(tune PRIVATE cxx_uniform_initialization)
 
 include_directories(${PROJECT_BINARY_DIR})
+include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(${SDL2_INCLUDE_DIR} ${SDL2_IMAGE_INCLUDE_DIR} ${FREETYPE_INCLUDE_DIRS})
 
 target_link_libraries(sc ${SDL2_LIBRARY} ${SDL2_IMAGE_LIBRARY} ${FREETYPE_LIBRARY} ${CMAKE_DL_LIBS})

@@ -48,8 +48,8 @@ bool Rectangle::contains(Point point) const {
     mat4x4_mul(mvp, p, m);
     mat4x4_invert(inv, mvp);
 
-    r[0] = 2*point.x/width-1;
-    r[1] = 2*(height-1-point.y)/height-1;
+    r[0] = 2*point[0]/width-1;
+    r[1] = 2*(height-1-point[1])/height-1;
     r[2] = 0.0;
     r[3] = 1.0;
     mat4x4_mul_vec4(q, inv, r);

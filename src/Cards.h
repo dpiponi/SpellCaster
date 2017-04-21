@@ -1186,7 +1186,7 @@ public:
                     CardClass::MONSTER,
                     CardProperty::NONE,
                     CardProperty::FLYING, /* requirements */
-                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::FLYING) { }
+                    CardProperty::RED_MAGIC_RESISTANT) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
 };
 

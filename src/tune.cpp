@@ -136,19 +136,7 @@ int main(int argc, char *argv[]) {
     vector<const Definition *> player_deck = read_deck(database, "player.txt");
     vector<const Definition *> computer_deck = read_deck(database, "computer.txt");
 
-    Config config {/* draw_on_turn_end */           false,
-                   /* max_cards_in_hand */          8,
-                   false,
-                   /* draw_cards_after_execution */ true,
-                   /* auto_discard */               false,
-                   /* must_self_discard */          false,
-                   /* can_self_discard */           true,
-                   /* auto_mana */                  false,
-                   /* single pass */                true,
-                   /* random_draw */                false,
-                   /* draw_to_fill_hand */          true,
-                   /* discard_for_mana */           true,
-                   /* can_discard_any_for_mana */   false,
+    Config config {/* max_cards_in_hand */          8,
                    /* initial_hp */                 7};
 
     //2.8661 3.57922 64.4584 58.6079

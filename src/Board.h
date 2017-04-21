@@ -6,6 +6,9 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
+#include <Eigen/Core>
+
+using Eigen::Vector2f;
 
 #include "CardBase.h"
 #include "Rectangle.h"
@@ -122,9 +125,9 @@ private:
             if (c >= 32 && c <= 127) {
                 word.push_back(Rectangle());
                 word.back().setTexture(letters[c].texture);
-                word.back().setPosition(0.0,
+                word.back().setPosition(0.0, Vector2f(
                                     x+0.5*letter_size*letters[c].width+letter_size*letters[c].left,
-                                    y-0.5*letter_size*letters[c].height+letter_size*letters[c].top);
+                                    y-0.5*letter_size*letters[c].height+letter_size*letters[c].top));
                 word.back().setZ(0.0, 0.9);
                 word.back().setSize(0.0,
                                 0.5*letter_size*letters[c].width,
@@ -141,7 +144,7 @@ private:
     }
 
     void setGraveyardPosition(double time, int c) {
-        cards[c].setPosition(time, 1.3, 0.0);
+        cards[c].setPosition(time, Vector2f(1.3, 0.0));
         cards[c].setZ(time, 0.0);
         cards[c].setSize(time, 0.0625*1.5, 0.125*1.5);
         cards[c].setBrightness(0.0, 1.0);
@@ -152,8 +155,8 @@ private:
 
     void setInPlayPosition(double time, int c, int i) {
         //cards[c].setPosition(time, -1.1+0.27*i, owner[c] ==0 ? -0.025 : 0.025);
-        cards[c].setPosition(time, config.in_play_left+config.in_play_spacing*i,
-                                   owner[c] == 0 ? -config.offset_for_player : config.offset_for_player);
+        cards[c].setPosition(time, Vector2f(config.in_play_left+config.in_play_spacing*i,
+                                            owner[c] == 0 ? -config.offset_for_player : config.offset_for_player));
         cards[c].setZ(time, 0.0);
         cards[c].setSize(0.0, 0.125, 0.25);
         cards[c].setBrightness(0.0, 1.0);
@@ -340,10 +343,10 @@ public:
             float start_time = now()+0.05*i;
             particles.back().setAngle(start_time, 2*M_PI*rand()/float(RAND_MAX));
             particles.back().setZ(start_time, 0.95);
-            particles.back().setPosition(now(), x.x, x.y);
+            particles.back().setPosition(now(), x);
             float animation_length = 2.0;
             for (float t = 0; t < 1.5; t += dt) {
-                particles.back().setPosition(start_time+t, x.x, x.y);
+                particles.back().setPosition(start_time+t, x);
                 float size = 0.05*triangle(2.0*(t-0.5*animation_length)/animation_length);
                 particles.back().setSize(start_time+t, size, size);
                 x += dt*v;
@@ -365,10 +368,9 @@ public:
         particles.resize(0);
         cout << "ACTUAL LAUNCH = " << source_card << ' ' << target[source_card] << endl;
 
-//        static GLuint blob_tex = create_texture("assets/blob.png");
-
         float sx = -0.5;//cards[source_card].getX();
         float sy = 0.0;//cards[source_card].getY();
+        Vector2f source(sx, sy);
         float tx, ty;
         if (target[source_card] == PLAYER0) {
             cout << "Target = PLAYER0" << endl;
@@ -383,12 +385,11 @@ public:
             tx = 0.5;//cards[target_card].getX();
             ty = 0.0;//cards[target_card].getY();
         }
+        Vector2f target(tx, ty);
 
-        float mx = 0.5*(sx+tx);
-        float my = 0.5*(sy+ty);
-        float dx = tx-sx;
-        float dy = ty-sy;
-        float l = hypot(dx, dy);
+        Vector2f middle = 0.5*(source+target);
+        Vector2f delta = target-source;
+        float l = delta.norm();
         cout << "l = " << l << endl;
 
         particles.push_back(Rectangle());
@@ -401,9 +402,9 @@ public:
         particles.back().setSize(start_time);
         particles.back().setBrightness(start_time);
 
-        particles.back().setAngle(start_time+0.01, atan2(-dx, dy));
+        particles.back().setAngle(start_time+0.01, orientation(delta));
         particles.back().setZ(start_time+0.01, 0.95);
-        particles.back().setPosition(start_time+0.01, mx, my);
+        particles.back().setPosition(start_time+0.01, middle);
         particles.back().setSize(start_time+0.01, 0.1, 0.5*l);
         particles.back().setBrightness(start_time+0.01, 1.0);
 
@@ -589,7 +590,7 @@ public:
     void setAnnotation(int card) {
         std::lock_guard<std::mutex> guard(board_mutex);
         annotation.setTexture(tex[card]);;
-        annotation.setPosition(now(), config.annotation_x, config.annotation_y);
+        annotation.setPosition(now(), Vector2f(config.annotation_x, config.annotation_y));
         annotation.setZ(now(), 0.9);
         annotation.setSize(0.0, 0.5*config.annotation_height, config.annotation_height);
         annotation.setBrightness(0.0, 1.0);
@@ -653,7 +654,7 @@ public:
         std::lock_guard<std::mutex> guard(board_mutex);
         //background.setTexture(create_texture("assets/Forest.png"));
         background.setTexture(create_texture(config.background.c_str()));
-        background.setPosition(0.0, 0.0, 0.0);
+        background.setPosition(0.0, Vector2f(0.0, 0.0));
         background.setZ(0.0, 0.0);
         background.setSize(0.0, 1600.0/1172.0, 1.0);
         background.setBrightness(0.0, 1.0);
@@ -694,9 +695,13 @@ public:
         discardbutton.shadow = true;
     }
 
-    void setHandPosition(double time, int c, int h, float x, float size, float z, float offsetx, float offsety) {
-        //cards[c].setPosition(time, -1.1+0.27*i, 1.2*h-0.6);
-        cards[c].setPosition(time, x+offsetx, (h ? 0.6 : -0.6)+offsety);
+    Vector2f handPosition(int player, int i) {
+        return Vector2f(config.hand_left+i*config.hand_spacing, player ? 0.6 : -0.6);
+    }
+
+    void setHandPosition(double time, int c, int h, int i, float x, float size, float z, float offsetx, float offsety) {
+        //cards[c].setPosition(time, Vector2f(x+offsetx, (h ? 0.6 : -0.6)+offsety));
+        cards[c].setPosition(time, handPosition(h, i)+Vector2f(offsetx, offsety));
         cards[c].setZ(time, z);
         cards[c].setSize(time, size, 2*size);
         cards[c].setBrightness(0.0, 1.0);
@@ -742,21 +747,24 @@ public:
     void arena(int card1, int card2, double start_time, double end_time) {
         float size = 0.125;
 
+        cards[card1].visible = true;
+        cards[card1].shadow = true;
+
+        arenaVisible.addEvent(start_time, 1.0);
+        cards[card1].setBrightness(start_time, 1.0);
+
         cards[card1].setZ(start_time, 0.95);
 
         arenaVisible.addEvent(end_time, 1.0);
         cards[card1].setPosition(end_time, -0.5, 0);
         cards[card1].setZ(end_time, 0.95);
         cards[card1].setSize(end_time, size, 2*size);
-        cards[card1].setBrightness(0.0, 1.0);
-        cards[card1].visible = true;
-        cards[card1].shadow = true;
 
         if (card2 >= 1000) {
             return;
         }
 
-        cards[card1].setZ(start_time, 0.95);
+        cards[card2].setZ(start_time, 0.95);
 
         cards[card2].setPosition(end_time, 0.5, 0);
         cards[card2].setZ(end_time, 0.95);
@@ -786,7 +794,7 @@ public:
         pack(n, 2.0*0.125, left_edge, right_edge, centres);
 
         auto p = hand[player][focus];
-        setHandPosition(now()+delay, p, player, centres[focus], 0.125, 0.1+0.001*focus, 0.0, 0.0);
+        setHandPosition(now()+delay, p, player, focus, centres[focus], 0.125, 0.1+0.001*focus, 0.0, 0.0);
     }
 
     void focus(int player, int card, float delay) {
@@ -804,11 +812,11 @@ public:
         pack(n, 2.0*0.125, left_edge, right_edge, centres);
 
         auto p = hand[player][focus];
-        setHandPosition(now(), p, player, centres[focus], 0.125, 0.2, 0.0, 0.0);
-        setHandPosition(now()+0.25*delay, p, player, centres[focus], 1.1*0.125, 0.5, 0.0, 0.0);
-        setHandPosition(now()+0.5*delay, p, player, centres[focus], 1.2*0.125, 1.0, 0.0, 0.0);
+        setHandPosition(now(), p, player, focus, centres[focus], 0.125, 0.2, 0.0, 0.0);
+        setHandPosition(now()+0.25*delay, p, player, focus, centres[focus], 1.1*0.125, 0.5, 0.0, 0.0);
+        setHandPosition(now()+0.5*delay, p, player, focus, centres[focus], 1.2*0.125, 1.0, 0.0, 0.0);
         for (int k = 0; k < 100; ++k) {
-            setHandPosition(now()+0.5*delay+0.3*k, p, player, centres[focus], 1.2*0.125, 1.0, 0.004*cos(k), -0.004*sin(k));
+            setHandPosition(now()+0.5*delay+0.3*k, p, player, focus, centres[focus], 1.2*0.125, 1.0, 0.004*cos(k), -0.004*sin(k));
         }
     }
 
@@ -828,7 +836,7 @@ public:
             cards[p].visible = true;
             float a = n-1 > 0 ? float(i)/(n-1) : 0;
 //            if (i != focus) {
-                setHandPosition(now()+delay, p, player, centres[i], 0.125, 0.1+0.001*i, 0.0, 0.0);
+                setHandPosition(now()+delay, p, player, i, centres[i], 0.125, 0.1+0.001*i, 0.0, 0.0);
 //            } else {
 //                setHandPosition(now(), p, player, centres[i], 0.125, 0.2, 0.0, 0.0);
 //                setHandPosition(now()+0.25*delay, p, player, centres[i], 1.1*0.125, 0.5, 0.0, 0.0);
@@ -990,7 +998,7 @@ public:
             draw_text(ratio, word_annotation);
         }
         if (arenaVisible.get()) {
-            ::drawShadow(ratio, 0.0, 0.0, 0.8, 0.0, 0.75, 0.35, 0.50);
+            ::drawShadow(ratio, 0.0, 0.0, /* z */ 0.8, 0.0, 0.75, 0.35, 0.50);
         }
         // Particles
         if (particles.size() > 0) {

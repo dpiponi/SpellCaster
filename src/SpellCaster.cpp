@@ -17,19 +17,7 @@ using std::make_shared;
 
 #include "SpellCaster.h"
 
-Config default_config {/* draw_on_turn_end */           false,
-                       /* max_cards_in_hand */          8,
-                       false,
-                       /* draw_cards_after_execution */ true,
-                       /* auto_discard */               false,
-                       /* must_self_discard */          false,
-                       /* can_self_discard */           true,
-                       /* auto_mana */                  false,
-                       /* single pass */ true,
-                       /* random_draw */ false,
-                       /* draw_to_fill_hand */          true,
-                       /* discard_for_mana */ true,
-                       /* can_discard_any_for_mana */   false,
+Config default_config {/* max_cards_in_hand */          8,
                        /* initial_hp */                 10};
 
 map<string, const Definition *>
@@ -345,7 +333,7 @@ void SpellCaster::return_card_from(Location loc, int c, bool verbose) {
     }
 #endif
     location[c] = owner[c] ? Location::HAND1 : Location::HAND0;
-    if (config.restore_hp_on_return || hasProperty(c, CardProperty::REGENERATING)) {
+    if (hasProperty(c, CardProperty::REGENERATING)) {
         cardhp[c] = basehp[c];
     }
     properties[c] &= ~CardProperty::IMMOBILE;
@@ -493,21 +481,6 @@ SpellCaster::doExecution(bool verbose) {
     nextPlayer = 1-nextPlayer; // YYY swap
     passed = false;
 
-    // Draw card
-    if (config.draw_on_turn_end) {
-        if (hp[0] > 0 && hp[1] > 0) {
-            if (deck[nextPlayer].size() >= 1) {
-                drawCard(nextPlayer, verbose);
-                if (config.auto_discard) {
-                    trimExcess(nextPlayer, verbose);
-                }
-            }
-            if (config.auto_mana) {
-                ++mana[nextPlayer].world;
-                ++mana[nextPlayer].astral;
-            }
-        }
-    }
 #ifdef BOARD
     if (verbose) {
         board.setUpBoard(this);
@@ -516,6 +489,40 @@ SpellCaster::doExecution(bool verbose) {
 #endif
     checkConsistency();
     return;
+}
+
+void SpellCaster::handleInstant(int c, int card_number, int t, bool verbose) {
+    exposedTo[0][c] = true;
+    exposedTo[1][c] = true;
+    mana[nextPlayer] -= cost[c];
+
+    // This is what makes cards disappear XXX
+    //hand[nextPlayer].erase(hand[nextPlayer].begin()+card_number);
+    //location[c] = Location::EXECUTING;
+
+    target[c] = t;
+#ifdef BOARD
+    if (verbose) {
+        cout << "Instant Launch from " << c << " to " << target[c] << endl;
+        //board.setUpBoard(this);
+        board.launch(c, now()+1.0, 2.0);
+    }
+#endif
+    hand[nextPlayer].erase(hand[nextPlayer].begin()+card_number);
+    location[c] = Location::EXECUTING;
+
+    executeInstant(c, verbose);
+    location[c] = Location::GRAVEYARD;
+    graveyard.push_back(c);
+#ifdef BOARD
+    if (verbose) {
+        board.setUpBoard(this);
+        end_message();
+    }
+#endif
+    nextPlayer = 1-nextPlayer;
+    passed = false;
+    checkConsistency();
 }
 
 // Do I need to check if DISCARD is legal here? XXX
@@ -535,40 +542,9 @@ SpellCaster::doMove(Move m, bool verbose) {
         }
 #endif
 
-        if (config.single_pass || passed) {
-            doExecution(verbose);
-            checkConsistency();
-            return;
-        } else {
-            // Pass doesn't trigger execution.
-            passed = true;
-
-            // YYY swap player
-            nextPlayer = 1-nextPlayer;
-            if (config.draw_on_turn_end) {
-                // DRAW
-                if (hp[0] > 0 && hp[1] > 0) {
-                    if (deck[nextPlayer].size() >= 1) {
-                        drawCard(nextPlayer, verbose);
-                        if (config.auto_discard) {
-                            trimExcess(nextPlayer, verbose);
-                        }
-                    }
-                    if (config.auto_mana) {
-                        ++mana[nextPlayer].world;
-                        ++mana[nextPlayer].astral;
-                    }
-                }
-            }
-#ifdef BOARD
-            if (verbose) {
-                board.setUpBoard(this);
-                end_message();
-            }
-#endif
-            checkConsistency();
-            return;
-        }
+        doExecution(verbose);
+        checkConsistency();
+        return;
     }
     int c = m.card;
     assert(c >= 0);
@@ -577,13 +553,6 @@ SpellCaster::doMove(Move m, bool verbose) {
     if (m.target == DISCARD) {
         assert(config.can_self_discard || config.must_self_discard);
         hand[nextPlayer].erase(hand[nextPlayer].begin()+card_number);
-        if (config.discard_for_mana) {
-#if 0
-            if (config.can_discard_any_for_mana || toBool(card_class[c] & CardClass::MANA)) {
-                mana[nextPlayer] += cost[c];
-            }
-#endif
-        }
         checkConsistency();
         assert(location[c] == Location::HAND0 || location[c] == Location::HAND1);
         location[c] = Location::GRAVEYARD;
@@ -618,37 +587,11 @@ SpellCaster::doMove(Move m, bool verbose) {
         return;
     }
     if (hasProperty(c, CardProperty::INSTANT)) {
-        exposedTo[0][c] = true;
-        exposedTo[1][c] = true;
-        mana[nextPlayer] -= cost[c];
-        hand[nextPlayer].erase(hand[nextPlayer].begin()+card_number);
-        location[c] = Location::EXECUTING;
-        int t = m.target;//m.target >= 1000 ? m.target : in_play[m.target];
-        target[c] = t;
-#ifdef BOARD
-        if (verbose) {
-            cout << "Instant Launch from " << c << " to " << target[c] << endl;
-            board.setUpBoard(this);
-            board.launch(c, now()+1.0, 2.0);
-        }
-#endif
-        executeInstant(c, verbose);
-        location[c] = Location::GRAVEYARD;
-        graveyard.push_back(c);
-#ifdef BOARD
-        if (verbose) {
-            board.setUpBoard(this);
-            end_message();
-        }
-#endif
-        nextPlayer = 1-nextPlayer;
-        passed = false;
-        checkConsistency();
+        handleInstant(c, card_number, m.target, verbose);
         return;
     }
 
     // Move card into play.
-    // YYY swap
     int otherPlayer = 1-nextPlayer;
     passed = false;
     mana[nextPlayer] -= cost[c];
@@ -668,21 +611,6 @@ SpellCaster::doMove(Move m, bool verbose) {
 #endif
 
     nextPlayer = otherPlayer;
-    if (config.draw_on_turn_end) {
-        // DRAW
-        if (hp[0] > 0 && hp[1] > 0) {
-            if (deck[nextPlayer].size() >= 1) {
-                drawCard(nextPlayer, verbose);
-                if (config.auto_discard) {
-                    trimExcess(nextPlayer, verbose);
-                }
-            }
-            if (config.auto_mana) {
-                ++mana[nextPlayer].world;
-                ++mana[nextPlayer].astral;
-            }
-        }
-    }
     // YYY
 #ifdef BOARD
     if (verbose) {
@@ -696,132 +624,110 @@ SpellCaster::doMove(Move m, bool verbose) {
 vector<SpellCaster::Move> SpellCaster::legalMoves() const {
     assert(this);
     vector<Move> moves;
-    if (!config.must_self_discard || hand[nextPlayer].size() <= config.max_cards_in_hand) {
-        moves.push_back(Move(nextPlayer, PASS, PASS));
-        for (int i = 0; i < hand[nextPlayer].size(); ++i) {
-            for (int j = 0; j < in_play.size(); ++j) {
-                if (isLegalId(Move(nextPlayer, hand[nextPlayer][i], in_play[j]))) {
-                    moves.push_back(Move(nextPlayer, hand[nextPlayer][i], in_play[j]));
-                }
-            }
-            if (toBool(target_class[hand[nextPlayer][i]] & CardClass::PLAYER)) {
-                if (isLegalId(Move(nextPlayer, hand[nextPlayer][i], PLAYER0))) {
-                    moves.push_back(Move(nextPlayer, hand[nextPlayer][i], PLAYER0));
-                }
-                if (isLegalId(Move(nextPlayer, hand[nextPlayer][i], PLAYER1))) {
-                    moves.push_back(Move(nextPlayer, hand[nextPlayer][i], PLAYER1));
-                }
+    moves.push_back(Move(nextPlayer, PASS, PASS));
+    for (int i = 0; i < hand[nextPlayer].size(); ++i) {
+        for (int j = 0; j < in_play.size(); ++j) {
+            if (isLegalId(Move(nextPlayer, hand[nextPlayer][i], in_play[j]))) {
+                moves.push_back(Move(nextPlayer, hand[nextPlayer][i], in_play[j]));
             }
         }
-        if (config.can_self_discard) {
-            for (int i = 0; i < hand[nextPlayer].size(); ++i) {
-                moves.push_back(Move(nextPlayer, hand[nextPlayer][i], DISCARD));
+        if (toBool(target_class[hand[nextPlayer][i]] & CardClass::PLAYER)) {
+            if (isLegalId(Move(nextPlayer, hand[nextPlayer][i], PLAYER0))) {
+                moves.push_back(Move(nextPlayer, hand[nextPlayer][i], PLAYER0));
+            }
+            if (isLegalId(Move(nextPlayer, hand[nextPlayer][i], PLAYER1))) {
+                moves.push_back(Move(nextPlayer, hand[nextPlayer][i], PLAYER1));
             }
         }
-    } else {
-        for (int i = 0; i < hand[nextPlayer].size(); ++i) {
-            moves.push_back(Move(nextPlayer, hand[nextPlayer][i], DISCARD));
-        }
+    }
+    for (int i = 0; i < hand[nextPlayer].size(); ++i) {
+        moves.push_back(Move(nextPlayer, hand[nextPlayer][i], DISCARD));
     }
     return moves;
 }
 
 bool SpellCaster::isLegalId(Move m, bool verbose) const {
     assert(this);
-    if (!config.must_self_discard || hand[nextPlayer].size() <= config.max_cards_in_hand) {
-        //board << m ;
-        if (m.card == -1) {
-            return true;
-        }
-        if (m.card < 0) {
-#ifdef BOARD
-            if (verbose) {
-                board << "Not a valid card" ;
-                cout << "Not a valid card" << endl;
-            }
-#endif
-            return false;
-        }
-        
-        if (find(hand[nextPlayer].begin(), hand[nextPlayer].end(), m.card) == hand[nextPlayer].end()) {
-#ifdef BOARD
-            if (verbose) {
-                board << "That card isn't in hand" ;
-                cout << "Card not in hand" << endl;
-            }
-#endif
-            return false;
-        }
-        // We've established it's a valid card.
-
-        if (!config.can_self_discard) {
-            if (m.target == DISCARD) {
-                return true;
-            }
-        }
-        if (m.target < 0) {
-#ifdef BOARD
-            if (verbose) {
-                board << "Not a valid target" ;
-                cout << "Invalid target" << endl;
-            }
-#endif
-            return false;
-        }
-        if (!(find(in_play.begin(), in_play.end(), m.target) != in_play.end() || m.target == PLAYER0 || m.target == PLAYER1 || m.target == DISCARD)) {
-#ifdef BOARD
-            if (verbose) {
-                board << "Target is neither a player nor in-play";
-                cout << "Target not player or in play" << endl;
-            }
-#endif
-            return false;
-        }
-        if (m.target != DISCARD && cost[m.card].world > mana[nextPlayer].world) {
-#ifdef BOARD
-            if (verbose) {
-                board << "Not enough world mana" ;
-                cout << "Not enough world mana" << endl;
-            }
-#endif
-            return false;
-        }
-        if (m.target != DISCARD && cost[m.card].astral > mana[nextPlayer].astral) {
-#ifdef BOARD
-            if (verbose) {
-                board << "Not enough astral mana" ;
-                cout << "Not enough astral mana" << endl;
-            }
-#endif
-            return false;
-        }
-
-        if (m.target != DISCARD) {
-            const char *reason = cantCardTarget(m.card, m.target);
-            if (reason) {
-#ifdef BOARD
-                if (verbose) {
-                    board << reason ;
-                    cout << reason << endl;
-                }
-#endif
-                return false;
-            } else {
-                return true;
-            }
-        }
+    //board << m ;
+    if (m.card == -1) {
         return true;
-    } else {
-        if (m.card >= 0 && find(hand[nextPlayer].begin(), hand[nextPlayer].end(), m.card) != hand[nextPlayer].end() && m.target == DISCARD) {
-            return true;
-        }
+    }
+    if (m.card < 0) {
 #ifdef BOARD
         if (verbose) {
-            cout << "Illegal discard" << endl;
+            board << "Not a valid card" ;
+            cout << "Not a valid card" << endl;
         }
 #endif
         return false;
     }
+    
+    if (find(hand[nextPlayer].begin(), hand[nextPlayer].end(), m.card) == hand[nextPlayer].end()) {
+#ifdef BOARD
+        if (verbose) {
+            board << "That card isn't in hand" ;
+            cout << "Card not in hand" << endl;
+        }
+#endif
+        return false;
+    }
+    // We've established it's a valid card.
+
+    if (m.target == DISCARD) {
+        return true;
+    }
+    if (m.target < 0) {
+#ifdef BOARD
+        if (verbose) {
+            board << "Not a valid target" ;
+            cout << "Invalid target" << endl;
+        }
+#endif
+        return false;
+    }
+    if (!(find(in_play.begin(), in_play.end(), m.target) != in_play.end() || m.target == PLAYER0 || m.target == PLAYER1 || m.target == DISCARD)) {
+#ifdef BOARD
+        if (verbose) {
+            board << "Target is neither a player nor in-play";
+            cout << "Target not player or in play" << endl;
+        }
+#endif
+        return false;
+    }
+    if (m.target != DISCARD && cost[m.card].world > mana[nextPlayer].world) {
+#ifdef BOARD
+        if (verbose) {
+            board << "Not enough world mana" ;
+            cout << "Not enough world mana" << endl;
+        }
+#endif
+        return false;
+    }
+    if (m.target != DISCARD && cost[m.card].astral > mana[nextPlayer].astral) {
+#ifdef BOARD
+        if (verbose) {
+            board << "Not enough astral mana" ;
+            cout << "Not enough astral mana" << endl;
+        }
+#endif
+        return false;
+    }
+
+    if (m.target != DISCARD) {
+        const char *reason = cantCardTarget(m.card, m.target);
+        if (reason) {
+#ifdef BOARD
+            if (verbose) {
+                board << reason ;
+                cout << reason << endl;
+            }
+#endif
+            return false;
+        } else {
+            return true;
+        }
+    }
+    return true;
 }
 
 const char *SpellCaster::cantCardTarget(int c, int t) const {
@@ -962,31 +868,15 @@ void SpellCaster::execute(bool verbose) {
 #endif
     }
     checkConsistency();
-    if (config.draw_cards_after_execution) {
-        if (hp[0] > 0 && hp[1] > 0) {
-            if (deck[0].size() >= 1) {
-                drawCard(0, verbose);
-                if (config.auto_discard) {
-                    trimExcess(0, verbose);
-                }
-                if (config.auto_mana) {
-                    ++mana[0].world;
-                    ++mana[0].astral;
-                }
-            }
-            checkConsistency();
-            if (deck[1].size() >= 1) {
-                drawCard(1, verbose);
-                if (config.auto_discard) {
-                    trimExcess(1, verbose);
-                }
-                if (config.auto_mana) {
-                    ++mana[1].world;
-                    ++mana[1].astral;
-                }
-            }
-            checkConsistency();
+    if (hp[0] > 0 && hp[1] > 0) {
+        if (deck[0].size() >= 1) {
+            drawCard(0, verbose);
         }
+        checkConsistency();
+        if (deck[1].size() >= 1) {
+            drawCard(1, verbose);
+        }
+        checkConsistency();
     }
     checkConsistency();
 }

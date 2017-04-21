@@ -3,6 +3,9 @@
 
 #include <chrono>
 #include <iostream>
+#include <Eigen/Core>
+
+using Eigen::Vector2f;
 
 #include <glad/glad.h>
 
@@ -43,6 +46,8 @@ inline Point &operator+=(Point &x, Point y) {
 }
 #endif
 
+typedef Vector2f Point;
+
 static float triangle(float x) {
     if (x < -1) {
         return 0.0;
@@ -54,6 +59,10 @@ static float triangle(float x) {
         return 1-x;
     }
     return x-1;
+}
+
+inline float orientation(Vector2f v) {
+    return atan2(-v[0], v[1]);
 }
 
 class Rectangle {
@@ -110,6 +119,10 @@ public:
     }
     void setZ(double time) {
         z.addEvent(time);
+    }
+    void setPosition(double time, Vector2f x0) {
+        x.addEvent(time, x0[0]);
+        y.addEvent(time, x0[1]);
     }
     void setZ(double time, double z0) {
         z.addEvent(time, z0);
