@@ -363,7 +363,7 @@ public:
     }
 
     // Fire
-    void launch(int source_card, double start_time, double duration) {
+    void launch(int source_card, int target_card, double start_time, double duration) {
         std::lock_guard<std::mutex> guard(board_mutex);
         particles.resize(0);
         cout << "ACTUAL LAUNCH = " << source_card << ' ' << target[source_card] << endl;
@@ -372,16 +372,16 @@ public:
         float sy = 0.0;//cards[source_card].getY();
         Vector2f source(sx, sy);
         float tx, ty;
-        if (target[source_card] == PLAYER0) {
+        if (target_card == PLAYER0) {
             cout << "Target = PLAYER0" << endl;
             tx = player.getX();
             ty = player.getY();
-        } else if (target[source_card] == PLAYER1) {
+        } else if (target_card == PLAYER1) {
+            cout << "Target = PLAYER1" << endl;
             tx = computer.getX();
             ty = computer.getY();
         } else {
-            cout << "Target = PLAYER1" << endl;
-            int target_card = target[source_card];
+            cout << "target = " << target_card << endl;
             tx = 0.5;//cards[target_card].getX();
             ty = 0.0;//cards[target_card].getY();
         }

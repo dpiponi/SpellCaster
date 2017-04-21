@@ -418,7 +418,7 @@ public:
         if (verbose) {
             board.arena(c, target[c], now(), now()+1.0);
             cout << "Instant Launch from " << c << " to " << target[c] << endl;
-            board.launch(c, now()+1.0, 2.0);
+            board.launch(c, target[c], now()+1.0, 2.0);
             board << "Executing ";
             board << description(c);
             end_message();

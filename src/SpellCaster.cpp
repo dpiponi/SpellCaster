@@ -505,7 +505,7 @@ void SpellCaster::handleInstant(int c, int card_number, int t, bool verbose) {
     if (verbose) {
         cout << "Instant Launch from " << c << " to " << target[c] << endl;
         //board.setUpBoard(this);
-        board.launch(c, now()+1.0, 2.0);
+        board.launch(c, target[c], now()+1.0, 2.0);
     }
 #endif
     hand[nextPlayer].erase(hand[nextPlayer].begin()+card_number);
@@ -846,7 +846,7 @@ void SpellCaster::execute(bool verbose) {
         if (verbose) {
             board.arena(c, target[c], now(), now()+1.0);
             cout << "Launch from " << c << " to " << target[c] << endl;
-            board.launch(c, now()+1.0, 2.0);
+            board.launch(c, target[c], now()+1.0, 2.0);
             board << "Executing ";
             board << description(c);
             end_message();
