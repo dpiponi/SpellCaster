@@ -499,18 +499,19 @@ void SpellCaster::handleInstant(int c, int card_number, int t, bool verbose) {
     mana[nextPlayer] -= cost[c];
 
     target[c] = t;
-#ifdef BOARD
-#if 0
-    if (verbose) {
-        cout << "Instant Launch from " << c << " to " << target[c] << endl;
-        board.launch(c, target[c], now()+1.0, now()+2.0);
-        cout << "Erasing..." << endl;
-    }
-#endif
-#endif
     // Note these are not reflected in Board yet
     hand[nextPlayer].erase(hand[nextPlayer].begin()+card_number);
     location[c] = Location::EXECUTING;
+
+#ifdef BOARD
+    if (verbose) {
+        board.expose(c);
+        int target_card = target[c];
+        if (isCard(target_card)) {
+            board.expose(target_card);
+        }
+    }
+#endif
 
     executeInstant(c, verbose);
 
@@ -543,11 +544,14 @@ void SpellCaster::executeInstant(int c, bool verbose) {
         double start_unarena = start_launch+1.0;
         double end_unarena = start_unarena+1.0;
 
-        board.arena(c, target[c], start_arena, start_launch);
+        int target_card = target[c];
+
+        board.arena(c, target_card, start_arena, start_launch);
         wait_until(start_launch);
-        board.launch(c, target[c], start_launch, start_unarena-start_launch);
+        // executeInstant()
+        board.launch(c, target_card, start_launch, start_unarena);
         wait_until(start_unarena);
-        board.unArena(c, target[c], start_unarena, end_unarena);
+        board.unArena(c, target_card, start_unarena, end_unarena);
         wait_until(end_unarena);
     }
 #endif
@@ -876,22 +880,34 @@ void SpellCaster::execute(bool verbose) {
 
 #ifdef BOARD
         if (verbose) {
-            board.arena(c, target[c], now(), now()+1.0);
-            cout << "Launch from " << c << " to " << target[c] << endl;
-            board.launch(c, target[c], now()+1.0, now()+2.0);
-            board << "Executing ";
-            board << description(c);
-            end_message();
-            board.unArena(c, target[c], now()+2.0, now()+3.0);
+            double start_arena = now();
+            double start_launch = start_arena+1.0;
+            double end_launch = start_launch+1.0;
+
+            board.arena(c, target[c], start_arena, start_launch);
+            wait_until(start_launch);
+            // execute()
+            board.launch(c, target[c], start_launch, end_launch);
+            cout << "Should be an unareana soon" << endl;
         }
 #endif
+
         in_play.pop_back();
         location[c] = Location::EXECUTING;
         checkConsistency();
         executeCard(c, verbose);
         checkConsistency();
         assert(location[c] != Location::EXECUTING);
-        // YYY
+
+#ifdef BOARD
+        if (verbose) {
+            double start_unarena = now();
+            double end_unarena = start_unarena+1.0;
+            cout << "Doing an unarena" << endl;
+            board.unArena(c, target[c], start_unarena, end_unarena);
+        }
+#endif
+
 #ifdef BOARD
         if (verbose) {
             // execute()

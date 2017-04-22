@@ -11,6 +11,10 @@
 // Clock
 // Clock2
 
+inline bool isCard(int c) {
+    return c >= 0 && c < 1000;
+}
+
 class Pop : public SpellDefinition {
 public:
     Pop() : SpellDefinition("Haste", "⬇️️ ", 0, 0, 2, 1, 1, 1,

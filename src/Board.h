@@ -370,7 +370,7 @@ public:
     }
 
     // Fire
-    void launch(int source_card, int target_card, double start_time, double duration) {
+    void launch(int source_card, int target_card, double start_time, double end_time) {
         std::lock_guard<std::mutex> guard(board_mutex);
         particles.resize(0);
         cout << "ACTUAL LAUNCH = " << source_card << ' ' << target[source_card] << endl;
@@ -403,8 +403,8 @@ public:
 
         particles.back().visible = true;
 
-        particles.back().setSize(start_time+duration, 0.1, 0.5*l);
-        particles.back().setSize(start_time+duration+0.01, 0.0, 0.0);
+        particles.back().setSize(end_time, 0.1, 0.5*l);
+        particles.back().setSize(end_time, 0.0, 0.0);
 
         //wait_until(start_time+duration);
     }
@@ -807,7 +807,9 @@ public:
         player.setPosition(time0);
 
         arenaVisible.addEvent(time1, 0.0);
+        cout << "Returning player" << endl;
         setPlayerPosition(time1);
+        cout << "Returning computer" << endl;
         setComputerPosition(time1);
     }
 
