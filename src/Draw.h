@@ -57,7 +57,7 @@ inline void make_matrix(mat4x4 mvp, float ratio, float x, float y, float angle, 
 }
 
 #if 1
-inline void drawFire(float ratio, float x, float y, float z, float angle, float xsize, float ysize, float brightness, float is_alpha, GLuint tex) {
+inline void drawFire(float ratio, float x, float y, float z, float angle, float xsize, float ysize, float brightness, GLuint tex) {
     mat4x4 mvp;
     make_matrix(mvp, ratio, x, y, angle, xsize, ysize);
 
@@ -72,18 +72,18 @@ inline void drawFire(float ratio, float x, float y, float z, float angle, float 
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-inline void drawRectangle(float ratio, float x, float y, float z, float angle, float xsize, float ysize, float brightness, float is_alpha, GLuint tex) {
+inline void drawRectangle(float ratio, float x, float y, float z, float angle, float xsize, float ysize, float brightness, GLuint tex) {
     mat4x4 mvp;
     make_matrix(mvp, ratio, x, y, angle, xsize, ysize);
 
     extern GLuint fire_tex;
 
     if (tex==fire_tex) {
-        drawFire(ratio, x, y, z, angle, xsize, ysize, brightness, is_alpha, tex);
+        drawFire(ratio, x, y, z, angle, xsize, ysize, brightness, tex);
     }
     program.use();
     program.bindVertexArray();
-    program.set(mvp, brightness, is_alpha, z);
+    program.set(mvp, brightness, z);
     program.bufferData(sizeof(vertices), (void *)vertices);
     glBindTexture(GL_TEXTURE_2D, tex);
     glDrawArrays(GL_TRIANGLES, 0, 6);

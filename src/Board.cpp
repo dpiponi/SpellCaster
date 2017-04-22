@@ -703,24 +703,24 @@ void Board::draw(float ratio) {
     glDepthFunc(GL_GEQUAL);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    background.draw(ratio, config.border_line_width, 0.0);
+    background.draw(ratio, config.border_line_width);
 
     ::drawShadow(ratio, -0.15, 0.95, 0.0, 0.0, 0.75, 0.1, 0.35);
 
-    player.draw(ratio, config.border_line_width, 0.0);
-    computer.draw(ratio, config.border_line_width, 0.0);
-    passbutton.draw(ratio, config.border_line_width, 0.0);
-    discardbutton.draw(ratio, config.border_line_width, 0.0);
+    player.draw(ratio, config.border_line_width);
+    computer.draw(ratio, config.border_line_width);
+    passbutton.draw(ratio, config.border_line_width);
+    discardbutton.draw(ratio, config.border_line_width);
     draw_text(ratio, word);
     draw_text(ratio, word_stats0);
     draw_text(ratio, word_stats1);
     for (int i = 0; i < 2; ++i) {
         for (auto p : hand[i]) {
-            cards[p]->draw(ratio, config.border_line_width, 0.0);
+            cards[p]->draw(ratio, config.border_line_width);
         }
     }
     for (auto p : in_play) {
-        cards[p]->draw(ratio, config.border_line_width, 0.0);
+        cards[p]->draw(ratio, config.border_line_width);
     }
 #if 0
     // Only draw last 10 or so in graveyard
@@ -730,7 +730,7 @@ void Board::draw(float ratio) {
     }
 #endif
     for (auto p : graveyard) {
-        cards[p]->draw(ratio, config.border_line_width, 0.0);
+        cards[p]->draw(ratio, config.border_line_width);
     }
     int k = 0;
     for (auto p : in_play) {
@@ -760,7 +760,7 @@ void Board::draw(float ratio) {
     }
     if (annotation.visible) {
         ::drawShadow(ratio, -1.1, 0.0, 0.0, 0.0, 0.2, 0.8, 0.35);
-        annotation.draw(ratio, config.border_line_width, 0.0);
+        annotation.draw(ratio, config.border_line_width);
         draw_text(ratio, word_annotation);
     }
 
@@ -771,7 +771,7 @@ void Board::draw(float ratio) {
     // Particles
     if (particles.size() > 0) {
         for (auto p : particles) {
-            p.draw(ratio, 0.0, 0.0);
+            p.draw(ratio, 0.0);
         }
     }
 }

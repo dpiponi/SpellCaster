@@ -60,13 +60,12 @@ public:
 };
 
 class Program : public ProgramBase {
-    GLint mvp_location, brightness_location, vpos_location, vcol_location, uv_location, is_alpha_location, z_location;
+    GLint mvp_location, brightness_location, vpos_location, vcol_location, uv_location, z_location;
 public:
     Program () { } // XX Should go eventually
     Program(Json shader) : ProgramBase(shader) {
         mvp_location = uniform("MVP");
         brightness_location = uniform("brightness");
-        is_alpha_location = uniform("is_alpha");
         z_location = uniform("z");
 
         glGenVertexArrays(1, &vao);
@@ -78,10 +77,9 @@ public:
 
         unbindVertexArray();
     }
-    void set(const mat4x4 &mvp, float brightness, float is_alpha, float z) {
+    void set(const mat4x4 &mvp, float brightness, float z) {
         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
         glUniform1f(brightness_location, brightness);
-        glUniform1f(is_alpha_location, is_alpha);
         glUniform1f(z_location, z);
     }
 };

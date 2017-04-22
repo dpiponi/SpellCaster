@@ -1,7 +1,7 @@
 #include "GLError.h"
 #include "Rectangle.h"
 
-void Rectangle::drawShadow(float ratio, float is_alpha) {
+void Rectangle::drawShadow(float ratio) {
     if (!visible || tex==0) {
         return;
     }
@@ -10,16 +10,16 @@ void Rectangle::drawShadow(float ratio, float is_alpha) {
                  /* alpha= */ 0.35);
 }
 
-void Rectangle::draw(float ratio, float border_line_width, float is_alpha) {
+void Rectangle::draw(float ratio, float border_line_width) {
     if (!visible || tex==0) {
         return;
     }
 
     if (shadow) {
-        drawShadow(ratio, is_alpha);
+        drawShadow(ratio);
     }
 
-    drawRectangle(ratio, x.get(), y.get(), z.get(), angle.get(), xsize.get(), ysize.get(), brightness.get(), is_alpha, tex);
+    drawRectangle(ratio, x.get(), y.get(), z.get(), angle.get(), xsize.get(), ysize.get(), brightness.get(), tex);
 
     drawBorder(ratio, border_line_width);
 }
@@ -66,7 +66,7 @@ void Rectangle::drawBorder(float ratio, float line_width) {
     }
 }
 
-void TextRectangle::draw(float ratio, float ignore1, float ignore2) {
+void TextRectangle::draw(float ratio, float ignore1) {
     if (!visible || tex==0) {
         return;
     }

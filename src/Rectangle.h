@@ -36,7 +36,7 @@ inline float orientation(Vector2f v) {
 }
 
 class Drawable {
-    virtual void draw(float ratio, float border_line_width = 0.0, float is_alpha = 0.0) = 0;
+    virtual void draw(float ratio, float border_line_width = 0.0) = 0;
 };
 
 class Rectangle : public Drawable {
@@ -124,15 +124,15 @@ public:
     }
 
     void drawBorder(float ratio, float line_width);
-    void drawShadow(float ratio, float is_alpha);
-    void draw(float ratio, float border_line_width = 0.0, float is_alpha = 0.0) override;
+    void drawShadow(float ratio);
+    void draw(float ratio, float border_line_width = 0.0) override;
     //void drawText(float ratio);
     bool contains(Point point) const;
 };
 
 class TextRectangle : public Rectangle {
 public:
-    void draw(float ratio, float border_line_width = 0.0, float is_alpha = 0.0) override;
+    void draw(float ratio, float border_line_width = 0.0) override;
 };
 
 #endif
