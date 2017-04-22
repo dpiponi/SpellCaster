@@ -107,6 +107,9 @@ public:
         glUniform1f(alpha_location, alpha);
         glUniform1f(z_location, z);
     }
+    void draw() {
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+    }
 };
 
 class LineProgram : public ProgramBase {
@@ -162,6 +165,9 @@ public:
         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
         glUniform1f(brightness_location, brightness);
         glUniform3f(color_location, rgb.r, rgb.g, rgb.b);
+    }
+    void draw() {
+        glDrawArrays(GL_TRIANGLES, 0, 6);
     }
 };
 

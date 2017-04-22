@@ -12,7 +12,7 @@ using std::string;
 #include "SpellCaster.h"
 #include "Board.h"
 
-GLuint blob_tex, fire_tex;
+GLuint blob_tex, fire_tex, stroke_tex;
 
 GLuint create_texture(const char *filename, bool repeat) {
     static map<string, GLuint> cache;
@@ -108,4 +108,268 @@ Letter::Letter(char c, FT_Face &face) : character(c) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
     texture = textureID;
+}
+
+void Board::launch3(int source_card) {
+    std::lock_guard<std::mutex> guard(board_mutex);
+    particles.resize(0);
+    cout << "ACTUAL LAUNCH = " << source_card << ' ' << target[source_card] << endl;
+
+//        static GLuint blob_tex = create_texture("assets/blob.png");
+
+    float sx = cards[source_card].getX();
+    float sy = cards[source_card].getY();
+    float tx, ty;
+    if (target[source_card] == PLAYER0) {
+        cout << "Target = PLAYER0" << endl;
+        tx = player.getX();
+        ty = player.getY();
+    } else if (target[source_card] == PLAYER1) {
+        tx = computer.getX();
+        ty = computer.getY();
+    } else {
+        cout << "Target = PLAYER1" << endl;
+        int target_card = target[source_card];
+        tx = cards[target_card].getX();
+        ty = cards[target_card].getY();
+    }
+    Point target {tx, ty};
+    for (int i = 0; i < 30; ++i) {
+        Point x {sx, sy};
+        float velocity_variation = 5.0;
+        Point v {velocity_variation*(rand()/float(RAND_MAX)-0.5f), velocity_variation*(rand()/float(RAND_MAX)-0.5f) };
+
+        particles.push_back(Rectangle());
+        particles.back().setTexture(blob_tex);
+
+        float dt = 0.02;
+        float start_time = now()+0.05*i;
+        particles.back().setAngle(start_time, 2*M_PI*rand()/float(RAND_MAX));
+        particles.back().setZ(start_time, 0.95);
+        particles.back().setPosition(now(), x);
+        float animation_length = 2.0;
+        for (float t = 0; t < 1.5; t += dt) {
+            particles.back().setPosition(start_time+t, x);
+            float size = 0.05*triangle(2.0*(t-0.5*animation_length)/animation_length);
+            particles.back().setSize(start_time+t, size, size);
+            x += dt*v;
+            v = (1-15*dt)*v+200.0*dt*(target-x);
+            t += dt;
+        }
+        particles.back().setSize(start_time+1.5, 0.0, 0.0);
+
+        particles.back().setZ(0.0, 0.9);
+        particles.back().setBrightness(0.0, 1.0);
+        particles.back().visible = true;
+        particles.back().setNoHighlight();
+    }
+}
+
+template<class Gen>
+void genLightning(vector<Vector2f> &out, Vector2f src, Vector2f dst, int depth, Gen &generator) {
+    if (depth == 0) {
+        out.push_back(dst);
+        return;
+    }
+
+    uniform_real_distribution<float> displacement(0.3, 0.7);
+    float s = displacement(generator);
+
+    Vector2f mid = (1-s)*src+s*dst;
+    Vector2f tangent = dst-src;
+    Vector2f normal = Vector2f(tangent[1], -tangent[0]);
+
+    uniform_real_distribution<float> offset(-0.2, 0.2);
+    float o = offset(generator);
+    mid += o*normal;
+
+    genLightning(out, src, mid, depth-1, generator);
+    out.push_back(mid);
+    genLightning(out, mid, dst, depth-1, generator);
+}
+
+// Lightning
+void Board::launch(int source_card, int target_card, double start_time, double end_time) {
+    cout << "ACTUAL LAUNCH() = " << source_card << ' ' << target[source_card] << endl;
+
+    Vector2f source(-0.5, 0.0);
+    Vector2f target(0.5, 0.0);
+
+    for (int t = 0; t < 20; ++t) {
+        std::lock_guard<std::mutex> guard(board_mutex);
+        particles.resize(0);
+
+        vector<Vector2f> vertex;
+        std::minstd_rand0 generator(std::chrono::system_clock::now().time_since_epoch().count());
+        genLightning(vertex, source, target, 4, generator);
+        int nsegments = vertex.size()-1;
+        for (int i = 0; i < nsegments; ++i) {
+            particles.push_back(Rectangle());
+
+            particles.back().visible = true;
+            particles.back().setNoHighlight();
+            particles.back().setTexture(stroke_tex);
+
+            particles.back().setAngle(start_time, orientation(vertex[i+1]-vertex[i]));
+            particles.back().setSize(start_time, 0.1, 0.5*(vertex[i+1]-vertex[i]).norm());
+            particles.back().setPosition(start_time, 0.5*(vertex[i]+vertex[i+1]));
+            particles.back().setZ(start_time, 0.95);
+            particles.back().setBrightness(start_time, 1.0);
+        }
+        wait_until(start_time+0.05*t);
+    }
+    particles.resize(0);
+
+    //wait_until(end_time);
+    //particles.resize(0);
+}
+
+// Fire
+void Board::launch4(int source_card, int target_card, double start_time, double end_time) {
+    std::lock_guard<std::mutex> guard(board_mutex);
+    particles.resize(0);
+    cout << "ACTUAL LAUNCH = " << source_card << ' ' << target[source_card] << endl;
+
+    Vector2f source(-0.5, 0.0);
+    Vector2f target(0.5, 0.0);
+
+    Vector2f middle = 0.5*(source+target);
+    Vector2f delta = target-source;
+    float l = delta.norm();
+    cout << "l = " << l << endl;
+
+    particles.push_back(Rectangle());
+    particles.back().setTexture(fire_tex);
+
+    //double start_time = now();
+    particles.back().setAngle(start_time);
+    particles.back().setZ(start_time);
+    particles.back().setPosition(start_time);
+    particles.back().setSize(start_time);
+    particles.back().setBrightness(start_time);
+
+    particles.back().setAngle(start_time+0.01, orientation(delta));
+    particles.back().setZ(start_time+0.01, 0.95);
+    particles.back().setPosition(start_time+0.01, middle);
+    particles.back().setSize(start_time+0.01, 0.1, 0.5*l);
+    particles.back().setBrightness(start_time+0.01, 1.0);
+
+    particles.back().visible = true;
+
+    particles.back().setSize(end_time, 0.1, 0.5*l);
+    particles.back().setSize(end_time, 0.0, 0.0);
+
+    //wait_until(start_time+duration);
+}
+
+void Board::launch2(int source_card) {
+    std::lock_guard<std::mutex> guard(board_mutex);
+    particles.resize(0);
+    cout << "ACTUAL LAUNCH = " << source_card << ' ' << target[source_card] << endl;
+
+//        static GLuint blob_tex = create_texture("assets/blob.png");
+
+    float sx = cards[source_card].getX();
+    float sy = cards[source_card].getY();
+    float tx, ty;
+    if (target[source_card] == PLAYER0) {
+        cout << "Target = PLAYER0" << endl;
+        tx = player.getX();
+        ty = player.getY();
+    } else if (target[source_card] == PLAYER1) {
+        tx = computer.getX();
+        ty = computer.getY();
+    } else {
+        cout << "Target = PLAYER1" << endl;
+        int target_card = target[source_card];
+        tx = cards[target_card].getX();
+        ty = cards[target_card].getY();
+    }
+    for (int i = 0; i < 20; ++i) {
+        particles.push_back(Rectangle());
+        particles.back().setTexture(blob_tex);
+
+        float start_time = now()+0.05*i;
+        float arrival_time = start_time+0.25;
+        float interval = 0.25;
+        float max_size = 0.05;
+        particles.back().setAngle(start_time, 2*M_PI*rand()/float(RAND_MAX));
+        particles.back().setZ(start_time, 0.95);
+        particles.back().setPosition(start_time, sx, sy);
+        particles.back().setSize(start_time, 0.0, 0.0);
+        particles.back().setPosition(arrival_time+interval, tx-0.125, ty-0.25);
+        particles.back().setSize(arrival_time+interval, max_size, max_size);
+        particles.back().setPosition(arrival_time+2.0*interval, tx-0.125, ty+0.25);
+        particles.back().setPosition(arrival_time+3.0*interval, tx+0.125, ty+0.25);
+        particles.back().setPosition(arrival_time+4.0*interval, tx+0.125, ty-0.25);
+        particles.back().setSize(arrival_time+4.0*interval, max_size, max_size);
+        particles.back().setPosition(arrival_time+5.0*interval, tx, ty);
+        particles.back().setSize(arrival_time+5.0*interval, 0.0, 0.0);
+#if 0
+        particles.back().setPosition(now(), -0.5, -0.5);
+        particles.back().setPosition(now()+0.1*j+0.1*i,
+                            -0.5+0.1*j,                    
+                            -0.5+0.1*j);
+        float s = 0.01*triangle(2.0*j/10-1);
+        particles.back().setSize(now()+0.1*j+0.1*i, s, s);
+#endif
+
+        particles.back().setZ(0.0, 0.9);
+        particles.back().setBrightness(0.0, 1.0);
+        particles.back().visible = true;
+        particles.back().setNoHighlight();
+    }
+}
+
+void Board::setUpBoard(const SpellCaster *game, double time0, double time1) {
+    std::lock_guard<std::mutex> guard(board_mutex);
+    for (int i = 0; i < 2; ++i) {
+        hp[i] = game->hp[i];
+        mana[i] = game->mana[i];
+        hand[i] = game->hand[i];
+    }
+    in_play = game->in_play;
+    target = game->target;
+    cardhp = game->cardhp;
+    basehp = game->basehp;
+    attack = game->attack;
+    properties = game->properties;
+    exclusions = game->exclusions;
+    requirements = game->requirements;
+    card_class = game->card_class;
+    target_class = game->target_class;
+    definitions = game->definitions;
+    exposed = game->exposedTo[0];
+    location = game->location;
+    owner = game->owner;
+    graveyard = game->graveyard;
+    for (int c = 0; c < exposed.size(); ++c) {
+        cards[c].setTexture(exposed[c] ? tex[c] : back_texture);
+    }
+    ostringstream ss;
+    ss << "hp:" << hp[0]
+                << "\nworld:" << mana[0].world
+                << "\nastral:" << mana[0].astral;
+    setText(word_stats0, ss.str().c_str(), 1.1, -0.75);
+    ostringstream st;
+    st << "hp:" << hp[1]
+       << "\nworld:" << mana[1].world
+       << "\nastral:" << mana[1].astral;
+    setText(word_stats1, st.str().c_str(), 1.1, 0.85);
+    setUpHand(0);
+    setUpHand(1);
+    int i = 0;
+    for (auto p : in_play) {
+        cards[p].visible = true;
+        cards[p].setPosition(time0);
+        cards[p].setAngle(time0);
+        setInPlayPosition(time1, p, i++);
+    }
+    for (auto p : graveyard) {
+        cards[p].visible = true;
+        cards[p].setPosition(time0);
+        cards[p].setAngle(time0);
+        setGraveyardPosition(time1, p);
+    }
+    cout.flush();
 }

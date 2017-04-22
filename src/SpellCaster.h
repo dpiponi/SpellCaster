@@ -75,7 +75,7 @@ const int PASS = -1;
 #include "Board.h"
 
 #ifdef BOARD
-extern Board<SpellCaster> board;
+extern Board board;
 #endif
 
 class SpellCaster {

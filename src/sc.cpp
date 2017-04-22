@@ -50,7 +50,7 @@ UCTParameters params {
 
 // Globals
 shared_ptr<SpellCaster> game;
-Board<SpellCaster> board;
+Board board;
 std::future<Best<SpellCaster>> future_best;
 std::future<void> future_player_move;
 std::future<void> future_computer_move;

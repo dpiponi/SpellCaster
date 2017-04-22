@@ -4,6 +4,7 @@
 #include <mutex>
 #include <iostream>
 #include <vector>
+#include <random>
 #include <sstream>
 #include <algorithm>
 #include <Eigen/Core>
@@ -27,6 +28,8 @@ using std::cout;
 using std::endl;
 using std::max;
 using std::ostringstream;
+using std::default_random_engine;
+using std::uniform_real_distribution;
 
 //
 // Timing for instants
@@ -36,7 +39,7 @@ using std::ostringstream;
 //
 
 GLuint create_texture(const char *filename, bool repeat = false);
-extern GLuint blob_tex, fire_tex;
+extern GLuint blob_tex, fire_tex, stroke_tex;
 
 struct BoardConfig {
     float in_play_left;
@@ -79,7 +82,6 @@ public:
     }
 };
 
-template<class Game>
 class Board {
     BoardConfig config;
     mutable std::mutex board_mutex;
@@ -271,6 +273,7 @@ private:
 
         blob_tex = create_texture("assets/blob.png");
         fire_tex = create_texture("assets/fire.png", true);
+        stroke_tex = create_texture("assets/stroke.png", true);
 
         cout << "...done" << endl;
     }
@@ -295,6 +298,76 @@ private:
                         jx, cards[j].getY()+cards[j].getYSize());
     }
 
+    void setPlayerPosition(double time, double z = 0.0) {
+        player.setPosition(time, 0.95, -0.8);
+        player.setZ(time, z);
+        player.setSize(time, 0.1, 0.1);
+        player.setBrightness(time, 1.0);
+        player.visible = true;
+        player.shadow = true;
+    }
+
+    void setComputerPosition(double time, double z = 0.0) {
+        computer.setPosition(time, 0.95, 0.8);
+        computer.setZ(time, z);
+        computer.setSize(time, 0.1, 0.1);
+        computer.setBrightness(time, 1.0);
+        computer.visible = true;
+        computer.shadow = true;
+    }
+
+    Vector2f handPosition(int player, int i) {
+        return Vector2f(config.hand_left+i*config.hand_spacing, player ? 0.6 : -0.6);
+    }
+
+    void setHandPosition(double time, int c, int h, int i, float x, float size, float z, float offsetx, float offsety) {
+        //cards[c].setPosition(time, Vector2f(x+offsetx, (h ? 0.6 : -0.6)+offsety));
+        cards[c].setPosition(time, handPosition(h, i)+Vector2f(offsetx, offsety));
+        cards[c].setZ(time, z);
+        cards[c].setSize(time, size, 2*size);
+        cards[c].setBrightness(0.0, 1.0);
+        cards[c].visible = true;
+        cards[c].shadow = true;
+    }
+
+    void pack(int n, float width, float l, float r, vector<float> &centres) {
+        if (n <= 0) {
+            return;
+        }
+        float eps = 1e-5;
+        float l_centre = l+0.5*width;
+        float r_centre = r-0.5*width;
+        for (int i = 0; i < n; ++i) {
+            float a = float(i)/(n-1);
+            float c = (1-a)*l_centre+a*r_centre;
+            centres.push_back(c);
+//            assert(c-0.5*width >= l-eps);
+//            assert(c+0.5*width <= r+eps);
+        }
+    }
+
+    void setUpHand(int player, int focus = -1, float delay = 0.5) {
+        int n = hand[player].size();
+        float left_edge = config.hand_left-0.5*0.125;
+        float right_edge = config.hand_left+config.hand_spacing*(n-1)+0.5*0.125;
+
+        float left_centre = left_edge+0.5*0.125;
+        float right_centre = right_edge-0.5*0.125;
+
+        vector<float> centres;
+        pack(n, 2.0*0.125, left_edge, right_edge, centres);
+
+        int i = 0;
+        for (auto p : hand[player]) {
+            cards[p].visible = true;
+            float a = n-1 > 0 ? float(i)/(n-1) : 0;
+            setHandPosition(now()+delay, p, player, i, centres[i], 0.125, 0.1+0.001*i, 0.0, 0.0);
+            ++i;
+        }
+    }
+
+// This is now the PUBLIC API
+// Most stuff here needs protection with mutexes
 public:
     vector<Rectangle> particles; // XXX
     Animated<float> arenaVisible;
@@ -314,159 +387,10 @@ public:
         hand.resize(2);
     }
 
-    void launch3(int source_card) {
-        std::lock_guard<std::mutex> guard(board_mutex);
-        particles.resize(0);
-        cout << "ACTUAL LAUNCH = " << source_card << ' ' << target[source_card] << endl;
-
-//        static GLuint blob_tex = create_texture("assets/blob.png");
-
-        float sx = cards[source_card].getX();
-        float sy = cards[source_card].getY();
-        float tx, ty;
-        if (target[source_card] == PLAYER0) {
-            cout << "Target = PLAYER0" << endl;
-            tx = player.getX();
-            ty = player.getY();
-        } else if (target[source_card] == PLAYER1) {
-            tx = computer.getX();
-            ty = computer.getY();
-        } else {
-            cout << "Target = PLAYER1" << endl;
-            int target_card = target[source_card];
-            tx = cards[target_card].getX();
-            ty = cards[target_card].getY();
-        }
-        Point target {tx, ty};
-        for (int i = 0; i < 30; ++i) {
-            Point x {sx, sy};
-            float velocity_variation = 5.0;
-            Point v {velocity_variation*(rand()/float(RAND_MAX)-0.5f), velocity_variation*(rand()/float(RAND_MAX)-0.5f) };
-
-            particles.push_back(Rectangle());
-            particles.back().setTexture(blob_tex);
-
-            float dt = 0.02;
-            float start_time = now()+0.05*i;
-            particles.back().setAngle(start_time, 2*M_PI*rand()/float(RAND_MAX));
-            particles.back().setZ(start_time, 0.95);
-            particles.back().setPosition(now(), x);
-            float animation_length = 2.0;
-            for (float t = 0; t < 1.5; t += dt) {
-                particles.back().setPosition(start_time+t, x);
-                float size = 0.05*triangle(2.0*(t-0.5*animation_length)/animation_length);
-                particles.back().setSize(start_time+t, size, size);
-                x += dt*v;
-                v = (1-15*dt)*v+200.0*dt*(target-x);
-                t += dt;
-            }
-            particles.back().setSize(start_time+1.5, 0.0, 0.0);
-
-            particles.back().setZ(0.0, 0.9);
-            particles.back().setBrightness(0.0, 1.0);
-            particles.back().visible = true;
-            particles.back().setNoHighlight();
-        }
-    }
-
-    // Fire
-    void launch(int source_card, int target_card, double start_time, double end_time) {
-        std::lock_guard<std::mutex> guard(board_mutex);
-        particles.resize(0);
-        cout << "ACTUAL LAUNCH = " << source_card << ' ' << target[source_card] << endl;
-
-        float sx = -0.5;//cards[source_card].getX();
-        float sy = 0.0;//cards[source_card].getY();
-        Vector2f source(sx, sy);
-        Vector2f target(0.5, 0.0);
-
-        Vector2f middle = 0.5*(source+target);
-        Vector2f delta = target-source;
-        float l = delta.norm();
-        cout << "l = " << l << endl;
-
-        particles.push_back(Rectangle());
-        particles.back().setTexture(fire_tex);
-
-        //double start_time = now();
-        particles.back().setAngle(start_time);
-        particles.back().setZ(start_time);
-        particles.back().setPosition(start_time);
-        particles.back().setSize(start_time);
-        particles.back().setBrightness(start_time);
-
-        particles.back().setAngle(start_time+0.01, orientation(delta));
-        particles.back().setZ(start_time+0.01, 0.95);
-        particles.back().setPosition(start_time+0.01, middle);
-        particles.back().setSize(start_time+0.01, 0.1, 0.5*l);
-        particles.back().setBrightness(start_time+0.01, 1.0);
-
-        particles.back().visible = true;
-
-        particles.back().setSize(end_time, 0.1, 0.5*l);
-        particles.back().setSize(end_time, 0.0, 0.0);
-
-        //wait_until(start_time+duration);
-    }
-
-    void launch2(int source_card) {
-        std::lock_guard<std::mutex> guard(board_mutex);
-        particles.resize(0);
-        cout << "ACTUAL LAUNCH = " << source_card << ' ' << target[source_card] << endl;
-
-//        static GLuint blob_tex = create_texture("assets/blob.png");
-
-        float sx = cards[source_card].getX();
-        float sy = cards[source_card].getY();
-        float tx, ty;
-        if (target[source_card] == PLAYER0) {
-            cout << "Target = PLAYER0" << endl;
-            tx = player.getX();
-            ty = player.getY();
-        } else if (target[source_card] == PLAYER1) {
-            tx = computer.getX();
-            ty = computer.getY();
-        } else {
-            cout << "Target = PLAYER1" << endl;
-            int target_card = target[source_card];
-            tx = cards[target_card].getX();
-            ty = cards[target_card].getY();
-        }
-        for (int i = 0; i < 20; ++i) {
-            particles.push_back(Rectangle());
-            particles.back().setTexture(blob_tex);
-
-            float start_time = now()+0.05*i;
-            float arrival_time = start_time+0.25;
-            float interval = 0.25;
-            float max_size = 0.05;
-            particles.back().setAngle(start_time, 2*M_PI*rand()/float(RAND_MAX));
-            particles.back().setZ(start_time, 0.95);
-            particles.back().setPosition(start_time, sx, sy);
-            particles.back().setSize(start_time, 0.0, 0.0);
-            particles.back().setPosition(arrival_time+interval, tx-0.125, ty-0.25);
-            particles.back().setSize(arrival_time+interval, max_size, max_size);
-            particles.back().setPosition(arrival_time+2.0*interval, tx-0.125, ty+0.25);
-            particles.back().setPosition(arrival_time+3.0*interval, tx+0.125, ty+0.25);
-            particles.back().setPosition(arrival_time+4.0*interval, tx+0.125, ty-0.25);
-            particles.back().setSize(arrival_time+4.0*interval, max_size, max_size);
-            particles.back().setPosition(arrival_time+5.0*interval, tx, ty);
-            particles.back().setSize(arrival_time+5.0*interval, 0.0, 0.0);
-#if 0
-            particles.back().setPosition(now(), -0.5, -0.5);
-            particles.back().setPosition(now()+0.1*j+0.1*i,
-                                -0.5+0.1*j,                    
-                                -0.5+0.1*j);
-            float s = 0.01*triangle(2.0*j/10-1);
-            particles.back().setSize(now()+0.1*j+0.1*i, s, s);
-#endif
-
-            particles.back().setZ(0.0, 0.9);
-            particles.back().setBrightness(0.0, 1.0);
-            particles.back().visible = true;
-            particles.back().setNoHighlight();
-        }
-    }
+    void launch3(int source_card);
+    void launch(int source_card, int target_card, double start_time, double end_time);
+    void launch4(int source_card, int target_card, double start_time, double end_time);
+    void launch2(int source_card);
 
     //
     // Most of public API protected through mutexes because
@@ -645,24 +569,6 @@ public:
         }
     }
 
-    void setPlayerPosition(double time, double z = 0.0) {
-        player.setPosition(time, 0.95, -0.8);
-        player.setZ(time, z);
-        player.setSize(time, 0.1, 0.1);
-        player.setBrightness(time, 1.0);
-        player.visible = true;
-        player.shadow = true;
-    }
-
-    void setComputerPosition(double time, double z = 0.0) {
-        computer.setPosition(time, 0.95, 0.8);
-        computer.setZ(time, z);
-        computer.setSize(time, 0.1, 0.1);
-        computer.setBrightness(time, 1.0);
-        computer.visible = true;
-        computer.shadow = true;
-    }
-
     void initPlayers() {
         std::lock_guard<std::mutex> guard(board_mutex);
         //background.setTexture(create_texture("assets/Forest.png"));
@@ -702,60 +608,12 @@ public:
         discardbutton.shadow = true;
     }
 
-    Vector2f handPosition(int player, int i) {
-        return Vector2f(config.hand_left+i*config.hand_spacing, player ? 0.6 : -0.6);
-    }
-
-    void setHandPosition(double time, int c, int h, int i, float x, float size, float z, float offsetx, float offsety) {
-        //cards[c].setPosition(time, Vector2f(x+offsetx, (h ? 0.6 : -0.6)+offsety));
-        cards[c].setPosition(time, handPosition(h, i)+Vector2f(offsetx, offsety));
-        cards[c].setZ(time, z);
-        cards[c].setSize(time, size, 2*size);
-        cards[c].setBrightness(0.0, 1.0);
-        cards[c].visible = true;
-        cards[c].shadow = true;
-    }
-
-    void pack(int n, float width, float l, float r, vector<float> &centres) {
-        if (n <= 0) {
-            return;
-        }
-        float eps = 1e-5;
-        float l_centre = l+0.5*width;
-        float r_centre = r-0.5*width;
-        for (int i = 0; i < n; ++i) {
-            float a = float(i)/(n-1);
-            float c = (1-a)*l_centre+a*r_centre;
-            centres.push_back(c);
-//            assert(c-0.5*width >= l-eps);
-//            assert(c+0.5*width <= r+eps);
-        }
-    }
-
-#if 0
-    void packFocus(int n, float width, float l, float r, int i, vector<float> &centres) {
-        float l_centre = l+width/2.0;
-        float r_centre = r-width/2.0;
-        float a = n-1 > 0 ? float(i)/(n-1): 0;
-        float c = (1-a)*l_centre+a*r_centre;
-        float u = c-0.5*width;
-        float v = c+0.5*width;
-        pack(i, width, l, u, centres);
-        centres.push_back(c);
-        pack(n-i-1, width, v, r, centres);
-        float eps = 1e-5;
-        for (int i = 0; i < n; ++i) {
-//            assert(centres[i]-0.5*width >= l-eps);
-//            assert(centres[i]+0.5*width <= r+eps);
-        }
-    }
-#endif
-
     void arena(int card1, int card2, double start_time, double end_time) {
+        std::lock_guard<std::mutex> guard(board_mutex);
         float size = 0.125;
 
         cards[card1].visible = true;
-        cards[card1].shadow = true;
+        cards[card1].shadow = false;
 
         arenaVisible.addEvent(start_time, 1.0);
         cards[card1].setBrightness(start_time, 1.0);
@@ -802,6 +660,7 @@ public:
     }
 
     void unArena(int card1, int card2, double time0, double time1) {
+        std::lock_guard<std::mutex> guard(board_mutex);
         arenaVisible.addEvent(time0, 1.0);
         cards[card1].setPosition(time0);
         player.setPosition(time0);
@@ -814,6 +673,7 @@ public:
     }
 
     void unFocus(int player, int card, float delay) {
+        std::lock_guard<std::mutex> guard(board_mutex);
         int focus = find(hand[0].begin(), hand[0].end(), card)-hand[0].begin();
         assert(game->hand[0][focus] == card);
 
@@ -832,6 +692,7 @@ public:
     }
 
     void focus(int player, int card, float delay) {
+        std::lock_guard<std::mutex> guard(board_mutex);
         int focus = find(hand[0].begin(), hand[0].end(), card)-hand[0].begin();
         assert(hand[0][focus] == card);
 
@@ -854,87 +715,16 @@ public:
         }
     }
 
-    void setUpHand(int player, int focus = -1, float delay = 0.5) {
-        int n = hand[player].size();
-        float left_edge = config.hand_left-0.5*0.125;
-        float right_edge = config.hand_left+config.hand_spacing*(n-1)+0.5*0.125;
-
-        float left_centre = left_edge+0.5*0.125;
-        float right_centre = right_edge-0.5*0.125;
-
-        vector<float> centres;
-        pack(n, 2.0*0.125, left_edge, right_edge, centres);
-
-        int i = 0;
-        for (auto p : hand[player]) {
-            cards[p].visible = true;
-            float a = n-1 > 0 ? float(i)/(n-1) : 0;
-            setHandPosition(now()+delay, p, player, i, centres[i], 0.125, 0.1+0.001*i, 0.0, 0.0);
-            ++i;
-        }
-    }
-
-    void setUpBoard(const Game *game, double time0, double time1) {
-        std::lock_guard<std::mutex> guard(board_mutex);
-        for (int i = 0; i < 2; ++i) {
-            hp[i] = game->hp[i];
-            mana[i] = game->mana[i];
-            hand[i] = game->hand[i];
-        }
-        in_play = game->in_play;
-        target = game->target;
-        cardhp = game->cardhp;
-        basehp = game->basehp;
-        attack = game->attack;
-        properties = game->properties;
-        exclusions = game->exclusions;
-        requirements = game->requirements;
-        card_class = game->card_class;
-        target_class = game->target_class;
-        definitions = game->definitions;
-        exposed = game->exposedTo[0];
-        location = game->location;
-        owner = game->owner;
-        graveyard = game->graveyard;
-        for (int c = 0; c < exposed.size(); ++c) {
-            cards[c].setTexture(exposed[c] ? tex[c] : back_texture);
-        }
-	ostringstream ss;
-        ss << "hp:" << hp[0]
-		    << "\nworld:" << mana[0].world
-		    << "\nastral:" << mana[0].astral;
-        setText(word_stats0, ss.str().c_str(), 1.1, -0.75);
-	ostringstream st;
-        st << "hp:" << hp[1]
-	   << "\nworld:" << mana[1].world
-	   << "\nastral:" << mana[1].astral;
-        setText(word_stats1, st.str().c_str(), 1.1, 0.85);
-        setUpHand(0);
-        setUpHand(1);
-        int i = 0;
-        for (auto p : in_play) {
-            cards[p].visible = true;
-            cards[p].setPosition(time0);
-            cards[p].setAngle(time0);
-            setInPlayPosition(time1, p, i++);
-        }
-        for (auto p : graveyard) {
-            cards[p].visible = true;
-            cards[p].setPosition(time0);
-            cards[p].setAngle(time0);
-            setGraveyardPosition(time1, p);
-        }
-        cout.flush();
-    }
+    void setUpBoard(const SpellCaster *game, double time0, double time1);
 
     void setUpBoard(shared_ptr<const SpellCaster> game, double time0, double time1) {
         setUpBoard(game.get(), time0, time1);
     }
 
     template<class C>
-    const Board<Game> &operator<<(const C &x) const {
+    const Board &operator<<(const C &x) const {
         std::lock_guard<std::mutex> guard(board_mutex);
-        auto non_const = const_cast<Board<SpellCaster> *>(this);
+        auto non_const = const_cast<Board *>(this);
         if (new_message) {
             non_const->clear();
             non_const->new_message = false;
@@ -946,7 +736,7 @@ public:
 
     void setNewMessage() const {
         std::lock_guard<std::mutex> guard(board_mutex);
-        auto non_const = const_cast<Board<SpellCaster> *>(this);
+        auto non_const = const_cast<Board *>(this);
         non_const->new_message = true;
     }
 

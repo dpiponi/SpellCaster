@@ -4,7 +4,7 @@
 #include "SpellCaster.h"
 #include "Application.h"
 
-extern Board<SpellCaster> board;
+extern Board board;
 extern shared_ptr<SpellCaster> game;
 extern shared_ptr<UIState> ui_state;
 extern std::future<Best<SpellCaster>> future_best;

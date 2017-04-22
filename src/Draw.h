@@ -49,13 +49,6 @@ inline void make_matrix(mat4x4 mvp, float ratio, float x, float y, float angle, 
     mat4x4 m, p;
     //mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
     mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 0.0f, 1.0f);
-#if 0
-    cout << p[0][0] << ' ' << p[0][1] << ' ' << p[0][2] << ' ' << p[0][3] << endl;
-    cout << p[1][0] << ' ' << p[1][1] << ' ' << p[1][2] << ' ' << p[1][3] << endl;
-    cout << p[2][0] << ' ' << p[2][1] << ' ' << p[2][2] << ' ' << p[2][3] << endl;
-    cout << p[3][0] << ' ' << p[3][1] << ' ' << p[3][2] << ' ' << p[3][3] << endl;
-    cout << endl;
-#endif
     mat4x4_identity(m);
     mat4x4_translate_in_place(m, x, y, 0.0);
     mat4x4_rotate_Z(m, m, angle);
@@ -97,14 +90,11 @@ inline void drawRectangle(float ratio, float x, float y, float z, float angle, f
     program.unbindVertexArray();
     program.unuse();
     glBindTexture(GL_TEXTURE_2D, 0);
-//    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 #endif
 
-#if 1
-#endif
-
-inline void drawShadow(float ratio, float x, float y, float z, float angle, float xsize, float ysize, float alpha) {
+inline void drawShadow(float ratio, float x, float y, float z,
+                       float angle, float xsize, float ysize, float alpha) {
     mat4x4 mvp;
     make_matrix(mvp, ratio, x, y, angle, xsize, ysize);
 
@@ -112,10 +102,9 @@ inline void drawShadow(float ratio, float x, float y, float z, float angle, floa
     shadow_program.bindVertexArray();
     shadow_program.set(mvp, alpha, z);
     shadow_program.bufferData(sizeof(vertices), (void *)vertices);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    shadow_program.draw();
     shadow_program.unbindVertexArray();
     program.unuse();
-//    glBindBuffer(GL_ARRAY_BUFFER, 0); // XXX ? NEED ?
 }
 
 inline void drawTextRectangle(float ratio, float x, float y, float angle, float xsize, float ysize, float brightness, GLuint tex) {
@@ -127,11 +116,10 @@ inline void drawTextRectangle(float ratio, float x, float y, float angle, float 
     text_program.set(mvp, brightness, RGB {1.0, 1.0, 0.5});
     text_program.bufferData(sizeof(vertices), (void *)vertices);
     glBindTexture(GL_TEXTURE_2D, tex);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    text_program.draw();
     text_program.unbindVertexArray();
     text_program.unuse();
     glBindTexture(GL_TEXTURE_2D, 0);
-//    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 #endif
