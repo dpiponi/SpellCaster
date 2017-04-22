@@ -645,18 +645,18 @@ public:
         }
     }
 
-    void setPlayerPosition(double time) {
+    void setPlayerPosition(double time, double z = 0.0) {
         player.setPosition(time, 0.95, -0.8);
-        player.setZ(time, 0.0);
+        player.setZ(time, z);
         player.setSize(time, 0.1, 0.1);
         player.setBrightness(time, 1.0);
         player.visible = true;
         player.shadow = true;
     }
 
-    void setComputerPosition(double time) {
+    void setComputerPosition(double time, double z = 0.0) {
         computer.setPosition(time, 0.95, 0.8);
-        computer.setZ(time, 0.0);
+        computer.setZ(time, z);
         computer.setSize(time, 0.1, 0.1);
         computer.setBrightness(time, 1.0);
         computer.visible = true;
@@ -765,7 +765,7 @@ public:
 
         arenaVisible.addEvent(end_time, 1.0);
         cards[card1].setPosition(end_time, -0.5, 0);
-        cards[card1].setZ(end_time, 0.95);
+        cards[card1].setZ(end_time, 0.9);
         cards[card1].setSize(end_time, size, 2*size);
 
         if (card2 == PLAYER0) {
@@ -808,9 +808,9 @@ public:
 
         arenaVisible.addEvent(time1, 0.0);
         cout << "Returning player" << endl;
-        setPlayerPosition(time1);
+        setPlayerPosition(time1, 0.95);
         cout << "Returning computer" << endl;
-        setComputerPosition(time1);
+        setComputerPosition(time1, 0.95);
     }
 
     void unFocus(int player, int card, float delay) {
@@ -869,25 +869,9 @@ public:
         for (auto p : hand[player]) {
             cards[p].visible = true;
             float a = n-1 > 0 ? float(i)/(n-1) : 0;
-//            if (i != focus) {
-                setHandPosition(now()+delay, p, player, i, centres[i], 0.125, 0.1+0.001*i, 0.0, 0.0);
-//            } else {
-//                setHandPosition(now(), p, player, centres[i], 0.125, 0.2, 0.0, 0.0);
-//                setHandPosition(now()+0.25*delay, p, player, centres[i], 1.1*0.125, 0.5, 0.0, 0.0);
-//                setHandPosition(now()+0.5*delay, p, player, centres[i], 1.2*0.125, 1.0, 0.0, 0.0);
-//                for (int k = 0; k < 100; ++k) {
-//                    setHandPosition(now()+0.5*delay+0.3*k, p, player, centres[i], 1.2*0.125, 1.0, 0.004*cos(k), -0.004*sin(k));
-//                }
-//            }
+            setHandPosition(now()+delay, p, player, i, centres[i], 0.125, 0.1+0.001*i, 0.0, 0.0);
             ++i;
         }
-#if 0
-        if (focus >= 0) {
-            cards[focus].setSize(now()+delay, 0.125, 0.25);
-            cards[focus].setSize(now()+2*delay, 1.2*0.125, 1.2*0.25);
-        }
-#endif
-//        cout << endl;
     }
 
     void setUpBoard(const Game *game, double time0, double time1) {
@@ -1035,8 +1019,10 @@ public:
             annotation.draw(ratio, config.border_line_width, 0.0);
             draw_text(ratio, word_annotation);
         }
+
+        // Render arena
         if (arenaVisible.get()) {
-            ::drawShadow(ratio, 0.0, 0.0, /* z */ 0.8, 0.0, 0.75, 0.35, 0.50);
+            ::drawShadow(ratio, 0.0, 0.0, /* z= */ 0.8, 0.0, 0.75, 0.35, 0.50);
         }
         // Particles
         if (particles.size() > 0) {

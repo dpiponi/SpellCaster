@@ -551,6 +551,7 @@ void SpellCaster::executeInstant(int c, bool verbose) {
         // executeInstant()
         board.launch(c, target_card, start_launch, start_unarena);
         wait_until(start_unarena);
+        // executeInstant()
         board.unArena(c, target_card, start_unarena, end_unarena);
         wait_until(end_unarena);
     }
@@ -904,6 +905,7 @@ void SpellCaster::execute(bool verbose) {
             double start_unarena = now();
             double end_unarena = start_unarena+1.0;
             cout << "Doing an unarena" << endl;
+            // execute()
             board.unArena(c, target[c], start_unarena, end_unarena);
         }
 #endif
