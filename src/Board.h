@@ -38,7 +38,7 @@ using std::uniform_real_distribution;
 // 2:3s     Return and discard
 //
 
-GLuint create_texture(const char *filename, bool repeat = false);
+GLuint create_texture(const char *filename, bool repeat = false, bool mipmap = true);
 extern GLuint blob_tex, fire_tex, stroke_tex;
 
 struct BoardConfig {
@@ -273,7 +273,7 @@ private:
 
         blob_tex = create_texture("assets/blob.png");
         fire_tex = create_texture("assets/fire.png", true);
-        stroke_tex = create_texture("assets/stroke.png", true);
+        stroke_tex = create_texture("assets/stroke.png", false, true);
 
         cout << "...done" << endl;
     }

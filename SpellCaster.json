@@ -14,7 +14,7 @@
      "border_line_width": 3.0,
      "player_icon": "assets/player.jpg",
      "computer_icon": "assets/computer.jpg",
-     "background": "assets/Forest.png",
+     "background": "assets/Forest.jpg",
      "vertical_text_space": 0.05,
      "shader": {
          "vertex": "shaders/vertex.glsl",

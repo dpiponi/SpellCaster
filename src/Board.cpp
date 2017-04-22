@@ -14,7 +14,7 @@ using std::string;
 
 GLuint blob_tex, fire_tex, stroke_tex;
 
-GLuint create_texture(const char *filename, bool repeat) {
+GLuint create_texture(const char *filename, bool repeat, bool mipmap) {
     static map<string, GLuint> cache;
 
     auto p = cache.find(filename);
@@ -52,7 +52,9 @@ GLuint create_texture(const char *filename, bool repeat) {
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture_data->w, texture_data->h, 0, texture_format, GL_UNSIGNED_BYTE, texture_data->pixels);
     SDL_UnlockSurface(texture_data);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    if (mipmap) {
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
     SDL_FreeSurface(texture_data);
 
     if (repeat) {
