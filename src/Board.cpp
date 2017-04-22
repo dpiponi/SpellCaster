@@ -165,10 +165,24 @@ void Board::launch3(int source_card) {
     }
 }
 
+void addSegment(vector<Rectangle> &particles, Vector2f start, Vector2f end, double time) {
+    particles.push_back(Rectangle());
+
+    particles.back().visible = true;
+    particles.back().setNoHighlight();
+    particles.back().setTexture(stroke_tex);
+
+    particles.back().setAngle(time, orientation(end-start));
+    particles.back().setSize(time, 0.1, 0.5*(end-start).norm());
+    particles.back().setPosition(time, 0.5*(start+end));
+    particles.back().setZ(time, 0.96);
+    particles.back().setBrightness(time, 1.0);
+}
+
 template<class Gen>
-void genLightning(vector<Vector2f> &out, Vector2f src, Vector2f dst, int depth, Gen &generator) {
+void genLightning(vector<Rectangle> &particles, Vector2f src, Vector2f dst, int depth, Gen &generator, double time) {
     if (depth == 0) {
-        out.push_back(dst);
+        addSegment(particles, src, dst, time);
         return;
     }
 
@@ -183,9 +197,8 @@ void genLightning(vector<Vector2f> &out, Vector2f src, Vector2f dst, int depth, 
     float o = offset(generator);
     mid += o*normal;
 
-    genLightning(out, src, mid, depth-1, generator);
-    out.push_back(mid);
-    genLightning(out, mid, dst, depth-1, generator);
+    genLightning(particles, src, mid, depth-1, generator, time);
+    genLightning(particles, mid, dst, depth-1, generator, time);
 }
 
 // Lightning
@@ -195,28 +208,18 @@ void Board::launch(int source_card, int target_card, double start_time, double e
     Vector2f source(-0.5, 0.0);
     Vector2f target(0.5, 0.0);
 
+    std::minstd_rand0 generator(std::chrono::system_clock::now().time_since_epoch().count());
+
     for (int t = 0; t < 20; ++t) {
         std::lock_guard<std::mutex> guard(board_mutex);
         particles.resize(0);
 
-        vector<Vector2f> vertex;
-        std::minstd_rand0 generator(std::chrono::system_clock::now().time_since_epoch().count());
-        genLightning(vertex, source, target, 4, generator);
-        int nsegments = vertex.size()-1;
-        for (int i = 0; i < nsegments; ++i) {
-            particles.push_back(Rectangle());
-
-            particles.back().visible = true;
-            particles.back().setNoHighlight();
-            particles.back().setTexture(stroke_tex);
-
-            particles.back().setAngle(start_time, orientation(vertex[i+1]-vertex[i]));
-            particles.back().setSize(start_time, 0.1, 0.5*(vertex[i+1]-vertex[i]).norm());
-            particles.back().setPosition(start_time, 0.5*(vertex[i]+vertex[i+1]));
-            particles.back().setZ(start_time, 0.95);
-            particles.back().setBrightness(start_time, 1.0);
+        for (int s = -2; s <= 2; ++s) {
+        //for (int s = 0; s <= 0; ++s) {
+            genLightning(particles, source+Vector2f(0.125, 0),
+                                    target+Vector2f(-0.125, 0.05*s), 3, generator, start_time+0.05*t);
         }
-        wait_until(start_time+0.05*t);
+        wait_until(start_time+0.05*(t+1));
     }
     particles.resize(0);
 
@@ -372,4 +375,111 @@ void Board::setUpBoard(const SpellCaster *game, double time0, double time1) {
         setGraveyardPosition(time1, p);
     }
     cout.flush();
+}
+
+void Board::arena(int card1, int card2, double start_time, double end_time) {
+    std::lock_guard<std::mutex> guard(board_mutex);
+    float size = 0.125;
+
+    cards[card1].visible = true;
+    cards[card1].shadow = false;
+
+    arenaVisible.addEvent(start_time, 1.0);
+    cards[card1].setBrightness(start_time, 1.0);
+    cards[card1].setPosition(start_time);
+
+    cards[card1].setZ(start_time, 0.95);
+
+    arenaVisible.addEvent(end_time, 1.0);
+    cards[card1].setPosition(end_time, -0.5, 0);
+    cards[card1].setZ(end_time, 0.9);
+    cards[card1].setSize(end_time, size, 2*size);
+
+    if (card2 == PLAYER0) {
+        player.setZ(start_time, 0.95);
+        player.setPosition(start_time);
+
+        player.setPosition(end_time, 0.5, 0);
+        player.setZ(end_time, 0.95);
+        player.setSize(end_time, size, size);
+        player.setBrightness(0.0, 1.0);
+        player.visible = true;
+        player.shadow = true;
+        return;
+    } else if (card2 == PLAYER1) {
+        computer.setZ(start_time, 0.95);
+
+        computer.setPosition(end_time, 0.5, 0);
+        computer.setZ(end_time, 0.95);
+        computer.setSize(end_time, size, size);
+        computer.setBrightness(0.0, 1.0);
+        computer.visible = true;
+        computer.shadow = true;
+        return;
+    }
+
+    cards[card2].setZ(start_time, 0.95);
+
+    cards[card2].setPosition(end_time, 0.5, 0);
+    cards[card2].setZ(end_time, 0.95);
+    cards[card2].setSize(end_time, size, 2*size);
+    cards[card2].setBrightness(0.0, 1.0);
+    cards[card2].visible = true;
+    cards[card2].shadow = true;
+}
+
+void Board::unArena(int card1, int card2, double time0, double time1) {
+    std::lock_guard<std::mutex> guard(board_mutex);
+    arenaVisible.addEvent(time0, 1.0);
+    cards[card1].setPosition(time0);
+    player.setPosition(time0);
+
+    arenaVisible.addEvent(time1, 0.0);
+    cout << "Returning player" << endl;
+    setPlayerPosition(time1, 0.95);
+    cout << "Returning computer" << endl;
+    setComputerPosition(time1, 0.95);
+}
+
+void Board::unFocus(int player, int card, float delay) {
+    std::lock_guard<std::mutex> guard(board_mutex);
+    int focus = find(hand[0].begin(), hand[0].end(), card)-hand[0].begin();
+    assert(game->hand[0][focus] == card);
+
+    int n = hand[player].size();
+    float left_edge = config.hand_left-0.5*0.125;
+    float right_edge = config.hand_left+config.hand_spacing*(n-1)+0.5*0.125;
+
+    float left_centre = left_edge+0.5*0.125;
+    float right_centre = right_edge-0.5*0.125;
+
+    vector<float> centres;
+    pack(n, 2.0*0.125, left_edge, right_edge, centres);
+
+    auto p = hand[player][focus];
+    setHandPosition(now()+delay, p, player, focus, centres[focus], 0.125, 0.1+0.001*focus, 0.0, 0.0);
+}
+
+void Board::focus(int player, int card, float delay) {
+    std::lock_guard<std::mutex> guard(board_mutex);
+    int focus = find(hand[0].begin(), hand[0].end(), card)-hand[0].begin();
+    assert(hand[0][focus] == card);
+
+    int n = hand[player].size();
+    float left_edge = config.hand_left-0.5*0.125;
+    float right_edge = config.hand_left+config.hand_spacing*(n-1)+0.5*0.125;
+
+    float left_centre = left_edge+0.5*0.125;
+    float right_centre = right_edge-0.5*0.125;
+
+    vector<float> centres;
+    pack(n, 2.0*0.125, left_edge, right_edge, centres);
+
+    auto p = hand[player][focus];
+    setHandPosition(now(), p, player, focus, centres[focus], 0.125, 0.2, 0.0, 0.0);
+    setHandPosition(now()+0.25*delay, p, player, focus, centres[focus], 1.1*0.125, 0.5, 0.0, 0.0);
+    setHandPosition(now()+0.5*delay, p, player, focus, centres[focus], 1.2*0.125, 1.0, 0.0, 0.0);
+    for (int k = 0; k < 100; ++k) {
+        setHandPosition(now()+0.5*delay+0.3*k, p, player, focus, centres[focus], 1.2*0.125, 1.0, 0.004*cos(k), -0.004*sin(k));
+    }
 }
