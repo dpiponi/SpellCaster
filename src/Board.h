@@ -96,7 +96,8 @@ class Board {
     vector<Rectangle> word_stats1;
 
 public:
-    vector<Rectangle> cards;
+    //vector<Rectangle> cards;
+    vector<shared_ptr<Rectangle>> cards;
     vector<vector<int>> hand;
 private:
     vector<int> graveyard;
@@ -153,24 +154,24 @@ private:
     }
 
     void setGraveyardPosition(double time, int c) {
-        cards[c].setPosition(time, Vector2f(1.3, 0.0));
-        cards[c].setZ(time, 0.0);
-        cards[c].setSize(time, 0.0625*1.5, 0.125*1.5);
-        cards[c].setBrightness(0.0, 1.0);
-        cards[c].setAngle(time, -2*M_PI);
-        cards[c].visible = true;
-        cards[c].shadow = true;
+        cards[c]->setPosition(time, Vector2f(1.3, 0.0));
+        cards[c]->setZ(time, 0.0);
+        cards[c]->setSize(time, 0.0625*1.5, 0.125*1.5);
+        cards[c]->setBrightness(0.0, 1.0);
+        cards[c]->setAngle(time, -2*M_PI);
+        cards[c]->visible = true;
+        cards[c]->shadow = true;
     }
 
     void setInPlayPosition(double time, int c, int i) {
         //cards[c].setPosition(time, -1.1+0.27*i, owner[c] ==0 ? -0.025 : 0.025);
-        cards[c].setPosition(time, Vector2f(config.in_play_left+config.in_play_spacing*i,
+        cards[c]->setPosition(time, Vector2f(config.in_play_left+config.in_play_spacing*i,
                                             owner[c] == 0 ? -config.offset_for_player : config.offset_for_player));
-        cards[c].setZ(time, 0.0);
-        cards[c].setSize(0.0, 0.125, 0.25);
-        cards[c].setBrightness(0.0, 1.0);
-        cards[c].visible = true;
-        cards[c].shadow = true;
+        cards[c]->setZ(time, 0.0);
+        cards[c]->setSize(0.0, 0.125, 0.25);
+        cards[c]->setBrightness(0.0, 1.0);
+        cards[c]->visible = true;
+        cards[c]->shadow = true;
     }
 
     int contains(Point point) const {
@@ -198,18 +199,18 @@ private:
         int last_card = -1;
         for (int i = 0; i < 2; ++i) {
             for (auto p : hand[i]) {
-                if (cards[p].contains(point)) {
+                if (cards[p]->contains(point)) {
                     last_card = p;
                 }
             }
         }
         for (auto p : in_play) {
-            if (cards[p].contains(point)) {
+            if (cards[p]->contains(point)) {
                 last_card = p;
             }
         }
         for (auto p : graveyard) {
-            if (cards[p].contains(point)) {
+            if (cards[p]->contains(point)) {
                 last_card = p;
             }
         }
@@ -268,7 +269,7 @@ private:
         }
 
         for (int i = 0; i < number_of_cards; ++i) {
-            cards[i].setTexture(back_texture);
+            cards[i]->setTexture(back_texture);
         }
 
         blob_tex = create_texture("assets/blob.png");
@@ -285,17 +286,17 @@ private:
     }
 
     void drawConnection(float ratio, RGB rgb, int i, int j, int k) {
-        float widthi = cards[i].getXSize();
-        float widthj = cards[j].getXSize();
+        float widthi = cards[i]->getXSize();
+        float widthj = cards[j]->getXSize();
         float horizontal_height = 0.3+0.02*k;
-        float ix = cards[i].getX()-0.5*widthi;
-        float jx = cards[j].getX()+0.5*widthj;
-        drawLine(ratio, config.border_line_width, rgb, ix, cards[i].getY()+cards[i].getYSize(),
+        float ix = cards[i]->getX()-0.5*widthi;
+        float jx = cards[j]->getX()+0.5*widthj;
+        drawLine(ratio, config.border_line_width, rgb, ix, cards[i]->getY()+cards[i]->getYSize(),
                         ix, horizontal_height);
         drawLine(ratio, config.border_line_width, rgb, ix, horizontal_height,
                         jx, horizontal_height);
         drawLine(ratio, config.border_line_width, rgb, jx, horizontal_height,
-                        jx, cards[j].getY()+cards[j].getYSize());
+                        jx, cards[j]->getY()+cards[j]->getYSize());
     }
 
     void setPlayerPosition(double time, double z = 0.0) {
@@ -321,13 +322,13 @@ private:
     }
 
     void setHandPosition(double time, int c, int h, int i, float x, float size, float z, float offsetx, float offsety) {
-        //cards[c].setPosition(time, Vector2f(x+offsetx, (h ? 0.6 : -0.6)+offsety));
-        cards[c].setPosition(time, handPosition(h, i)+Vector2f(offsetx, offsety));
-        cards[c].setZ(time, z);
-        cards[c].setSize(time, size, 2*size);
-        cards[c].setBrightness(0.0, 1.0);
-        cards[c].visible = true;
-        cards[c].shadow = true;
+        //cards[c]->setPosition(time, Vector2f(x+offsetx, (h ? 0.6 : -0.6)+offsety));
+        cards[c]->setPosition(time, handPosition(h, i)+Vector2f(offsetx, offsety));
+        cards[c]->setZ(time, z);
+        cards[c]->setSize(time, size, 2*size);
+        cards[c]->setBrightness(0.0, 1.0);
+        cards[c]->visible = true;
+        cards[c]->shadow = true;
     }
 
     void pack(int n, float width, float l, float r, vector<float> &centres) {
@@ -359,7 +360,7 @@ private:
 
         int i = 0;
         for (auto p : hand[player]) {
-            cards[p].visible = true;
+            cards[p]->visible = true;
             float a = n-1 > 0 ? float(i)/(n-1) : 0;
             setHandPosition(now()+delay, p, player, i, centres[i], 0.125, 0.1+0.001*i, 0.0, 0.0);
             ++i;
@@ -384,6 +385,9 @@ public:
     void setNumCards(int n) {
         ncards = n;
         cards.resize(n);
+        for (int i = 0; i < n; ++i) {
+            cards[i] = make_shared<Rectangle>();
+        }
         hand.resize(2);
     }
 
@@ -414,9 +418,9 @@ public:
         std::lock_guard<std::mutex> guard(board_mutex);
         cout << "!!!!!!!!!!!!!!!!!!!!!!!1 SHAKING " << c << endl;
         for (int i = 0; i < 16; ++i) {
-            cards[c].setAngle(now()+0.05*i, -0.1+0.2*(i % 2));
+            cards[c]->setAngle(now()+0.05*i, -0.1+0.2*(i % 2));
         };
-        cards[c].setAngle(now()+0.06*16, 0.0);
+        cards[c]->setAngle(now()+0.06*16, 0.0);
     }
 
     void shakePlayer(int p) {
@@ -477,33 +481,33 @@ public:
         passbutton.setNoHighlight();
         discardbutton.setNoHighlight();
         for (auto p : in_play) {
-            cards[p].setNoHighlight();
+            cards[p]->setNoHighlight();
         }
         for (auto p : hand[0]) {
-            cards[p].setNoHighlight();
+            cards[p]->setNoHighlight();
         }
         for (auto p : hand[1]) {
-            cards[p].setNoHighlight();
+            cards[p]->setNoHighlight();
         }
     }
 
     void highlightCard(int card) {
         std::lock_guard<std::mutex> guard(board_mutex);
         if (owner[card] == 1) {
-            cards[card].setHighlight(config.computer_highlight);
+            cards[card]->setHighlight(config.computer_highlight);
         } else {
-            cards[card].setHighlight(config.player_highlight);
+            cards[card]->setHighlight(config.player_highlight);
         }
     }
 
     void noHighlightCard(int card) {
         std::lock_guard<std::mutex> guard(board_mutex);
-        cards[card].setNoHighlight();
+        cards[card]->setNoHighlight();
     }
 
     void expose(int card) {
         std::lock_guard<std::mutex> guard(board_mutex);
-        cards[card].setTexture(tex[card]);
+        cards[card]->setTexture(tex[card]);
     }
 
     void setAnnotation(int card) {
@@ -556,7 +560,7 @@ public:
 
     void unExpose(int card) {
         std::lock_guard<std::mutex> guard(board_mutex);
-        cards[card].setTexture(back_texture);
+        cards[card]->setTexture(back_texture);
     }
 
     void initCards(const vector<const Definition *> &player_deck,
@@ -565,7 +569,7 @@ public:
         initTextures(player_deck, computer_deck);
         int number_of_cards = player_deck.size()+computer_deck.size();
         for (int i = 0; i < number_of_cards; ++i) {
-            cards[i].setTexture(back_texture);
+            cards[i]->setTexture(back_texture);
         }
     }
 
@@ -660,11 +664,11 @@ public:
         draw_text(ratio, word_stats1);
         for (int i = 0; i < 2; ++i) {
             for (auto p : hand[i]) {
-                cards[p].draw(ratio, config.border_line_width, 0.0);
+                cards[p]->draw(ratio, config.border_line_width, 0.0);
             }
         }
         for (auto p : in_play) {
-            cards[p].draw(ratio, config.border_line_width, 0.0);
+            cards[p]->draw(ratio, config.border_line_width, 0.0);
         }
 #if 0
         // Only draw last 10 or so in graveyard
@@ -674,12 +678,12 @@ public:
         }
 #endif
         for (auto p : graveyard) {
-            cards[p].draw(ratio, config.border_line_width, 0.0);
+            cards[p]->draw(ratio, config.border_line_width, 0.0);
         }
         int k = 0;
         for (auto p : in_play) {
             int i = p;
-            if (cards[i].visible) {
+            if (cards[i]->visible) {
                 if (target[i] != -1) {
                     int j = target[i];
                     RGB rgb = owner[i] ? config.computer_highlight : config.player_highlight;
@@ -689,15 +693,15 @@ public:
                             ++k;
                         }
                     } else if (j==1001) {
-                        float widthi = cards[i].getXSize();
-                        float horizontal_height = cards[i].getY()+cards[i].getYSize()+0.05;
-                        drawLine(ratio, config.border_line_width, rgb, cards[i].getX()-0.5*widthi, cards[i].getY()+cards[i].getYSize(),
-                                        cards[i].getX()-0.5*widthi, horizontal_height);
+                        float widthi = cards[i]->getXSize();
+                        float horizontal_height = cards[i]->getY()+cards[i]->getYSize()+0.05;
+                        drawLine(ratio, config.border_line_width, rgb, cards[i]->getX()-0.5*widthi, cards[i]->getY()+cards[i]->getYSize(),
+                                        cards[i]->getX()-0.5*widthi, horizontal_height);
                     } else if (j==1000) {
-                        float widthi = cards[i].getXSize();
-                        float horizontal_height = cards[i].getY()-cards[i].getYSize()-0.05;
-                        drawLine(ratio, config.border_line_width, rgb, cards[i].getX()-0.5*widthi, cards[i].getY()-cards[i].getYSize(),
-                                        cards[i].getX()-0.5*widthi, horizontal_height);
+                        float widthi = cards[i]->getXSize();
+                        float horizontal_height = cards[i]->getY()-cards[i]->getYSize()-0.05;
+                        drawLine(ratio, config.border_line_width, rgb, cards[i]->getX()-0.5*widthi, cards[i]->getY()-cards[i]->getYSize(),
+                                        cards[i]->getX()-0.5*widthi, horizontal_height);
                     }
                 }
             }

@@ -119,8 +119,8 @@ void Board::launch3(int source_card) {
 
 //        static GLuint blob_tex = create_texture("assets/blob.png");
 
-    float sx = cards[source_card].getX();
-    float sy = cards[source_card].getY();
+    float sx = cards[source_card]->getX();
+    float sy = cards[source_card]->getY();
     float tx, ty;
     if (target[source_card] == PLAYER0) {
         cout << "Target = PLAYER0" << endl;
@@ -132,8 +132,8 @@ void Board::launch3(int source_card) {
     } else {
         cout << "Target = PLAYER1" << endl;
         int target_card = target[source_card];
-        tx = cards[target_card].getX();
-        ty = cards[target_card].getY();
+        tx = cards[target_card]->getX();
+        ty = cards[target_card]->getY();
     }
     Point target {tx, ty};
     for (int i = 0; i < 30; ++i) {
@@ -274,8 +274,8 @@ void Board::launch2(int source_card) {
 
 //        static GLuint blob_tex = create_texture("assets/blob.png");
 
-    float sx = cards[source_card].getX();
-    float sy = cards[source_card].getY();
+    float sx = cards[source_card]->getX();
+    float sy = cards[source_card]->getY();
     float tx, ty;
     if (target[source_card] == PLAYER0) {
         cout << "Target = PLAYER0" << endl;
@@ -287,8 +287,8 @@ void Board::launch2(int source_card) {
     } else {
         cout << "Target = PLAYER1" << endl;
         int target_card = target[source_card];
-        tx = cards[target_card].getX();
-        ty = cards[target_card].getY();
+        tx = cards[target_card]->getX();
+        ty = cards[target_card]->getY();
     }
     for (int i = 0; i < 20; ++i) {
         particles.push_back(Rectangle());
@@ -349,7 +349,7 @@ void Board::setUpBoard(const SpellCaster *game, double time0, double time1) {
     owner = game->owner;
     graveyard = game->graveyard;
     for (int c = 0; c < exposed.size(); ++c) {
-        cards[c].setTexture(exposed[c] ? tex[c] : back_texture);
+        cards[c]->setTexture(exposed[c] ? tex[c] : back_texture);
     }
     ostringstream ss;
     ss << "hp:" << hp[0]
@@ -365,15 +365,15 @@ void Board::setUpBoard(const SpellCaster *game, double time0, double time1) {
     setUpHand(1);
     int i = 0;
     for (auto p : in_play) {
-        cards[p].visible = true;
-        cards[p].setPosition(time0);
-        cards[p].setAngle(time0);
+        cards[p]->visible = true;
+        cards[p]->setPosition(time0);
+        cards[p]->setAngle(time0);
         setInPlayPosition(time1, p, i++);
     }
     for (auto p : graveyard) {
-        cards[p].visible = true;
-        cards[p].setPosition(time0);
-        cards[p].setAngle(time0);
+        cards[p]->visible = true;
+        cards[p]->setPosition(time0);
+        cards[p]->setAngle(time0);
         setGraveyardPosition(time1, p);
     }
     cout.flush();
@@ -383,19 +383,19 @@ void Board::arena(int card1, int card2, double start_time, double end_time) {
     std::lock_guard<std::mutex> guard(board_mutex);
     float size = 0.125;
 
-    cards[card1].visible = true;
-    cards[card1].shadow = false;
+    cards[card1]->visible = true;
+    cards[card1]->shadow = false;
 
     arenaVisible.addEvent(start_time, 1.0);
-    cards[card1].setBrightness(start_time, 1.0);
-    cards[card1].setPosition(start_time);
+    cards[card1]->setBrightness(start_time, 1.0);
+    cards[card1]->setPosition(start_time);
 
-    cards[card1].setZ(start_time, 0.95);
+    cards[card1]->setZ(start_time, 0.95);
 
     arenaVisible.addEvent(end_time, 1.0);
-    cards[card1].setPosition(end_time, -0.5, 0);
-    cards[card1].setZ(end_time, 0.9);
-    cards[card1].setSize(end_time, size, 2*size);
+    cards[card1]->setPosition(end_time, -0.5, 0);
+    cards[card1]->setZ(end_time, 0.9);
+    cards[card1]->setSize(end_time, size, 2*size);
 
     if (card2 == PLAYER0) {
         player.setZ(start_time, 0.95);
@@ -420,20 +420,20 @@ void Board::arena(int card1, int card2, double start_time, double end_time) {
         return;
     }
 
-    cards[card2].setZ(start_time, 0.95);
+    cards[card2]->setZ(start_time, 0.95);
 
-    cards[card2].setPosition(end_time, 0.5, 0);
-    cards[card2].setZ(end_time, 0.95);
-    cards[card2].setSize(end_time, size, 2*size);
-    cards[card2].setBrightness(0.0, 1.0);
-    cards[card2].visible = true;
-    cards[card2].shadow = true;
+    cards[card2]->setPosition(end_time, 0.5, 0);
+    cards[card2]->setZ(end_time, 0.95);
+    cards[card2]->setSize(end_time, size, 2*size);
+    cards[card2]->setBrightness(0.0, 1.0);
+    cards[card2]->visible = true;
+    cards[card2]->shadow = true;
 }
 
 void Board::unArena(int card1, int card2, double time0, double time1) {
     std::lock_guard<std::mutex> guard(board_mutex);
     arenaVisible.addEvent(time0, 1.0);
-    cards[card1].setPosition(time0);
+    cards[card1]->setPosition(time0);
     player.setPosition(time0);
 
     arenaVisible.addEvent(time1, 0.0);
