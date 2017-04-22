@@ -28,6 +28,13 @@ using std::endl;
 using std::max;
 using std::ostringstream;
 
+//
+// Timing for instants
+// 0:1s     Move to arena
+// 1:2s     Effect
+// 2:3s     Return and discard
+//
+
 GLuint create_texture(const char *filename, bool repeat = false);
 extern GLuint blob_tex, fire_tex;
 
@@ -371,21 +378,7 @@ public:
         float sx = -0.5;//cards[source_card].getX();
         float sy = 0.0;//cards[source_card].getY();
         Vector2f source(sx, sy);
-        float tx, ty;
-        if (target_card == PLAYER0) {
-            cout << "Target = PLAYER0" << endl;
-            tx = player.getX();
-            ty = player.getY();
-        } else if (target_card == PLAYER1) {
-            cout << "Target = PLAYER1" << endl;
-            tx = computer.getX();
-            ty = computer.getY();
-        } else {
-            cout << "target = " << target_card << endl;
-            tx = 0.5;//cards[target_card].getX();
-            ty = 0.0;//cards[target_card].getY();
-        }
-        Vector2f target(tx, ty);
+        Vector2f target(0.5, 0.0);
 
         Vector2f middle = 0.5*(source+target);
         Vector2f delta = target-source;
@@ -412,6 +405,8 @@ public:
 
         particles.back().setSize(start_time+duration, 0.1, 0.5*l);
         particles.back().setSize(start_time+duration+0.01, 0.0, 0.0);
+
+        //wait_until(start_time+duration);
     }
 
     void launch2(int source_card) {
@@ -650,6 +645,24 @@ public:
         }
     }
 
+    void setPlayerPosition(double time) {
+        player.setPosition(time, 0.95, -0.8);
+        player.setZ(time, 0.0);
+        player.setSize(time, 0.1, 0.1);
+        player.setBrightness(time, 1.0);
+        player.visible = true;
+        player.shadow = true;
+    }
+
+    void setComputerPosition(double time) {
+        computer.setPosition(time, 0.95, 0.8);
+        computer.setZ(time, 0.0);
+        computer.setSize(time, 0.1, 0.1);
+        computer.setBrightness(time, 1.0);
+        computer.visible = true;
+        computer.shadow = true;
+    }
+
     void initPlayers() {
         std::lock_guard<std::mutex> guard(board_mutex);
         //background.setTexture(create_texture("assets/Forest.png"));
@@ -660,14 +673,8 @@ public:
         background.setBrightness(0.0, 1.0);
         background.visible = true;
 
-        //player.setTexture(create_texture("assets/player.png"));
         player.setTexture(create_texture(config.player_icon.c_str()));
-        player.setPosition(0.0, 0.95, -0.8);
-        player.setZ(0.0, 0.0);
-        player.setSize(0.0, 0.1, 0.1);
-        player.setBrightness(0.0, 1.0);
-        player.visible = true;
-        player.shadow = true;
+        setPlayerPosition(now());
 
         //computer.setTexture(create_texture("assets/computer.png"));
         computer.setTexture(create_texture(config.computer_icon.c_str()));
@@ -752,6 +759,7 @@ public:
 
         arenaVisible.addEvent(start_time, 1.0);
         cards[card1].setBrightness(start_time, 1.0);
+        cards[card1].setPosition(start_time);
 
         cards[card1].setZ(start_time, 0.95);
 
@@ -760,7 +768,26 @@ public:
         cards[card1].setZ(end_time, 0.95);
         cards[card1].setSize(end_time, size, 2*size);
 
-        if (card2 >= 1000) {
+        if (card2 == PLAYER0) {
+            player.setZ(start_time, 0.95);
+            player.setPosition(start_time);
+
+            player.setPosition(end_time, 0.5, 0);
+            player.setZ(end_time, 0.95);
+            player.setSize(end_time, size, size);
+            player.setBrightness(0.0, 1.0);
+            player.visible = true;
+            player.shadow = true;
+            return;
+        } else if (card2 == PLAYER1) {
+            computer.setZ(start_time, 0.95);
+
+            computer.setPosition(end_time, 0.5, 0);
+            computer.setZ(end_time, 0.95);
+            computer.setSize(end_time, size, size);
+            computer.setBrightness(0.0, 1.0);
+            computer.visible = true;
+            computer.shadow = true;
             return;
         }
 
@@ -774,9 +801,14 @@ public:
         cards[card2].shadow = true;
     }
 
-    void unArena(double end_time) {
-        arenaVisible.addEvent(end_time, 1.0);
-        arenaVisible.addEvent(end_time+0.01, 0.0);
+    void unArena(int card1, int card2, double time0, double time1) {
+        arenaVisible.addEvent(time0, 1.0);
+        cards[card1].setPosition(time0);
+        player.setPosition(time0);
+
+        arenaVisible.addEvent(time1, 0.0);
+        setPlayerPosition(time1);
+        setComputerPosition(time1);
     }
 
     void unFocus(int player, int card, float delay) {
@@ -856,7 +888,7 @@ public:
 //        cout << endl;
     }
 
-    void setUpBoard(const Game *game) {
+    void setUpBoard(const Game *game, double time0, double time1) {
         std::lock_guard<std::mutex> guard(board_mutex);
         for (int i = 0; i < 2; ++i) {
             hp[i] = game->hp[i];
@@ -896,17 +928,21 @@ public:
         int i = 0;
         for (auto p : in_play) {
             cards[p].visible = true;
-            setInPlayPosition(now()+0.5, p, i++);
+            cards[p].setPosition(time0);
+            cards[p].setAngle(time0);
+            setInPlayPosition(time1, p, i++);
         }
         for (auto p : graveyard) {
             cards[p].visible = true;
-            setGraveyardPosition(now()+0.5, p);
+            cards[p].setPosition(time0);
+            cards[p].setAngle(time0);
+            setGraveyardPosition(time1, p);
         }
         cout.flush();
     }
 
-    void setUpBoard(shared_ptr<const SpellCaster> game) {
-        setUpBoard(game.get());
+    void setUpBoard(shared_ptr<const SpellCaster> game, double time0, double time1) {
+        setUpBoard(game.get(), time0, time1);
     }
 
     template<class C>

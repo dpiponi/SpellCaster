@@ -404,28 +404,12 @@ public:
         definitions[c]->execute(this, c, verbose);
 #ifdef BOARD
         if (verbose) {
-            board.setUpBoard(this);
+            board.setUpBoard(this, now(), now()+0.5);
         }
 #endif
     }
 
-    void executeInstant(int c, bool verbose) {
-        definitions[c]->executeInstant(this, c, verbose);
-//        if (verbose) {
-//            board.setUpBoard(this);
-//        }
-#ifdef BOARD
-        if (verbose) {
-            board.arena(c, target[c], now(), now()+1.0);
-            cout << "Instant Launch from " << c << " to " << target[c] << endl;
-            board.launch(c, target[c], now()+1.0, 2.0);
-            board << "Executing ";
-            board << description(c);
-            end_message();
-            board.unArena(now()+3.0);
-        }
-#endif
-    }
+    void executeInstant(int c, bool verbose);
 
     void handleInstant(int c, int card_number, int t, bool verbose);
 

@@ -127,10 +127,12 @@ void JestersWish::executeInstant(SpellCaster *game, int c, bool verbose) const {
 
 void ManaCard::executeInstant(SpellCaster *game, int c, bool verbose) const {
 #ifdef BOARD
+#if 0
     if (verbose) {
         board << "Some mana for you";
         game->end_message();
     }
+#endif
 #endif
     game->mana[game->target[c]-PLAYER0] += Mana {3, 2}; // XXX Should be target no?
 };

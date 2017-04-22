@@ -159,7 +159,7 @@ int main(int argc, char *argv[]) {
     board.initPlayers();
     board << "SpellCaster";
     board.setNewMessage();
-    board.setUpBoard(game);
+    board.setUpBoard(game, now(), now()+0.5);
     board << "Select card or pass";
     board.unHighlightAll();
 

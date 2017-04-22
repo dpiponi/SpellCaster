@@ -2,14 +2,22 @@
 #define ANIMATED_H
 
 #include <deque>
+#include <thread>
 
 using std::deque;
 
 using namespace std::chrono;
+using namespace std::this_thread;
 
 inline double now() {
     static steady_clock::time_point start = steady_clock::now();
     return (steady_clock::now()-start).count()*steady_clock::period::num/static_cast<double>(steady_clock::period::den);
+}
+
+inline void wait_until(double time) {
+    while (now() < time) {
+        std::this_thread::sleep_for(1ms);
+    }
 }
 
 template<class X>

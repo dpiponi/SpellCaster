@@ -340,10 +340,11 @@ void SpellCaster::return_card_from(Location loc, int c, bool verbose) {
     target[c] = -1;
     in_play.erase(std::remove(in_play.begin(), in_play.end(), c), in_play.end());
     hand[owner[c]].push_back(c);
-    // YYY
+
 #ifdef BOARD
     if (verbose) {
-        board.setUpBoard(this);
+        // return_card_from()
+        board.setUpBoard(this, now(), now()+0.5);
         end_message();
     }
 #endif
@@ -483,7 +484,8 @@ SpellCaster::doExecution(bool verbose) {
 
 #ifdef BOARD
     if (verbose) {
-        board.setUpBoard(this);
+        // doExecution()
+        board.setUpBoard(this, now(), now()+0.5);
         end_message();
     }
 #endif
@@ -496,33 +498,59 @@ void SpellCaster::handleInstant(int c, int card_number, int t, bool verbose) {
     exposedTo[1][c] = true;
     mana[nextPlayer] -= cost[c];
 
-    // This is what makes cards disappear XXX
-    //hand[nextPlayer].erase(hand[nextPlayer].begin()+card_number);
-    //location[c] = Location::EXECUTING;
-
     target[c] = t;
 #ifdef BOARD
+#if 0
     if (verbose) {
         cout << "Instant Launch from " << c << " to " << target[c] << endl;
-        //board.setUpBoard(this);
-        board.launch(c, target[c], now()+1.0, 2.0);
+        board.launch(c, target[c], now()+1.0, now()+2.0);
+        cout << "Erasing..." << endl;
     }
 #endif
+#endif
+    // Note these are not reflected in Board yet
     hand[nextPlayer].erase(hand[nextPlayer].begin()+card_number);
     location[c] = Location::EXECUTING;
 
     executeInstant(c, verbose);
+
     location[c] = Location::GRAVEYARD;
     graveyard.push_back(c);
+
 #ifdef BOARD
     if (verbose) {
-        board.setUpBoard(this);
-        end_message();
+        // handleInstant()
+        double start_setup = now();
+        double end_setup = start_setup+1.0;
+        board.setUpBoard(this, start_setup, end_setup);
+        //end_message();
     }
 #endif
+
     nextPlayer = 1-nextPlayer;
     passed = false;
     checkConsistency();
+}
+
+void SpellCaster::executeInstant(int c, bool verbose) {
+    definitions[c]->executeInstant(this, c, verbose);
+#ifdef BOARD
+    if (verbose) {
+        cout << "Instant Launch from " << c << " to " << target[c] << endl;
+
+        double start_arena = now();
+        double start_launch = start_arena+1.0;
+        double start_unarena = start_launch+1.0;
+        double end_unarena = start_unarena+1.0;
+
+        board.arena(c, target[c], start_arena, start_launch);
+        wait_until(start_launch);
+        board.launch(c, target[c], start_launch, start_unarena-start_launch);
+        wait_until(start_unarena);
+        board.unArena(c, target[c], start_unarena, end_unarena);
+        wait_until(end_unarena);
+    }
+#endif
 }
 
 // Do I need to check if DISCARD is legal here? XXX
@@ -565,7 +593,8 @@ SpellCaster::doMove(Move m, bool verbose) {
         exposedTo[1][c] = true;
 #ifdef BOARD
         if (verbose) {
-            board.setUpBoard(this);
+            // doMove(): DISCARD
+            board.setUpBoard(this, now(), now()+0.5);
             end_message();
         }
 #endif
@@ -605,18 +634,21 @@ SpellCaster::doMove(Move m, bool verbose) {
 
 #ifdef BOARD
     if (verbose) {
-        board.setUpBoard(this);
+        // doMove(): move to in_play
+        board.setUpBoard(this, now(), now()+0.5);
         end_message();
     }
 #endif
 
     nextPlayer = otherPlayer;
-    // YYY
+
 #ifdef BOARD
+#if 0
     if (verbose) {
-        board.setUpBoard(this);
+        board.setUpBoard(this, now(), now()+0.5);
         end_message();
     }
+#endif
 #endif
     checkConsistency();
 }
@@ -846,11 +878,11 @@ void SpellCaster::execute(bool verbose) {
         if (verbose) {
             board.arena(c, target[c], now(), now()+1.0);
             cout << "Launch from " << c << " to " << target[c] << endl;
-            board.launch(c, target[c], now()+1.0, 2.0);
+            board.launch(c, target[c], now()+1.0, now()+2.0);
             board << "Executing ";
             board << description(c);
             end_message();
-            board.unArena(now()+3.0);
+            board.unArena(c, target[c], now()+2.0, now()+3.0);
         }
 #endif
         in_play.pop_back();
@@ -862,7 +894,8 @@ void SpellCaster::execute(bool verbose) {
         // YYY
 #ifdef BOARD
         if (verbose) {
-            board.setUpBoard(this);
+            // execute()
+            board.setUpBoard(this, now(), now()+0.5);
             end_message();
         }
 #endif
@@ -949,7 +982,8 @@ void SpellCaster::kill_card(int c, bool verbose) {
     // YYY
 #ifdef BOARD
     if (verbose) {
-        board.setUpBoard(this);
+        // kill_card()
+        board.setUpBoard(this, now(), now()+0.5);
         end_message();
     }
 #endif
@@ -971,7 +1005,8 @@ void SpellCaster::destroy_card_from(Location loc, int c, bool verbose) {
     // YYY
 #ifdef BOARD
     if (verbose) {
-        board.setUpBoard(this);
+        // destroy_card_from()
+        board.setUpBoard(this, now(), now()+0.5);
         end_message();
     }
 #endif
