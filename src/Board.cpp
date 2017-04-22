@@ -532,7 +532,7 @@ void Board::initTextures(const vector<const Definition *> &player_deck,
     cout << "...done" << endl;
 }
 
-void Board::setText(vector<TextRectangle> &word, const char *msg, float x, float y) {
+void Board::setText(vector<shared_ptr<TextRectangle>> &word, const char *msg, float x, float y) {
     float startx = x;
     int msg_len = strlen(msg);
     word.resize(0);
@@ -540,19 +540,19 @@ void Board::setText(vector<TextRectangle> &word, const char *msg, float x, float
     for (int i = 0; i < msg_len; ++i) {
         int c = msg[i];
         if (c >= 32 && c <= 127) {
-            word.push_back(TextRectangle());
-            word.back().setTexture(letters[c].texture);
-            word.back().setPosition(0.0, Vector2f(
+            word.push_back(make_shared<TextRectangle>());
+            word.back()->setTexture(letters[c].texture);
+            word.back()->setPosition(0.0, Vector2f(
                                 x+0.5*letter_size*letters[c].width+letter_size*letters[c].left,
                                 y-0.5*letter_size*letters[c].height+letter_size*letters[c].top));
-            word.back().setZ(0.0, 0.9);
-            word.back().setSize(0.0,
+            word.back()->setZ(0.0, 0.9);
+            word.back()->setSize(0.0,
                             0.5*letter_size*letters[c].width,
                             0.5*letter_size*letters[c].height);
             x = x+letter_size*letters[c].advance/64.0;
-            word.back().setBrightness(0.0, 1.0);
-            word.back().visible = true;
-            word.back().setNoHighlight();
+            word.back()->setBrightness(0.0, 1.0);
+            word.back()->visible = true;
+            word.back()->setNoHighlight();
         } else if (c == 10) {
             x = startx;
             y -= config.vertical_text_space;

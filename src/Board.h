@@ -90,10 +90,10 @@ class Board {
     GLuint back_texture;
     Rectangle background, player, computer, passbutton, discardbutton;
     Rectangle annotation;
-    vector<TextRectangle> word_annotation;
-    vector<TextRectangle> word;
-    vector<TextRectangle> word_stats0;
-    vector<TextRectangle> word_stats1;
+    vector<shared_ptr<TextRectangle>> word_annotation;
+    vector<shared_ptr<TextRectangle>> word;
+    vector<shared_ptr<TextRectangle>> word_stats0;
+    vector<shared_ptr<TextRectangle>> word_stats1;
 
 public:
     //vector<Rectangle> cards;
@@ -121,11 +121,11 @@ private:
     bool new_message;
     ostringstream text_stream;
 
-    void setNoText(vector<TextRectangle> &word) {
+    void setNoText(vector<shared_ptr<TextRectangle>> &word) {
         word.resize(0);
     }
 
-    void setText(vector<TextRectangle> &word, const char *msg, float x, float y);
+    void setText(vector<shared_ptr<TextRectangle>> &word, const char *msg, float x, float y);
 
     void setGraveyardPosition(double time, int c);
 
@@ -188,9 +188,9 @@ private:
                       const vector<const Definition *> &computer_deck);
 
 
-    void draw_text(float ratio, vector<TextRectangle> &word) {
+    void draw_text(float ratio, vector<shared_ptr<TextRectangle>> &word) {
         for (auto p : word) {
-            p.draw(ratio);
+            p->draw(ratio);
         }
     }
 
