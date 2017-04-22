@@ -485,3 +485,293 @@ void Board::focus(int player, int card, float delay) {
         setHandPosition(now()+0.5*delay+0.3*k, p, player, focus, centres[focus], 1.2*0.125, 1.0, 0.004*cos(k), -0.004*sin(k));
     }
 }
+
+void Board::initTextures(const vector<const Definition *> &player_deck,
+                  const vector<const Definition *> &computer_deck) {
+    int number_of_cards = player_deck.size()+computer_deck.size();
+    cout << "Loading textures..." << endl;
+    setNumCards(number_of_cards);
+    tex.resize(number_of_cards);
+    back_texture = create_texture("assets/back.jpg");
+
+    int i = 0;
+    for (auto p : player_deck) {
+        std::stringstream filename;
+        //filename << "assets/" << p->name << ".png";
+        filename << "assets/" << p->name << ".jpg";
+        GLuint texture = create_texture(filename.str().c_str());
+        if (texture > 0) {
+            tex[i] = texture;
+        } else {
+            cout << "Couldn't load " << filename.str() << endl;
+            exit(1);
+        }
+        ++i;
+    }
+    for (auto p : computer_deck) {
+        std::stringstream filename;
+        filename << "assets/" << p->name << ".jpg";
+        GLuint texture = create_texture(filename.str().c_str());
+        if (texture > 0) {
+            tex[i] = texture;
+        } else {
+            cout << "Couldn't load " << filename.str() << endl;
+            exit(1);
+        }
+        ++i;
+    }
+
+    for (int i = 0; i < number_of_cards; ++i) {
+        cards[i]->setTexture(back_texture);
+    }
+
+    blob_tex = create_texture("assets/blob.png");
+    fire_tex = create_texture("assets/fire.png", true);
+    stroke_tex = create_texture("assets/stroke.png", false, true);
+
+    cout << "...done" << endl;
+}
+
+void Board::setText(vector<TextRectangle> &word, const char *msg, float x, float y) {
+    float startx = x;
+    int msg_len = strlen(msg);
+    word.resize(0);
+    float letter_size = 0.001;
+    for (int i = 0; i < msg_len; ++i) {
+        int c = msg[i];
+        if (c >= 32 && c <= 127) {
+            word.push_back(TextRectangle());
+            word.back().setTexture(letters[c].texture);
+            word.back().setPosition(0.0, Vector2f(
+                                x+0.5*letter_size*letters[c].width+letter_size*letters[c].left,
+                                y-0.5*letter_size*letters[c].height+letter_size*letters[c].top));
+            word.back().setZ(0.0, 0.9);
+            word.back().setSize(0.0,
+                            0.5*letter_size*letters[c].width,
+                            0.5*letter_size*letters[c].height);
+            x = x+letter_size*letters[c].advance/64.0;
+            word.back().setBrightness(0.0, 1.0);
+            word.back().visible = true;
+            word.back().setNoHighlight();
+        } else if (c == 10) {
+            x = startx;
+            y -= config.vertical_text_space;
+        }
+    }
+}
+
+void Board::setGraveyardPosition(double time, int c) {
+    cards[c]->setPosition(time, Vector2f(1.3, 0.0));
+    cards[c]->setZ(time, 0.0);
+    cards[c]->setSize(time, 0.0625*1.5, 0.125*1.5);
+    cards[c]->setBrightness(0.0, 1.0);
+    cards[c]->setAngle(time, -2*M_PI);
+    cards[c]->visible = true;
+    cards[c]->shadow = true;
+}
+
+void Board::setInPlayPosition(double time, int c, int i) {
+    //cards[c].setPosition(time, -1.1+0.27*i, owner[c] ==0 ? -0.025 : 0.025);
+    cards[c]->setPosition(time, Vector2f(config.in_play_left+config.in_play_spacing*i,
+                                        owner[c] == 0 ? -config.offset_for_player : config.offset_for_player));
+    cards[c]->setZ(time, 0.0);
+    cards[c]->setSize(0.0, 0.125, 0.25);
+    cards[c]->setBrightness(0.0, 1.0);
+    cards[c]->visible = true;
+    cards[c]->shadow = true;
+}
+
+void Board::drawConnection(float ratio, RGB rgb, int i, int j, int k) {
+    float widthi = cards[i]->getXSize();
+    float widthj = cards[j]->getXSize();
+    float horizontal_height = 0.3+0.02*k;
+    float ix = cards[i]->getX()-0.5*widthi;
+    float jx = cards[j]->getX()+0.5*widthj;
+    drawLine(ratio, config.border_line_width, rgb, ix, cards[i]->getY()+cards[i]->getYSize(),
+                    ix, horizontal_height);
+    drawLine(ratio, config.border_line_width, rgb, ix, horizontal_height,
+                    jx, horizontal_height);
+    drawLine(ratio, config.border_line_width, rgb, jx, horizontal_height,
+                    jx, cards[j]->getY()+cards[j]->getYSize());
+}
+
+void Board::setPlayerPosition(double time, double z) {
+    player.setPosition(time, 0.95, -0.8);
+    player.setZ(time, z);
+    player.setSize(time, 0.1, 0.1);
+    player.setBrightness(time, 1.0);
+    player.visible = true;
+    player.shadow = true;
+}
+
+void Board::setComputerPosition(double time, double z) {
+    computer.setPosition(time, 0.95, 0.8);
+    computer.setZ(time, z);
+    computer.setSize(time, 0.1, 0.1);
+    computer.setBrightness(time, 1.0);
+    computer.visible = true;
+    computer.shadow = true;
+}
+
+void Board::setAnnotation(int card) {
+    std::lock_guard<std::mutex> guard(board_mutex);
+    annotation.setTexture(tex[card]);;
+    annotation.setPosition(now(), Vector2f(config.annotation_x, config.annotation_y));
+    annotation.setZ(now(), 0.9);
+    annotation.setSize(0.0, 0.5*config.annotation_height, config.annotation_height);
+    annotation.setBrightness(0.0, 1.0);
+    annotation.shadow = true;
+    annotation.visible = true;
+    ostringstream summary;
+    summary << definitions[card]->name << '\n';
+    summary << "\n";
+    if (toBool(card_class[card])) {
+        summary << describe(card_class[card]);
+        summary << "\n";
+    }
+    summary << "HP: " << cardhp[card] << '/' << basehp[card] << '\n';
+    summary << "Attack: " << attack[card] << '\n';
+    summary << '\n';
+    if (toBool(target_class[card])) {
+        summary << "Can target:\n";
+        summary << describe(target_class[card]);
+        summary << "\n";
+    }
+    if (toBool(properties[card])) {
+        summary << "Properties:\n";
+        summary << describe(properties[card]);
+        summary << "\n";
+    }
+    if (toBool(requirements[card])) {
+        summary << "Target must be:\n";
+        summary << describe(requirements[card]);
+        summary << "\n";
+    }
+    if (toBool(exclusions[card])) {
+        summary << "Target can't be:\n";
+        summary << describe(exclusions[card]);
+        summary << "\n";
+    }
+    setText(word_annotation, summary.str().c_str(), config.annotation_x-0.5*config.annotation_height+0.01, config.annotation_y-config.annotation_height-config.vertical_text_space);
+}
+
+void Board::initPlayers() {
+    std::lock_guard<std::mutex> guard(board_mutex);
+    //background.setTexture(create_texture("assets/Forest.png"));
+    background.setTexture(create_texture(config.background.c_str()));
+    background.setPosition(0.0, Vector2f(0.0, 0.0));
+    background.setZ(0.0, 0.0);
+    background.setSize(0.0, 1600.0/1172.0, 1.0);
+    background.setBrightness(0.0, 1.0);
+    background.visible = true;
+
+    player.setTexture(create_texture(config.player_icon.c_str()));
+    setPlayerPosition(now());
+
+    //computer.setTexture(create_texture("assets/computer.png"));
+    computer.setTexture(create_texture(config.computer_icon.c_str()));
+    computer.setPosition(0.0, 0.95, 0.8);
+    computer.setZ(0.0, 0.0);
+    computer.setSize(0.0, 0.1, 0.1);
+    computer.setBrightness(0.0, 1.0);
+    computer.visible = true;
+    computer.shadow = true;
+
+    passbutton.setTexture(create_texture("assets/passbutton.png"));
+    passbutton.setPosition(0.0, 0.95, 0.1);
+    passbutton.setZ(0.0, 0.0);
+    passbutton.setSize(0.0, 0.2, 0.2/3.0);
+    passbutton.setBrightness(0.0, 1.0);
+    passbutton.visible = true;
+    passbutton.shadow = true;
+
+    discardbutton.setTexture(create_texture("assets/discardbutton.png"));
+    discardbutton.setPosition(0.0, 0.95, -0.1);
+    discardbutton.setZ(0.0, 0.0);
+    discardbutton.setSize(0.0, 0.2, 0.2/3.0);
+    discardbutton.setBrightness(0.0, 1.0);
+    discardbutton.visible = true;
+    discardbutton.shadow = true;
+}
+
+void Board::draw(float ratio) {
+    std::lock_guard<std::mutex> guard(board_mutex);
+
+    //connect_shader();
+    glEnable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_GEQUAL);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    background.draw(ratio, config.border_line_width, 0.0);
+
+    ::drawShadow(ratio, -0.15, 0.95, 0.0, 0.0, 0.75, 0.1, 0.35);
+
+    player.draw(ratio, config.border_line_width, 0.0);
+    computer.draw(ratio, config.border_line_width, 0.0);
+    passbutton.draw(ratio, config.border_line_width, 0.0);
+    discardbutton.draw(ratio, config.border_line_width, 0.0);
+    draw_text(ratio, word);
+    draw_text(ratio, word_stats0);
+    draw_text(ratio, word_stats1);
+    for (int i = 0; i < 2; ++i) {
+        for (auto p : hand[i]) {
+            cards[p]->draw(ratio, config.border_line_width, 0.0);
+        }
+    }
+    for (auto p : in_play) {
+        cards[p]->draw(ratio, config.border_line_width, 0.0);
+    }
+#if 0
+    // Only draw last 10 or so in graveyard
+    auto g = max(0UL, graveyard.size()-10);
+    for (auto i = g; i < graveyard.size(); ++i) {
+        cards[graveyard[i]].draw(ratio, config.border_line_width, 0.0);
+    }
+#endif
+    for (auto p : graveyard) {
+        cards[p]->draw(ratio, config.border_line_width, 0.0);
+    }
+    int k = 0;
+    for (auto p : in_play) {
+        int i = p;
+        if (cards[i]->visible) {
+            if (target[i] != -1) {
+                int j = target[i];
+                RGB rgb = owner[i] ? config.computer_highlight : config.player_highlight;
+                if (j < 1000) {
+                    if (location[j] == Location::IN_PLAY) {
+                        drawConnection(ratio, rgb, i, j, k);
+                        ++k;
+                    }
+                } else if (j==1001) {
+                    float widthi = cards[i]->getXSize();
+                    float horizontal_height = cards[i]->getY()+cards[i]->getYSize()+0.05;
+                    drawLine(ratio, config.border_line_width, rgb, cards[i]->getX()-0.5*widthi, cards[i]->getY()+cards[i]->getYSize(),
+                                    cards[i]->getX()-0.5*widthi, horizontal_height);
+                } else if (j==1000) {
+                    float widthi = cards[i]->getXSize();
+                    float horizontal_height = cards[i]->getY()-cards[i]->getYSize()-0.05;
+                    drawLine(ratio, config.border_line_width, rgb, cards[i]->getX()-0.5*widthi, cards[i]->getY()-cards[i]->getYSize(),
+                                    cards[i]->getX()-0.5*widthi, horizontal_height);
+                }
+            }
+        }
+    }
+    if (annotation.visible) {
+        ::drawShadow(ratio, -1.1, 0.0, 0.0, 0.0, 0.2, 0.8, 0.35);
+        annotation.draw(ratio, config.border_line_width, 0.0);
+        draw_text(ratio, word_annotation);
+    }
+
+    // Render arena
+    if (arenaVisible.get()) {
+        ::drawShadow(ratio, 0.0, 0.0, /* z= */ 0.8, 0.0, 0.75, 0.35, 0.50);
+    }
+    // Particles
+    if (particles.size() > 0) {
+        for (auto p : particles) {
+            p.draw(ratio, 0.0, 0.0);
+        }
+    }
+}

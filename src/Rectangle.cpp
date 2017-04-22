@@ -24,14 +24,6 @@ void Rectangle::draw(float ratio, float border_line_width, float is_alpha) {
     drawBorder(ratio, border_line_width);
 }
 
-void Rectangle::drawText(float ratio) {
-    if (!visible || tex==0) {
-        return;
-    }
-
-    drawTextRectangle(ratio, x.get(), y.get(), angle.get(), xsize.get(), ysize.get(), brightness.get(), tex);
-}
-
 bool Rectangle::contains(Point point) const {
     if (!visible) {
         return false;
@@ -72,4 +64,12 @@ void Rectangle::drawBorder(float ratio, float line_width) {
         drawLine(ratio, line_width, RGB {r_highlight, g_highlight, b_highlight}, x1, y1, x0, y1);
         drawLine(ratio, line_width, RGB {r_highlight, g_highlight, b_highlight}, x0, y1, x0, y0);
     }
+}
+
+void TextRectangle::draw(float ratio, float ignore1, float ignore2) {
+    if (!visible || tex==0) {
+        return;
+    }
+
+    drawTextRectangle(ratio, x.get(), y.get(), angle.get(), xsize.get(), ysize.get(), brightness.get(), tex);
 }

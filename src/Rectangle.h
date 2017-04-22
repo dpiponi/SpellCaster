@@ -16,36 +16,6 @@ using Eigen::Vector2f;
 using std::cout;
 using std::endl;
 
-#if 0
-struct Point {
-    float x;
-    float y;
-};
-
-inline Point operator*(float a, Point x) {
-    return Point {a*x.x, a*x.y};
-}
-
-inline Point operator-(Point x, Point y) {
-    return Point {x.x-y.x, x.y-y.y};
-}
-
-inline Point operator+(Point x, Point y) {
-    return Point {x.x+y.x, x.y+y.y};
-}
-
-inline Point normalise(Point x) {
-    float h = 1.0f/hypot(x.x, x.y);
-    return h*x;
-}
-
-inline Point &operator+=(Point &x, Point y) {
-    x.x += y.x;
-    x.y += y.y;
-    return x;
-}
-#endif
-
 typedef Vector2f Point;
 
 static float triangle(float x) {
@@ -65,7 +35,12 @@ inline float orientation(Vector2f v) {
     return atan2(-v[0], v[1]);
 }
 
-class Rectangle {
+class Drawable {
+    virtual void draw(float ratio, float border_line_width = 0.0, float is_alpha = 0.0) = 0;
+};
+
+class Rectangle : public Drawable {
+protected:
     // Not happy about these mutables
     // but class does housekeeping in background.
     mutable Animated<float> angle;
@@ -150,9 +125,14 @@ public:
 
     void drawBorder(float ratio, float line_width);
     void drawShadow(float ratio, float is_alpha);
-    void draw(float ratio, float border_line_width, float is_alpha);
-    void drawText(float ratio);
+    void draw(float ratio, float border_line_width = 0.0, float is_alpha = 0.0) override;
+    //void drawText(float ratio);
     bool contains(Point point) const;
+};
+
+class TextRectangle : public Rectangle {
+public:
+    void draw(float ratio, float border_line_width = 0.0, float is_alpha = 0.0) override;
 };
 
 #endif
