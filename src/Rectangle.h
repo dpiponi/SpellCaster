@@ -144,15 +144,17 @@ class Group : public Drawable {
     int next;
     map<int, shared_ptr<Drawable>> dictionary;
 public:
-    Group() : next(0) { }
-    void draw(float ratio, float border_line_width = 0.0) {
+    Group() : next(1) { }
+    void draw(float ratio, float border_line_width = 0.0) override {
         for (auto p : dictionary) {
+            cout << "DRAWING GROUP ELT" << endl;
             p.second->draw(ratio, border_line_width);
         }
     }
-    void addElement(shared_ptr<Drawable> d) {
+    int addElement(shared_ptr<Drawable> d) {
         int id = next++;
         dictionary[id] = d;
+        return id;
     }
     void removeElement(int id) {
         dictionary.erase(id);

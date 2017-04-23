@@ -167,22 +167,23 @@ void Board::launch3(int source_card) {
     }
 }
 
-void addSegment(vector<Rectangle> &particles, Vector2f start, Vector2f end, double time) {
-    particles.push_back(Rectangle());
+void addSegment(shared_ptr<Group> group, Vector2f start, Vector2f end, double time) {
+    Rectangle segment;
+    segment.visible = true;
+    segment.setNoHighlight();
+    segment.setTexture(stroke_tex);
 
-    particles.back().visible = true;
-    particles.back().setNoHighlight();
-    particles.back().setTexture(stroke_tex);
+    segment.setAngle(time, orientation(end-start));
+    segment.setSize(time, 0.1, 0.5*(end-start).norm());
+    segment.setPosition(time, 0.5*(start+end));
+    segment.setZ(time, 0.96);
+    segment.setBrightness(time, 1.0);
 
-    particles.back().setAngle(time, orientation(end-start));
-    particles.back().setSize(time, 0.1, 0.5*(end-start).norm());
-    particles.back().setPosition(time, 0.5*(start+end));
-    particles.back().setZ(time, 0.96);
-    particles.back().setBrightness(time, 1.0);
+    group->addElement(make_shared<Rectangle>(segment));
 }
 
 template<class Gen>
-void genLightning(vector<Rectangle> &particles, Vector2f src, Vector2f dst, int depth, Gen &generator, double time) {
+void genLightning(shared_ptr<Group> particles, Vector2f src, Vector2f dst, int depth, Gen &generator, double time) {
     if (depth == 0) {
         addSegment(particles, src, dst, time);
         return;
@@ -212,17 +213,29 @@ void Board::launch(int source_card, int target_card, double start_time, double e
 
     std::minstd_rand0 generator(std::chrono::system_clock::now().time_since_epoch().count());
 
+    int id = 0;
     for (int t = 0; t < 20; ++t) {
-        std::lock_guard<std::mutex> guard(board_mutex);
-        particles.resize(0);
+        auto particles = make_shared<Group>();
 
         for (int s = -2; s <= 2; ++s) {
         //for (int s = 0; s <= 0; ++s) {
             genLightning(particles, source+Vector2f(0.125, 0),
                                     target+Vector2f(-0.125, 0.05*s), 3, generator, start_time+0.05*t);
         }
-        wait_until(start_time+0.05*(t+1));
+        {
+            std::lock_guard<std::mutex> guard(board_mutex);
+            if (id) {
+                drawables.removeElement(id);
+            }
+            id = drawables.addElement(particles);
+            wait_until(start_time+0.05*(t+1));
+        }
     }
+    {
+        std::lock_guard<std::mutex> guard(board_mutex);
+        drawables.removeElement(id);
+    }
+
     particles.resize(0);
 
     //wait_until(end_time);
@@ -774,6 +787,7 @@ void Board::draw(float ratio) {
             p.draw(ratio, 0.0);
         }
     }
+    drawables.draw(ratio);
 }
 
 void Board::setHandPosition(double time, int c, int h, int i, float x, float size, float z, float offsetx, float offsety) {

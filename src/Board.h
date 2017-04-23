@@ -94,6 +94,7 @@ class Board {
     vector<shared_ptr<TextRectangle>> word;
     vector<shared_ptr<TextRectangle>> word_stats0;
     vector<shared_ptr<TextRectangle>> word_stats1;
+    Group drawables;
 
 public:
     //vector<Rectangle> cards;

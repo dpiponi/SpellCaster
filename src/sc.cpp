@@ -135,7 +135,9 @@ int main(int argc, char *argv[]) {
         cout << "Seed = " << seed << endl;
         srand(seed);
     } else {
-        srand(time(NULL));
+        int seed = time(NULL) & 0xffff;
+        cout << "Seed = " << seed << endl;
+        srand(seed);
     }
 
     ui_state = make_shared<WaitingForFirstCard>();
