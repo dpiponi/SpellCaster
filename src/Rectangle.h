@@ -131,7 +131,6 @@ public:
     void drawBorder(float ratio, float line_width);
     void drawShadow(float ratio);
     void draw(float ratio, float border_line_width = 0.0) override;
-    //void drawText(float ratio);
     bool contains(Point point) const;
 };
 
