@@ -242,7 +242,7 @@ private:
 // This is now the PUBLIC API
 // Most stuff here needs protection with mutexes
 public:
-    vector<Rectangle> particles; // XXX
+//    vector<Rectangle> particles; // XXX
     Animated<float> arenaVisible;
 
     Board() : new_message(true) {
@@ -407,8 +407,8 @@ public:
 
     void initPlayers();
 
-    void arena(int card1, int card2, double start_time, double end_time);
-    void unArena(int card1, int card2, double time0, double time1);
+    int arena(int card1, int card2, double start_time, double end_time);
+    void unArena(int arena_id, int card1, int card2, double time0, double time1);
     void unFocus(int player, int card, float delay);
     void focus(int player, int card, float delay);
 

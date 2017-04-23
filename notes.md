@@ -25,3 +25,8 @@ Card into play:
 Execute:
 
 ExecuteInstant:
+
+Suppress annoying window
+------------------------
+defaults write com.apple.CrashReporter DialogType none
+http://stackoverflow.com/questions/42376290/close-app-quit-unexpectedly-window-from-terminal-bash

@@ -22,7 +22,7 @@ GLuint create_texture(const char *filename, bool repeat, bool mipmap) {
         return p->second;
     }
 
-    cout << "loading: " << filename << endl;
+//    cout << "loading: " << filename << endl;
     GLuint textureID;
     glGenTextures(1, &textureID);
 
@@ -112,6 +112,7 @@ Letter::Letter(char c, FT_Face &face) : character(c) {
     texture = textureID;
 }
 
+#if 0
 void Board::launch3(int source_card) {
     std::lock_guard<std::mutex> guard(board_mutex);
     particles.resize(0);
@@ -166,6 +167,7 @@ void Board::launch3(int source_card) {
         particles.back().setNoHighlight();
     }
 }
+#endif
 
 void addSegment(shared_ptr<Group> group, Vector2f start, Vector2f end, double time) {
     Rectangle segment;
@@ -236,12 +238,13 @@ void Board::launch(int source_card, int target_card, double start_time, double e
         drawables.removeElement(id);
     }
 
-    particles.resize(0);
+//    particles.resize(0);
 
     //wait_until(end_time);
     //particles.resize(0);
 }
 
+#if 0
 // Fire
 void Board::launch4(int source_card, int target_card, double start_time, double end_time) {
     std::lock_guard<std::mutex> guard(board_mutex);
@@ -338,6 +341,7 @@ void Board::launch2(int source_card) {
         particles.back().setNoHighlight();
     }
 }
+#endif
 
 void Board::setUpBoard(const SpellCaster *game, double time0, double time1) {
     std::lock_guard<std::mutex> guard(board_mutex);
@@ -392,8 +396,20 @@ void Board::setUpBoard(const SpellCaster *game, double time0, double time1) {
     cout.flush();
 }
 
-void Board::arena(int card1, int card2, double start_time, double end_time) {
+int Board::arena(int card1, int card2, double start_time, double end_time) {
     std::lock_guard<std::mutex> guard(board_mutex);
+    auto arena_rectangle = make_shared<Rectangle>();
+    arena_rectangle->visible = true;
+    arena_rectangle->shadow = false;
+    arena_rectangle->setBrightness(start_time, 1.0);
+    arena_rectangle->setZ(start_time, 0.8);
+    arena_rectangle->setPosition(start_time, 0.0, 0.0);
+    arena_rectangle->setSize(start_time, 0.75, 0.35);
+    arena_rectangle->setAngle(start_time, 0.0);
+    arena_rectangle->setTexture(create_texture("assets/colosseum.jpg"));
+
+    int arena_id = drawables.addElement(arena_rectangle);
+
     float size = 0.125;
 
     cards[card1]->visible = true;
@@ -420,7 +436,7 @@ void Board::arena(int card1, int card2, double start_time, double end_time) {
         player.setBrightness(0.0, 1.0);
         player.visible = true;
         player.shadow = true;
-        return;
+        return arena_id;
     } else if (card2 == PLAYER1) {
         computer.setZ(start_time, 0.95);
 
@@ -430,7 +446,7 @@ void Board::arena(int card1, int card2, double start_time, double end_time) {
         computer.setBrightness(0.0, 1.0);
         computer.visible = true;
         computer.shadow = true;
-        return;
+        return arena_id;
     }
 
     cards[card2]->setZ(start_time, 0.95);
@@ -441,9 +457,11 @@ void Board::arena(int card1, int card2, double start_time, double end_time) {
     cards[card2]->setBrightness(0.0, 1.0);
     cards[card2]->visible = true;
     cards[card2]->shadow = true;
+
+    return arena_id;
 }
 
-void Board::unArena(int card1, int card2, double time0, double time1) {
+void Board::unArena(int arena_id, int card1, int card2, double time0, double time1) {
     std::lock_guard<std::mutex> guard(board_mutex);
     arenaVisible.addEvent(time0, 1.0);
     cards[card1]->setPosition(time0);
@@ -454,12 +472,14 @@ void Board::unArena(int card1, int card2, double time0, double time1) {
     setPlayerPosition(time1, 0.95);
     cout << "Returning computer" << endl;
     setComputerPosition(time1, 0.95);
+
+    drawables.removeElement(arena_id);
 }
 
 void Board::unFocus(int player, int card, float delay) {
     std::lock_guard<std::mutex> guard(board_mutex);
     int focus = find(hand[0].begin(), hand[0].end(), card)-hand[0].begin();
-    assert(game->hand[0][focus] == card);
+    //assert(game->hand[0][focus] == card);
 
     int n = hand[player].size();
     float left_edge = config.hand_left-0.5*0.125;
@@ -541,6 +561,7 @@ void Board::initTextures(const vector<const Definition *> &player_deck,
     blob_tex = create_texture("assets/blob.png");
     fire_tex = create_texture("assets/fire.png", true);
     stroke_tex = create_texture("assets/stroke.png", false, true);
+    create_texture("assets/colosseum.jpg");
 
     cout << "...done" << endl;
 }
@@ -777,16 +798,21 @@ void Board::draw(float ratio) {
         draw_text(ratio, word_annotation);
     }
 
+#if 0
     // Render arena
     if (arenaVisible.get()) {
         ::drawShadow(ratio, 0.0, 0.0, /* z= */ 0.8, 0.0, 0.75, 0.35, 0.80);
     }
+#endif
+
+#if 0
     // Particles
     if (particles.size() > 0) {
         for (auto p : particles) {
             p.draw(ratio, 0.0);
         }
     }
+#endif
     drawables.draw(ratio);
 }
 

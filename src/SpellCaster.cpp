@@ -546,13 +546,13 @@ void SpellCaster::executeInstant(int c, bool verbose) {
 
         int target_card = target[c];
 
-        board.arena(c, target_card, start_arena, start_launch);
+        int arena_id = board.arena(c, target_card, start_arena, start_launch);
         wait_until(start_launch);
         // executeInstant()
         board.launch(c, target_card, start_launch, start_unarena);
         wait_until(start_unarena);
         // executeInstant()
-        board.unArena(c, target_card, start_unarena, end_unarena);
+        board.unArena(arena_id, c, target_card, start_unarena, end_unarena);
         wait_until(end_unarena);
     }
 #endif
@@ -584,7 +584,6 @@ SpellCaster::doMove(Move m, bool verbose) {
     int card_number = find(hand[nextPlayer].begin(), hand[nextPlayer].end(), m.card)-hand[nextPlayer].begin();
     assert(hand[nextPlayer][card_number] == c);
     if (m.target == DISCARD) {
-        assert(config.can_self_discard || config.must_self_discard);
         hand[nextPlayer].erase(hand[nextPlayer].begin()+card_number);
         checkConsistency();
         assert(location[c] == Location::HAND0 || location[c] == Location::HAND1);
@@ -879,13 +878,14 @@ void SpellCaster::execute(bool verbose) {
         int c = in_play.back();
         assert(location[c] == Location::IN_PLAY);
 
+        int arena_id;
 #ifdef BOARD
         if (verbose) {
             double start_arena = now();
             double start_launch = start_arena+1.0;
             double end_launch = start_launch+1.0;
 
-            board.arena(c, target[c], start_arena, start_launch);
+            arena_id = board.arena(c, target[c], start_arena, start_launch);
             wait_until(start_launch);
             // execute()
             board.launch(c, target[c], start_launch, end_launch);
@@ -906,7 +906,7 @@ void SpellCaster::execute(bool verbose) {
             double end_unarena = start_unarena+1.0;
             cout << "Doing an unarena" << endl;
             // execute()
-            board.unArena(c, target[c], start_unarena, end_unarena);
+            board.unArena(arena_id, c, target[c], start_unarena, end_unarena);
         }
 #endif
 
