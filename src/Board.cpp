@@ -415,13 +415,13 @@ int Board::arena(int card1, int card2, double start_time, double end_time) {
     cards[card1]->visible = true;
     cards[card1]->shadow = false;
 
-    arenaVisible.addEvent(start_time, 1.0);
+//    arenaVisible.addEvent(start_time, 1.0);
     cards[card1]->setBrightness(start_time, 1.0);
     cards[card1]->setPosition(start_time);
 
     cards[card1]->setZ(start_time, 0.95);
 
-    arenaVisible.addEvent(end_time, 1.0);
+//    arenaVisible.addEvent(end_time, 1.0);
     cards[card1]->setPosition(end_time, -0.5, 0);
     cards[card1]->setZ(end_time, 0.9);
     cards[card1]->setSize(end_time, size, 2*size);
@@ -463,11 +463,11 @@ int Board::arena(int card1, int card2, double start_time, double end_time) {
 
 void Board::unArena(int arena_id, int card1, int card2, double time0, double time1) {
     std::lock_guard<std::mutex> guard(board_mutex);
-    arenaVisible.addEvent(time0, 1.0);
+//    arenaVisible.addEvent(time0, 1.0);
     cards[card1]->setPosition(time0);
     player.setPosition(time0);
 
-    arenaVisible.addEvent(time1, 0.0);
+//    arenaVisible.addEvent(time1, 0.0);
     cout << "Returning player" << endl;
     setPlayerPosition(time1, 0.95);
     cout << "Returning computer" << endl;

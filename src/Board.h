@@ -243,10 +243,10 @@ private:
 // Most stuff here needs protection with mutexes
 public:
 //    vector<Rectangle> particles; // XXX
-    Animated<float> arenaVisible;
+//    Animated<float> arenaVisible;
 
     Board() : new_message(true) {
-        arenaVisible.addEvent(0.0, 0.0);
+//        arenaVisible.addEvent(0.0, 0.0);
     }
 
     // Shouldn't need mutex as this is done during startup.
