@@ -162,7 +162,7 @@ void Board::launch3(int source_card) {
         particles.back().setSize(start_time+1.5, 0.0, 0.0);
 
         particles.back().setZ(0.0, 0.9);
-        particles.back().setBrightness(0.0, 1.0);
+        particles.back().setAlpha(0.0, 1.0);
         particles.back().visible = true;
         particles.back().setNoHighlight();
     }
@@ -179,7 +179,7 @@ void addSegment(shared_ptr<Group> group, Vector2f start, Vector2f end, double ti
     segment.setSize(time, 0.1, 0.5*(end-start).norm());
     segment.setPosition(time, 0.5*(start+end));
     segment.setZ(time, 0.96);
-    segment.setBrightness(time, 1.0);
+    segment.setAlpha(time, 1.0);
 
     group->addElement(make_shared<Rectangle>(segment));
 }
@@ -267,13 +267,13 @@ void Board::launch4(int source_card, int target_card, double start_time, double 
     particles.back().setZ(start_time);
     particles.back().setPosition(start_time);
     particles.back().setSize(start_time);
-    particles.back().setBrightness(start_time);
+    particles.back().setAlpha(start_time);
 
     particles.back().setAngle(start_time+0.01, orientation(delta));
     particles.back().setZ(start_time+0.01, 0.95);
     particles.back().setPosition(start_time+0.01, middle);
     particles.back().setSize(start_time+0.01, 0.1, 0.5*l);
-    particles.back().setBrightness(start_time+0.01, 1.0);
+    particles.back().setAlpha(start_time+0.01, 1.0);
 
     particles.back().visible = true;
 
@@ -336,7 +336,7 @@ void Board::launch2(int source_card) {
 #endif
 
         particles.back().setZ(0.0, 0.9);
-        particles.back().setBrightness(0.0, 1.0);
+        particles.back().setAlpha(0.0, 1.0);
         particles.back().visible = true;
         particles.back().setNoHighlight();
     }
@@ -401,7 +401,8 @@ int Board::arena(int card1, int card2, double start_time, double end_time) {
     auto arena_rectangle = make_shared<Rectangle>();
     arena_rectangle->visible = true;
     arena_rectangle->shadow = false;
-    arena_rectangle->setBrightness(start_time, 1.0);
+    arena_rectangle->setAlpha(start_time, 0.0);
+    arena_rectangle->setAlpha(end_time, 1.0);
     arena_rectangle->setZ(start_time, 0.8);
     arena_rectangle->setPosition(start_time, 0.0, 0.0);
     arena_rectangle->setSize(start_time, 0.75, 0.35);
@@ -416,7 +417,7 @@ int Board::arena(int card1, int card2, double start_time, double end_time) {
     cards[card1]->shadow = false;
 
 //    arenaVisible.addEvent(start_time, 1.0);
-    cards[card1]->setBrightness(start_time, 1.0);
+    cards[card1]->setAlpha(start_time, 1.0);
     cards[card1]->setPosition(start_time);
 
     cards[card1]->setZ(start_time, 0.95);
@@ -433,7 +434,7 @@ int Board::arena(int card1, int card2, double start_time, double end_time) {
         player.setPosition(end_time, 0.5, 0);
         player.setZ(end_time, 0.95);
         player.setSize(end_time, size, size);
-        player.setBrightness(0.0, 1.0);
+        player.setAlpha(0.0, 1.0);
         player.visible = true;
         player.shadow = true;
         return arena_id;
@@ -443,7 +444,7 @@ int Board::arena(int card1, int card2, double start_time, double end_time) {
         computer.setPosition(end_time, 0.5, 0);
         computer.setZ(end_time, 0.95);
         computer.setSize(end_time, size, size);
-        computer.setBrightness(0.0, 1.0);
+        computer.setAlpha(0.0, 1.0);
         computer.visible = true;
         computer.shadow = true;
         return arena_id;
@@ -454,7 +455,7 @@ int Board::arena(int card1, int card2, double start_time, double end_time) {
     cards[card2]->setPosition(end_time, 0.5, 0);
     cards[card2]->setZ(end_time, 0.95);
     cards[card2]->setSize(end_time, size, 2*size);
-    cards[card2]->setBrightness(0.0, 1.0);
+    cards[card2]->setAlpha(0.0, 1.0);
     cards[card2]->visible = true;
     cards[card2]->shadow = true;
 
@@ -584,7 +585,7 @@ void Board::setText(vector<shared_ptr<TextRectangle>> &word, const char *msg, fl
                             0.5*letter_size*letters[c].width,
                             0.5*letter_size*letters[c].height);
             x = x+letter_size*letters[c].advance/64.0;
-            word.back()->setBrightness(0.0, 1.0);
+            word.back()->setAlpha(0.0, 1.0);
             word.back()->visible = true;
             word.back()->setNoHighlight();
         } else if (c == 10) {
@@ -598,7 +599,7 @@ void Board::setGraveyardPosition(double time, int c) {
     cards[c]->setPosition(time, Vector2f(1.3, 0.0));
     cards[c]->setZ(time, 0.0);
     cards[c]->setSize(time, 0.0625*1.5, 0.125*1.5);
-    cards[c]->setBrightness(0.0, 1.0);
+    cards[c]->setAlpha(0.0, 1.0);
     cards[c]->setAngle(time, -2*M_PI);
     cards[c]->visible = true;
     cards[c]->shadow = true;
@@ -610,7 +611,7 @@ void Board::setInPlayPosition(double time, int c, int i) {
                                         owner[c] == 0 ? -config.offset_for_player : config.offset_for_player));
     cards[c]->setZ(time, 0.0);
     cards[c]->setSize(0.0, 0.125, 0.25);
-    cards[c]->setBrightness(0.0, 1.0);
+    cards[c]->setAlpha(0.0, 1.0);
     cards[c]->visible = true;
     cards[c]->shadow = true;
 }
@@ -633,7 +634,7 @@ void Board::setPlayerPosition(double time, double z) {
     player.setPosition(time, 0.95, -0.8);
     player.setZ(time, z);
     player.setSize(time, 0.1, 0.1);
-    player.setBrightness(time, 1.0);
+    player.setAlpha(time, 1.0);
     player.visible = true;
     player.shadow = true;
 }
@@ -642,7 +643,7 @@ void Board::setComputerPosition(double time, double z) {
     computer.setPosition(time, 0.95, 0.8);
     computer.setZ(time, z);
     computer.setSize(time, 0.1, 0.1);
-    computer.setBrightness(time, 1.0);
+    computer.setAlpha(time, 1.0);
     computer.visible = true;
     computer.shadow = true;
 }
@@ -653,7 +654,7 @@ void Board::setAnnotation(int card) {
     annotation.setPosition(now(), Vector2f(config.annotation_x, config.annotation_y));
     annotation.setZ(now(), 0.9);
     annotation.setSize(0.0, 0.5*config.annotation_height, config.annotation_height);
-    annotation.setBrightness(0.0, 1.0);
+    annotation.setAlpha(0.0, 1.0);
     annotation.shadow = true;
     annotation.visible = true;
     ostringstream summary;
@@ -696,7 +697,7 @@ void Board::initPlayers() {
     background.setPosition(0.0, Vector2f(0.0, 0.0));
     background.setZ(0.0, 0.0);
     background.setSize(0.0, 1600.0/1172.0, 1.0);
-    background.setBrightness(0.0, 1.0);
+    background.setAlpha(0.0, 1.0);
     background.visible = true;
 
     player.setTexture(create_texture(config.player_icon.c_str()));
@@ -707,7 +708,7 @@ void Board::initPlayers() {
     computer.setPosition(0.0, 0.95, 0.8);
     computer.setZ(0.0, 0.0);
     computer.setSize(0.0, 0.1, 0.1);
-    computer.setBrightness(0.0, 1.0);
+    computer.setAlpha(0.0, 1.0);
     computer.visible = true;
     computer.shadow = true;
 
@@ -715,7 +716,7 @@ void Board::initPlayers() {
     passbutton.setPosition(0.0, 0.95, 0.1);
     passbutton.setZ(0.0, 0.0);
     passbutton.setSize(0.0, 0.2, 0.2/3.0);
-    passbutton.setBrightness(0.0, 1.0);
+    passbutton.setAlpha(0.0, 1.0);
     passbutton.visible = true;
     passbutton.shadow = true;
 
@@ -723,7 +724,7 @@ void Board::initPlayers() {
     discardbutton.setPosition(0.0, 0.95, -0.1);
     discardbutton.setZ(0.0, 0.0);
     discardbutton.setSize(0.0, 0.2, 0.2/3.0);
-    discardbutton.setBrightness(0.0, 1.0);
+    discardbutton.setAlpha(0.0, 1.0);
     discardbutton.visible = true;
     discardbutton.shadow = true;
 }
@@ -821,7 +822,7 @@ void Board::setHandPosition(double time, int c, int h, int i, float x, float siz
     cards[c]->setPosition(time, handPosition(h, i)+Vector2f(offsetx, offsety));
     cards[c]->setZ(time, z);
     cards[c]->setSize(time, size, 2*size);
-    cards[c]->setBrightness(0.0, 1.0);
+    cards[c]->setAlpha(0.0, 1.0);
     cards[c]->visible = true;
     cards[c]->shadow = true;
 }

@@ -54,7 +54,7 @@ protected:
     mutable Animated<float> z;
     mutable Animated<float> xsize;
     mutable Animated<float> ysize;
-    mutable Animated<float> brightness;
+    mutable Animated<float> alpha;
     GLuint tex;
     float r_highlight;
     float g_highlight;
@@ -115,11 +115,11 @@ public:
         xsize.addEvent(time, x0);
         ysize.addEvent(time, y0);
     }
-    void setBrightness(double time) {
-        brightness.addEvent(time);
+    void setApha(double time) {
+        alpha.addEvent(time);
     }
-    void setBrightness(double time, double b) {
-        brightness.addEvent(time, b);
+    void setAlpha(double time, double b) {
+        alpha.addEvent(time, b);
     }
     void setAngle(double time) {
         angle.addEvent(time);
