@@ -202,15 +202,7 @@ private:
         return Vector2f(config.hand_left+i*config.hand_spacing, player ? 0.6 : -0.6);
     }
 
-    void setHandPosition(double time, int c, int h, int i, float x, float size, float z, float offsetx, float offsety) {
-        //cards[c]->setPosition(time, Vector2f(x+offsetx, (h ? 0.6 : -0.6)+offsety));
-        cards[c]->setPosition(time, handPosition(h, i)+Vector2f(offsetx, offsety));
-        cards[c]->setZ(time, z);
-        cards[c]->setSize(time, size, 2*size);
-        cards[c]->setBrightness(0.0, 1.0);
-        cards[c]->visible = true;
-        cards[c]->shadow = true;
-    }
+    void setHandPosition(double time, int c, int h, int i, float x, float size, float z, float offsetx, float offsety);
 
     void pack(int n, float width, float l, float r, vector<float> &centres) {
         if (n <= 0) {

@@ -766,7 +766,7 @@ void Board::draw(float ratio) {
 
     // Render arena
     if (arenaVisible.get()) {
-        ::drawShadow(ratio, 0.0, 0.0, /* z= */ 0.8, 0.0, 0.75, 0.35, 0.50);
+        ::drawShadow(ratio, 0.0, 0.0, /* z= */ 0.8, 0.0, 0.75, 0.35, 0.80);
     }
     // Particles
     if (particles.size() > 0) {
@@ -774,4 +774,14 @@ void Board::draw(float ratio) {
             p.draw(ratio, 0.0);
         }
     }
+}
+
+void Board::setHandPosition(double time, int c, int h, int i, float x, float size, float z, float offsetx, float offsety) {
+    //cards[c]->setPosition(time, Vector2f(x+offsetx, (h ? 0.6 : -0.6)+offsety));
+    cards[c]->setPosition(time, handPosition(h, i)+Vector2f(offsetx, offsety));
+    cards[c]->setZ(time, z);
+    cards[c]->setSize(time, size, 2*size);
+    cards[c]->setBrightness(0.0, 1.0);
+    cards[c]->visible = true;
+    cards[c]->shadow = true;
 }

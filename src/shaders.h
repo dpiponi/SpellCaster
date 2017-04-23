@@ -22,16 +22,16 @@ protected:
     GLuint vertex_buffer;
 public:
     ProgramBase() { } // XXX Delete eventually.
-    void bindVertexArray() {
+    void bindVertexArray() const {
         glBindVertexArray(vao);
     }
-    void unbindVertexArray() {
+    void unbindVertexArray() const {
         glBindVertexArray(0);
     }
-    void use() {
+    void use() const {
         glUseProgram(program);
     }
-    void unuse() {
+    void unuse() const {
         glUseProgram(0);
     }
     ProgramBase(Json shader) {

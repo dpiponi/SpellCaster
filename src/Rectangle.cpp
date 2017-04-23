@@ -10,6 +10,26 @@ void Rectangle::drawShadow(float ratio) {
                  /* alpha= */ 0.35);
 }
 
+inline void drawRectangle(Program &program, float ratio, float x, float y, float z, float angle, float xsize, float ysize, float brightness, GLuint tex) {
+    mat4x4 mvp;
+    make_matrix(mvp, ratio, x, y, angle, xsize, ysize);
+
+    extern GLuint fire_tex;
+
+    if (tex==fire_tex) {
+        drawFire(ratio, x, y, z, angle, xsize, ysize, brightness, tex);
+    }
+    program.use();
+    program.bindVertexArray();
+    program.set(mvp, brightness, z);
+    program.bufferData(sizeof(vertices), (void *)vertices);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    program.unbindVertexArray();
+    program.unuse();
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 void Rectangle::draw(float ratio, float border_line_width) {
     if (!visible || tex==0) {
         return;
@@ -19,7 +39,7 @@ void Rectangle::draw(float ratio, float border_line_width) {
         drawShadow(ratio);
     }
 
-    drawRectangle(ratio, x.get(), y.get(), z.get(), angle.get(), xsize.get(), ysize.get(), brightness.get(), tex);
+    drawRectangle(program, ratio, x.get(), y.get(), z.get(), angle.get(), xsize.get(), ysize.get(), brightness.get(), tex);
 
     drawBorder(ratio, border_line_width);
 }
