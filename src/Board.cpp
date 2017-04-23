@@ -567,27 +567,28 @@ void Board::initTextures(const vector<const Definition *> &player_deck,
     cout << "...done" << endl;
 }
 
-void Board::setText(vector<shared_ptr<TextRectangle>> &word, const char *msg, float x, float y) {
+void Board::setText(shared_ptr<LinearGroup> word, const char *msg, float x, float y) {
     float startx = x;
     int msg_len = strlen(msg);
-    word.resize(0);
+    word->reset();
     float letter_size = 0.001;
     for (int i = 0; i < msg_len; ++i) {
         int c = msg[i];
         if (c >= 32 && c <= 127) {
-            word.push_back(make_shared<TextRectangle>());
-            word.back()->setTexture(letters[c].texture);
-            word.back()->setPosition(0.0, Vector2f(
+            auto glyph = make_shared<TextRectangle>();
+            glyph->setTexture(letters[c].texture);
+            glyph->setPosition(0.0, Vector2f(
                                 x+0.5*letter_size*letters[c].width+letter_size*letters[c].left,
                                 y-0.5*letter_size*letters[c].height+letter_size*letters[c].top));
-            word.back()->setZ(0.0, 0.9);
-            word.back()->setSize(0.0,
+            glyph->setZ(0.0, 0.9);
+            glyph->setSize(0.0,
                             0.5*letter_size*letters[c].width,
                             0.5*letter_size*letters[c].height);
             x = x+letter_size*letters[c].advance/64.0;
-            word.back()->setAlpha(0.0, 1.0);
-            word.back()->visible = true;
-            word.back()->setNoHighlight();
+            glyph->setAlpha(0.0, 1.0);
+            glyph->visible = true;
+            glyph->setNoHighlight();
+            word->appendElement(glyph);
         } else if (c == 10) {
             x = startx;
             y -= config.vertical_text_space;
@@ -746,9 +747,9 @@ void Board::draw(float ratio) {
     computer.draw(ratio, config.border_line_width);
     passbutton.draw(ratio, config.border_line_width);
     discardbutton.draw(ratio, config.border_line_width);
-    draw_text(ratio, word);
-    draw_text(ratio, word_stats0);
-    draw_text(ratio, word_stats1);
+    word->draw(ratio, 0.0);
+    word->draw(ratio, 0.0);
+    word->draw(ratio, 0.0);
     for (int i = 0; i < 2; ++i) {
         for (auto p : hand[i]) {
             cards[p]->draw(ratio, config.border_line_width);
@@ -796,7 +797,8 @@ void Board::draw(float ratio) {
     if (annotation.visible) {
         ::drawShadow(ratio, -1.1, 0.0, 0.0, 0.0, 0.2, 0.8, 0.35);
         annotation.draw(ratio, config.border_line_width);
-        draw_text(ratio, word_annotation);
+        //draw_text(ratio, word_annotation);
+        word_annotation->draw(ratio, 0.0);
     }
 
 #if 0

@@ -169,6 +169,9 @@ public:
             p->draw(ratio, /* ignore1 */ 0.0);
         }
     }
+    void reset() {
+        characters.resize(0);
+    }
     void appendElement(shared_ptr<TextRectangle> d) {
         characters.push_back(d);
     }

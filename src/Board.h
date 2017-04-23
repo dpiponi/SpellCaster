@@ -90,10 +90,10 @@ class Board {
     GLuint back_texture;
     Rectangle background, player, computer, passbutton, discardbutton;
     Rectangle annotation;
-    vector<shared_ptr<TextRectangle>> word_annotation;
-    vector<shared_ptr<TextRectangle>> word;
-    vector<shared_ptr<TextRectangle>> word_stats0;
-    vector<shared_ptr<TextRectangle>> word_stats1;
+    shared_ptr<LinearGroup> word;
+    shared_ptr<LinearGroup> word_annotation;
+    shared_ptr<LinearGroup> word_stats0;
+    shared_ptr<LinearGroup> word_stats1;
     Group drawables;
 
 public:
@@ -122,11 +122,11 @@ private:
     bool new_message;
     ostringstream text_stream;
 
-    void setNoText(vector<shared_ptr<TextRectangle>> &word) {
-        word.resize(0);
+    void setNoText(shared_ptr<LinearGroup> word) {
+        word->reset();
     }
 
-    void setText(vector<shared_ptr<TextRectangle>> &word, const char *msg, float x, float y);
+    void setText(shared_ptr<LinearGroup> word, const char *msg, float x, float y);
 
     void setGraveyardPosition(double time, int c);
 
@@ -189,11 +189,13 @@ private:
                       const vector<const Definition *> &computer_deck);
 
 
+#if 0
     void draw_text(float ratio, vector<shared_ptr<TextRectangle>> &word) {
         for (auto p : word) {
             p->draw(ratio);
         }
     }
+#endif
 
     void drawConnection(float ratio, RGB rgb, int i, int j, int k);
     void setComputerPosition(double time, double z = 0.0);
@@ -247,6 +249,10 @@ public:
 
     Board() : new_message(true) {
 //        arenaVisible.addEvent(0.0, 0.0);
+    word = make_shared<LinearGroup>();
+    word_annotation = make_shared<LinearGroup>();
+    word_stats0 = make_shared<LinearGroup>();
+    word_stats1 = make_shared<LinearGroup>();
     }
 
     // Shouldn't need mutex as this is done during startup.
