@@ -18,6 +18,7 @@ using std::cout;
 using std::endl;
 using std::map;
 using std::shared_ptr;
+using std::vector;
 
 typedef Vector2f Point;
 
@@ -146,7 +147,6 @@ public:
     Group() : next(1) { }
     void draw(float ratio, float border_line_width = 0.0) override {
         for (auto p : dictionary) {
-            cout << "DRAWING GROUP ELT" << endl;
             p.second->draw(ratio, border_line_width);
         }
     }
@@ -157,6 +157,20 @@ public:
     }
     void removeElement(int id) {
         dictionary.erase(id);
+    }
+};
+
+class LinearGroup : public Drawable {
+    vector<shared_ptr<TextRectangle>> characters;
+public:
+    LinearGroup() { }
+    void draw(float ratio, float border_line_width = 0.0) override {
+        for (auto p : characters) {
+            p->draw(ratio, /* ignore1 */ 0.0);
+        }
+    }
+    void appendElement(shared_ptr<TextRectangle> d) {
+        characters.push_back(d);
     }
 };
 
