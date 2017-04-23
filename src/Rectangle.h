@@ -4,6 +4,7 @@
 #include <chrono>
 #include <iostream>
 #include <Eigen/Core>
+#include <map>
 
 using Eigen::Vector2f;
 
@@ -15,6 +16,8 @@ using Eigen::Vector2f;
 
 using std::cout;
 using std::endl;
+using std::map;
+using std::shared_ptr;
 
 typedef Vector2f Point;
 
@@ -36,6 +39,7 @@ inline float orientation(Vector2f v) {
 }
 
 class Drawable {
+public:
     virtual void draw(float ratio, float border_line_width = 0.0) = 0;
 };
 
@@ -133,6 +137,25 @@ public:
 class TextRectangle : public Rectangle {
 public:
     void draw(float ratio, float border_line_width = 0.0) override;
+};
+
+class Group : public Drawable {
+    int next;
+    map<int, shared_ptr<Drawable>> dictionary;
+public:
+    Group() : next(0) { }
+    void draw(float ratio, float border_line_width = 0.0) {
+        for (auto p : dictionary) {
+            p.second->draw(ratio, border_line_width);
+        }
+    }
+    void addElement(shared_ptr<Drawable> d) {
+        int id = next++;
+        dictionary[id] = d;
+    }
+    void removeElement(int id) {
+        dictionary.erase(id);
+    }
 };
 
 #endif
