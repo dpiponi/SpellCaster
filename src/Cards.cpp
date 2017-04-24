@@ -274,6 +274,11 @@ void MonsterDefinition::execute(SpellCaster *game, int card, bool verbose) const
 #endif
         game->damage_player(0, attack, verbose);
         game->card_end_from(Location::EXECUTING, card, verbose);
+#ifdef BOARD
+        if (verbose) {
+            board.publicSetPlayerPosition(now()+0.5, 0.95);
+        }
+#endif
         return;
     } else if (target == PLAYER1) {
 #ifdef BOARD

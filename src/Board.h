@@ -150,7 +150,8 @@ private:
         return Vector2f(config.hand_left+i*config.hand_spacing, player ? 0.6 : -0.6);
     }
 
-    void setHandPosition(double time, int c, int h, int i, float size, float z, float offsetx, float offsety);
+    void setHandPosition(double time, int card, int player, int position_in_hand,
+                         float size, float z, float offsetx, float offsety);
 
 #if 0
     // Get position of ith card in a hand of n cards help by player p
@@ -365,6 +366,17 @@ public:
            << "\nworld:" << mana[1].world
            << "\nastral:" << mana[1].astral;
         setText(word_stats1, st.str().c_str(), 1.1, 0.85);
+    }
+
+    void publicSetHandPosition(double time, int card, int player, int position_in_hand,
+                         float size, float z, float offsetx, float offsety) {
+        std::lock_guard<std::mutex> guard(board_mutex);
+        setHandPosition(time, card, player, position_in_hand, size, z, offsetx, offsety);
+    }
+
+    void publicSetPlayerPosition(double time, double z = 0.0) {
+        std::lock_guard<std::mutex> guard(board_mutex);
+        setPlayerPosition(time, z);
     }
 };
 

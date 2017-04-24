@@ -344,7 +344,8 @@ void SpellCaster::return_card_from(Location loc, int c, bool verbose) {
 #ifdef BOARD
     if (verbose) {
         // return_card_from()
-        board.setUpBoard(this, now(), now()+0.5);
+        board.publicSetHandPosition(now()+0.5, c, owner[c], hand[owner[c]].size()-1, 0.125, 0.9, 0.0, 0.0);
+        //board.setUpBoard(this, now(), now()+0.5);
         end_message();
     }
 #endif
