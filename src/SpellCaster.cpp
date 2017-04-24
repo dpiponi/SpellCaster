@@ -568,15 +568,7 @@ SpellCaster::doMove(Move m, bool verbose) {
     assert(m.target != DISCARD || location[m.card] == Location::HAND0 || location[m.card] == Location::HAND1);
 
     if (m.card == PASS) {
-#ifdef BOARD
-        if (verbose) {
-            board << "PASS";
-            end_message();
-        }
-#endif
-
-        doExecution(verbose);
-        checkConsistency();
+        doPass(verbose);
         return;
     }
     int c = m.card;
@@ -584,77 +576,14 @@ SpellCaster::doMove(Move m, bool verbose) {
     int card_number = find(hand[nextPlayer].begin(), hand[nextPlayer].end(), m.card)-hand[nextPlayer].begin();
     assert(hand[nextPlayer][card_number] == c);
     if (m.target == DISCARD) {
-        hand[nextPlayer].erase(hand[nextPlayer].begin()+card_number);
-        checkConsistency();
-        assert(location[c] == Location::HAND0 || location[c] == Location::HAND1);
-        location[c] = Location::GRAVEYARD;
-        checkConsistency();
-#ifdef BOARD
-        if (verbose) cout << "!!!!!!!!!!!!!GONETOGRAVEYARD!!!!!!!!!!!!!!!!!!!" << endl;
-#endif
-        graveyard.push_back(c);
-        exposedTo[0][c] = true;
-        exposedTo[1][c] = true;
-#ifdef BOARD
-        if (verbose) {
-            // doMove(): DISCARD
-            board.setUpBoard(this, now(), now()+0.5);
-            end_message();
-        }
-#endif
-#if 0
-        if (hasProperty(c, CardProperty::INSTANT)) {
-            executeInstant(c, verbose);
-        }
-#endif
-#ifdef BOARD
-        if (verbose) {
-            board << description(c, verbose) << " discarded";
-            end_message();
-        }
-#endif
-        // swap YYY
-        nextPlayer = 1-nextPlayer;
-        passed = false;
-        checkConsistency();
+        doDiscard(verbose, c, card_number);
         return;
     }
     if (hasProperty(c, CardProperty::INSTANT)) {
         handleInstant(c, card_number, m.target, verbose);
         return;
     }
-
-    // Move card into play.
-    int otherPlayer = 1-nextPlayer;
-    passed = false;
-    mana[nextPlayer] -= cost[c];
-    hand[nextPlayer].erase(hand[nextPlayer].begin()+card_number);
-    in_play.push_back(c);
-    exposedTo[0][c] = true;
-    exposedTo[1][c] = true;
-    int t = m.target;//m.target >= 1000 ? m.target : in_play[m.target];
-    target[c] = t;
-    location[c] = Location::IN_PLAY;
-
-#ifdef BOARD
-    if (verbose) {
-        // doMove(): move to in_play
-        board.setUpBoard(this, now(), now()+0.5);
-        end_message();
-    }
-#endif
-
-    nextPlayer = otherPlayer;
-
-#ifdef BOARD
-#if 0
-    if (verbose) {
-        board.setUpBoard(this, now(), now()+0.5);
-        end_message();
-    }
-#endif
-#endif
-    checkConsistency();
+    doPlay(m, c, card_number, verbose);
 }
 
 vector<SpellCaster::Move> SpellCaster::legalMoves() const {
