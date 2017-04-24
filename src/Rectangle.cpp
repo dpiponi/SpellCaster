@@ -11,7 +11,7 @@ void Rectangle::drawShadow(float ratio) {
 }
 
 inline void drawRectangle(Program &program, float ratio, float x, float y, float z, float angle, float xsize, float ysize, float alpha, GLuint tex) {
-    mat4x4 mvp;
+    Mat44 mvp;
     make_matrix(mvp, ratio, x, y, angle, xsize, ysize);
 
     extern GLuint fire_tex;
@@ -84,12 +84,4 @@ void Rectangle::drawBorder(float ratio, float line_width) {
         drawLine(ratio, line_width, RGB {r_highlight, g_highlight, b_highlight}, x1, y1, x0, y1);
         drawLine(ratio, line_width, RGB {r_highlight, g_highlight, b_highlight}, x0, y1, x0, y0);
     }
-}
-
-void TextRectangle::draw(float ratio, float ignore1) {
-    if (!visible || tex==0) {
-        return;
-    }
-
-    drawTextRectangle(ratio, x.get(), y.get(), angle.get(), xsize.get(), ysize.get(), alpha.get(), tex);
 }

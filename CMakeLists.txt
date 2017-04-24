@@ -14,6 +14,7 @@ set(SC_SOURCE_FILES src/Board.cpp
                     src/GLError.cpp
                     src/Letter.cpp
                     src/Rectangle.cpp
+                    src/TextRectangle.cpp
                     src/SpellCaster.cpp
                     src/UCTRave.cpp
                     src/UIState.cpp

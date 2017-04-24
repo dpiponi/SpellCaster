@@ -10,6 +10,7 @@ using std::dynamic_pointer_cast;
 
 #include <SDL_image.h>
 
+#include "Math.h"
 #include "SpellCaster.h"
 #include "Board.h"
 
@@ -412,13 +413,11 @@ int Board::arena(int card1, int card2, double start_time, double end_time) {
     cards[card1]->visible = true;
     cards[card1]->shadow = false;
 
-//    arenaVisible.addEvent(start_time, 1.0);
     cards[card1]->setAlpha(start_time, 1.0);
     cards[card1]->setPosition(start_time);
 
     cards[card1]->setZ(start_time, 0.95);
 
-//    arenaVisible.addEvent(end_time, 1.0);
     cards[card1]->setPosition(end_time, -0.5, 0);
     cards[card1]->setZ(end_time, 0.9);
     cards[card1]->setSize(end_time, size, 2*size);
@@ -460,26 +459,24 @@ int Board::arena(int card1, int card2, double start_time, double end_time) {
 
 void Board::unArena(int arena_id, int card1, int card2, double time0, double time1) {
     {
-    std::lock_guard<std::mutex> guard(board_mutex);
-//    arenaVisible.addEvent(time0, 1.0);
-    cards[card1]->setPosition(time0);
-    player.setPosition(time0);
+        std::lock_guard<std::mutex> guard(board_mutex);
+        cards[card1]->setPosition(time0);
+        player.setPosition(time0);
 
-//    arenaVisible.addEvent(time1, 0.0);
-    cout << "Returning player" << endl;
-    setPlayerPosition(time1, 0.95);
-    cout << "Returning computer" << endl;
-    setComputerPosition(time1, 0.95);
+        cout << "Returning player" << endl;
+        setPlayerPosition(time1, 0.95);
+        cout << "Returning computer" << endl;
+        setComputerPosition(time1, 0.95);
 
-    auto arena_rectangle = dynamic_pointer_cast<Rectangle>(drawables.getElement(arena_id));
-    arena_rectangle->setAlpha(time0, 1.0);
-    arena_rectangle->setAlpha(time1, 0.0);
+        auto arena_rectangle = dynamic_pointer_cast<Rectangle>(drawables.getElement(arena_id));
+        arena_rectangle->setAlpha(time0, 1.0);
+        arena_rectangle->setAlpha(time1, 0.0);
     }
     wait_until(time1);
     {
-    std::lock_guard<std::mutex> guard(board_mutex);
+        std::lock_guard<std::mutex> guard(board_mutex);
 
-    drawables.removeElement(arena_id);
+        drawables.removeElement(arena_id);
     }
 }
 
@@ -807,26 +804,10 @@ void Board::draw(float ratio) {
         word_annotation->draw(ratio, 0.0);
     }
 
-#if 0
-    // Render arena
-    if (arenaVisible.get()) {
-        ::drawShadow(ratio, 0.0, 0.0, /* z= */ 0.8, 0.0, 0.75, 0.35, 0.80);
-    }
-#endif
-
-#if 0
-    // Particles
-    if (particles.size() > 0) {
-        for (auto p : particles) {
-            p.draw(ratio, 0.0);
-        }
-    }
-#endif
     drawables.draw(ratio);
 }
 
 void Board::setHandPosition(double time, int c, int h, int i, float x, float size, float z, float offsetx, float offsety) {
-    //cards[c]->setPosition(time, Vector2f(x+offsetx, (h ? 0.6 : -0.6)+offsety));
     cards[c]->setPosition(time, handPosition(h, i)+Vector2f(offsetx, offsety));
     cards[c]->setZ(time, z);
     cards[c]->setSize(time, size, 2*size);

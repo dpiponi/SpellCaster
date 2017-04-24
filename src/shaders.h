@@ -2,6 +2,10 @@
 #define SHADERS_H
 
 #include <iostream>
+#include <Eigen/Core>
+
+using Eigen::Matrix;
+typedef Matrix<float, 4, 4, Eigen::RowMajor> Mat44;
 
 using std::cout;
 using std::endl;
@@ -76,8 +80,8 @@ public:
 
         unbindVertexArray();
     }
-    void set(const mat4x4 &mvp, float alpha, float z) {
-        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
+    void set(const Mat44 &mvp, float alpha, float z) {
+        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) &mvp);
         glUniform1f(alpha_location, alpha);
         glUniform1f(z_location, z);
     }
@@ -99,8 +103,8 @@ public:
 
         unbindVertexArray();
     }
-    void set(const mat4x4 &mvp, float alpha, float z) {
-        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
+    void set(const Mat44 &mvp, float alpha, float z) {
+        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) &mvp);
         glUniform1f(alpha_location, alpha);
         glUniform1f(z_location, z);
     }
@@ -158,8 +162,8 @@ public:
 
         unbindVertexArray();
     }
-    void set(const mat4x4 &mvp, float brightness, RGB rgb) {
-        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
+    void set(const Mat44 &mvp, float brightness, RGB rgb) {
+        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) &mvp);
         glUniform1f(brightness_location, brightness);
         glUniform3f(color_location, rgb.r, rgb.g, rgb.b);
     }
@@ -186,8 +190,8 @@ public:
 
         unbindVertexArray();
     }
-    void set(const mat4x4 &mvp, float time, float z) {
-        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
+    void set(const Mat44 &mvp, float time, float z) {
+        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) &mvp);
         glUniform1f(time_location, time);
         glUniform1f(z_location, z);
     }

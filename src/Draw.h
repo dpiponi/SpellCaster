@@ -2,6 +2,7 @@
 #define DRAW_H
 
 #include <iostream>
+#include <Eigen/Core>
 
 using std::cout;
 using std::endl;
@@ -45,20 +46,26 @@ inline void drawLine(float ratio, float line_width, RGB rgb,
     line_program.unbindVertexArray();
 }
 
-inline void make_matrix(mat4x4 mvp, float ratio, float x, float y, float angle, float xsize, float ysize) {
-    mat4x4 m, p;
-    //mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
+//Eigen::Mat44 zz;
+//using Eigen::Mat44;
+inline void make_matrix(Mat44 &mat, float ratio, float x, float y, float angle, float xsize, float ysize) {
+    mat4x4 m, p, mvp;
     mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 0.0f, 1.0f);
     mat4x4_identity(m);
     mat4x4_translate_in_place(m, x, y, 0.0);
     mat4x4_rotate_Z(m, m, angle);
     mat4x4_scale_aniso(m, m, xsize, -ysize, 1.0f);
     mat4x4_mul(mvp, p, m);
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            mat(i, j) = mvp[i][j];
+        }
+    }
 }
 
 #if 1
 inline void drawFire(float ratio, float x, float y, float z, float angle, float xsize, float ysize, float brightness, GLuint tex) {
-    mat4x4 mvp;
+    Mat44 mvp;
     make_matrix(mvp, ratio, x, y, angle, xsize, ysize);
 
     fire_program.use();
@@ -75,7 +82,7 @@ inline void drawFire(float ratio, float x, float y, float z, float angle, float 
 
 inline void drawShadow(float ratio, float x, float y, float z,
                        float angle, float xsize, float ysize, float alpha) {
-    mat4x4 mvp;
+    Mat44 mvp;
     make_matrix(mvp, ratio, x, y, angle, xsize, ysize);
 
     shadow_program.use();
@@ -88,7 +95,7 @@ inline void drawShadow(float ratio, float x, float y, float z,
 }
 
 inline void drawTextRectangle(float ratio, float x, float y, float angle, float xsize, float ysize, float brightness, GLuint tex) {
-    mat4x4 mvp;
+    Mat44 mvp;
     make_matrix(mvp, ratio, x, y, angle, xsize, ysize);
 
     text_program.use();

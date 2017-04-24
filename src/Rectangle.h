@@ -6,10 +6,9 @@
 #include <Eigen/Core>
 #include <map>
 
-using Eigen::Vector2f;
-
 #include <glad/glad.h>
 
+#include "Drawable.h"
 #include "Animated.h"
 #include "shaders.h"
 #include "Draw.h"
@@ -19,31 +18,6 @@ using std::endl;
 using std::map;
 using std::shared_ptr;
 using std::vector;
-
-typedef Vector2f Point;
-
-static float triangle(float x) {
-    if (x < -1) {
-        return 0.0;
-    }
-    if (x > 1) {
-        return 0.0;
-    }
-    if (x > 0) {
-        return 1-x;
-    }
-    return x-1;
-}
-
-inline float orientation(Vector2f v) {
-    return atan2(-v[0], v[1]);
-}
-
-class Drawable {
-public:
-    virtual void draw(float ratio, float border_line_width = 0.0) = 0;
-    bool contains(Point point) const { return 0; }
-};
 
 class Rectangle : public Drawable {
 protected:
@@ -135,11 +109,6 @@ public:
     bool contains(Point point) const;
 };
 
-class TextRectangle : public Rectangle {
-public:
-    void draw(float ratio, float border_line_width = 0.0) override;
-};
-
 class Group : public Drawable {
     int next;
     map<int, shared_ptr<Drawable>> dictionary;
@@ -162,23 +131,6 @@ public:
 
     void removeElement(int id) {
         dictionary.erase(id);
-    }
-};
-
-class LinearGroup : public Drawable {
-    vector<shared_ptr<TextRectangle>> characters;
-public:
-    LinearGroup() { }
-    void draw(float ratio, float border_line_width = 0.0) override {
-        for (auto p : characters) {
-            p->draw(ratio, /* ignore1 */ 0.0);
-        }
-    }
-    void reset() {
-        characters.resize(0);
-    }
-    void appendElement(shared_ptr<TextRectangle> d) {
-        characters.push_back(d);
     }
 };
 

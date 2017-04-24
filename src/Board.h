@@ -13,7 +13,7 @@ using Eigen::Vector2f;
 
 #include "CardBase.h"
 #include "Rectangle.h"
-
+#include "TextRectangle.h"
 #include "Letter.h"
 #include "Mana.h"
 #include "Location.h"
