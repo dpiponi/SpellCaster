@@ -558,6 +558,58 @@ void SpellCaster::executeInstant(int c, bool verbose) {
 #endif
 }
 
+void SpellCaster::doDiscard(int verbose, int c, int card_number) {
+    hand[nextPlayer].erase(hand[nextPlayer].begin()+card_number);
+    checkConsistency();
+    assert(location[c] == Location::HAND0 || location[c] == Location::HAND1);
+    location[c] = Location::GRAVEYARD;
+    checkConsistency();
+#ifdef BOARD
+    if (verbose) cout << "!!!!!!!!!!!!!GONETOGRAVEYARD!!!!!!!!!!!!!!!!!!!" << endl;
+#endif
+    graveyard.push_back(c);
+    exposedTo[0][c] = true;
+    exposedTo[1][c] = true;
+#ifdef BOARD
+    if (verbose) {
+        // doMove(): DISCARD
+        board.setUpBoard(this, now(), now()+0.5);
+        end_message();
+        board << description(c, verbose) << " discarded";
+        end_message();
+    }
+#endif
+    nextPlayer = 1-nextPlayer;
+    passed = false;
+    checkConsistency();
+}
+
+void SpellCaster::doPlay(Move m, int c, int card_number, int verbose) {
+    // Move card into play.
+    int otherPlayer = 1-nextPlayer;
+    passed = false;
+    mana[nextPlayer] -= cost[c];
+    hand[nextPlayer].erase(hand[nextPlayer].begin()+card_number);
+    in_play.push_back(c);
+    exposedTo[0][c] = true;
+    exposedTo[1][c] = true;
+    int t = m.target;//m.target >= 1000 ? m.target : in_play[m.target];
+    target[c] = t;
+    location[c] = Location::IN_PLAY;
+
+#ifdef BOARD
+    if (verbose) {
+        // doMove(): move to in_play
+        board.setUpBoard(this, now(), now()+0.5);
+        end_message();
+    }
+#endif
+
+    nextPlayer = otherPlayer;
+
+    checkConsistency();
+}
+
 // Do I need to check if DISCARD is legal here? XXX
 // I think it's OK to make assumption that a move is legal as
 // isLegal() should be called before this
