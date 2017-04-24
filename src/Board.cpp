@@ -3,6 +3,7 @@
 
 using std::map;
 using std::string;
+using std::dynamic_pointer_cast;
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -368,18 +369,13 @@ void Board::setUpBoard(const SpellCaster *game, double time0, double time1) {
     for (int c = 0; c < exposed.size(); ++c) {
         cards[c]->setTexture(exposed[c] ? tex[c] : back_texture);
     }
-    ostringstream ss;
-    ss << "hp:" << hp[0]
-                << "\nworld:" << mana[0].world
-                << "\nastral:" << mana[0].astral;
-    setText(word_stats0, ss.str().c_str(), 1.1, -0.75);
-    ostringstream st;
-    st << "hp:" << hp[1]
-       << "\nworld:" << mana[1].world
-       << "\nastral:" << mana[1].astral;
-    setText(word_stats1, st.str().c_str(), 1.1, 0.85);
+
+    renderPlayerStats();
+    renderComputerStats();
+
     setUpHand(0);
     setUpHand(1);
+
     int i = 0;
     for (auto p : in_play) {
         cards[p]->visible = true;
@@ -463,6 +459,7 @@ int Board::arena(int card1, int card2, double start_time, double end_time) {
 }
 
 void Board::unArena(int arena_id, int card1, int card2, double time0, double time1) {
+    {
     std::lock_guard<std::mutex> guard(board_mutex);
 //    arenaVisible.addEvent(time0, 1.0);
     cards[card1]->setPosition(time0);
@@ -474,7 +471,16 @@ void Board::unArena(int arena_id, int card1, int card2, double time0, double tim
     cout << "Returning computer" << endl;
     setComputerPosition(time1, 0.95);
 
+    auto arena_rectangle = dynamic_pointer_cast<Rectangle>(drawables.getElement(arena_id));
+    arena_rectangle->setAlpha(time0, 1.0);
+    arena_rectangle->setAlpha(time1, 0.0);
+    }
+    wait_until(time1);
+    {
+    std::lock_guard<std::mutex> guard(board_mutex);
+
     drawables.removeElement(arena_id);
+    }
 }
 
 void Board::unFocus(int player, int card, float delay) {
@@ -748,8 +754,8 @@ void Board::draw(float ratio) {
     passbutton.draw(ratio, config.border_line_width);
     discardbutton.draw(ratio, config.border_line_width);
     word->draw(ratio, 0.0);
-    word->draw(ratio, 0.0);
-    word->draw(ratio, 0.0);
+    word_stats0->draw(ratio, 0.0);
+    word_stats1->draw(ratio, 0.0);
     for (int i = 0; i < 2; ++i) {
         for (auto p : hand[i]) {
             cards[p]->draw(ratio, config.border_line_width);
@@ -827,4 +833,47 @@ void Board::setHandPosition(double time, int c, int h, int i, float x, float siz
     cards[c]->setAlpha(0.0, 1.0);
     cards[c]->visible = true;
     cards[c]->shadow = true;
+}
+
+void Board::shakePlayer(int p) {
+    std::lock_guard<std::mutex> guard(board_mutex);
+    if (p==0) {
+        cout << "!!!!!!!!!!!!!!!!!!!!!!!1 SHAKING player " << p << endl;
+        for (int i = 0; i < 16; ++i) {
+            player.setAngle(now()+0.05*i, -0.1+0.2*(i % 2));
+        };
+        player.setAngle(now()+0.06*16, 0.0);
+    } else {
+        cout << "!!!!!!!!!!!!!!!!!!!!!!!1 SHAKING player " << p << endl;
+        for (int i = 0; i < 16; ++i) {
+            computer.setAngle(now()+0.05*i, -0.1+0.2*(i % 2));
+        };
+        computer.setAngle(now()+0.06*16, 0.0);
+    }
+}
+
+void Board::unHighlightAll() {
+    std::lock_guard<std::mutex> guard(board_mutex);
+    computer.setNoHighlight();
+    player.setNoHighlight();
+    passbutton.setNoHighlight();
+    discardbutton.setNoHighlight();
+    for (auto p : in_play) {
+        cards[p]->setNoHighlight();
+    }
+    for (auto p : hand[0]) {
+        cards[p]->setNoHighlight();
+    }
+    for (auto p : hand[1]) {
+        cards[p]->setNoHighlight();
+    }
+}
+
+void Board::shake_card(int c) {
+    std::lock_guard<std::mutex> guard(board_mutex);
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!1 SHAKING " << c << endl;
+    for (int i = 0; i < 16; ++i) {
+        cards[c]->setAngle(now()+0.05*i, -0.1+0.2*(i % 2));
+    };
+    cards[c]->setAngle(now()+0.06*16, 0.0);
 }

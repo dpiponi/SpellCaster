@@ -155,6 +155,11 @@ public:
         dictionary[id] = d;
         return id;
     }
+
+    shared_ptr<Drawable> &getElement(int id) {
+        return dictionary[id];
+    }
+
     void removeElement(int id) {
         dictionary.erase(id);
     }

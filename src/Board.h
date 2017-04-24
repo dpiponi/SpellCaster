@@ -292,31 +292,8 @@ public:
         }
     }
 
-    void shake_card(int c) {
-        std::lock_guard<std::mutex> guard(board_mutex);
-        cout << "!!!!!!!!!!!!!!!!!!!!!!!1 SHAKING " << c << endl;
-        for (int i = 0; i < 16; ++i) {
-            cards[c]->setAngle(now()+0.05*i, -0.1+0.2*(i % 2));
-        };
-        cards[c]->setAngle(now()+0.06*16, 0.0);
-    }
-
-    void shakePlayer(int p) {
-        std::lock_guard<std::mutex> guard(board_mutex);
-        if (p==0) {
-            cout << "!!!!!!!!!!!!!!!!!!!!!!!1 SHAKING player " << p << endl;
-            for (int i = 0; i < 16; ++i) {
-                player.setAngle(now()+0.05*i, -0.1+0.2*(i % 2));
-            };
-            player.setAngle(now()+0.06*16, 0.0);
-        } else {
-            cout << "!!!!!!!!!!!!!!!!!!!!!!!1 SHAKING player " << p << endl;
-            for (int i = 0; i < 16; ++i) {
-                computer.setAngle(now()+0.05*i, -0.1+0.2*(i % 2));
-            };
-            computer.setAngle(now()+0.06*16, 0.0);
-        }
-    }
+    void shake_card(int c);
+    void shakePlayer(int p);
 
     void noHighlightPlayer(int p) {
         std::lock_guard<std::mutex> guard(board_mutex);
@@ -352,22 +329,7 @@ public:
         discardbutton.setHighlight(config.player_highlight);
     }
 
-    void unHighlightAll() {
-        std::lock_guard<std::mutex> guard(board_mutex);
-        computer.setNoHighlight();
-        player.setNoHighlight();
-        passbutton.setNoHighlight();
-        discardbutton.setNoHighlight();
-        for (auto p : in_play) {
-            cards[p]->setNoHighlight();
-        }
-        for (auto p : hand[0]) {
-            cards[p]->setNoHighlight();
-        }
-        for (auto p : hand[1]) {
-            cards[p]->setNoHighlight();
-        }
-    }
+    void unHighlightAll();
 
     void highlightCard(int card) {
         std::lock_guard<std::mutex> guard(board_mutex);
@@ -455,6 +417,22 @@ public:
         }
         cout.flush();
         return -1;
+    }
+
+    void renderPlayerStats() {
+        ostringstream ss;
+        ss << "hp:" << hp[0]
+                    << "\nworld:" << mana[0].world
+                    << "\nastral:" << mana[0].astral;
+        setText(word_stats0, ss.str().c_str(), 1.1, -0.75);
+    }
+
+    void renderComputerStats() {
+        ostringstream st;
+        st << "hp:" << hp[1]
+           << "\nworld:" << mana[1].world
+           << "\nastral:" << mana[1].astral;
+        setText(word_stats1, st.str().c_str(), 1.1, 0.85);
     }
 };
 
