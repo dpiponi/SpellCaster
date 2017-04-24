@@ -150,21 +150,15 @@ private:
         return Vector2f(config.hand_left+i*config.hand_spacing, player ? 0.6 : -0.6);
     }
 
-    void setHandPosition(double time, int c, int h, int i, float x, float size, float z, float offsetx, float offsety);
+    void setHandPosition(double time, int c, int h, int i, float size, float z, float offsetx, float offsety);
 
-    void pack(int n, float width, float l, float r, vector<float> &centres) {
-        if (n <= 0) {
-            return;
-        }
-        float eps = 1e-5;
-        float l_centre = l+0.5*width;
-        float r_centre = r-0.5*width;
-        for (int i = 0; i < n; ++i) {
-            float a = float(i)/(n-1);
-            float c = (1-a)*l_centre+a*r_centre;
-            centres.push_back(c);
-        }
+#if 0
+    // Get position of ith card in a hand of n cards help by player p
+    void positionInHand(int p, int i, int n) {
+        float x = -0.5+0.1*i;
+        float y = 
     }
+#endif
 
     void setUpHand(int player, int focus = -1, float delay = 0.5) {
         int n = hand[player].size();
@@ -174,14 +168,11 @@ private:
         float left_centre = left_edge+0.5*0.125;
         float right_centre = right_edge-0.5*0.125;
 
-        vector<float> centres;
-        pack(n, 2.0*0.125, left_edge, right_edge, centres);
-
         int i = 0;
         for (auto p : hand[player]) {
             cards[p]->visible = true;
             float a = n-1 > 0 ? float(i)/(n-1) : 0;
-            setHandPosition(now()+delay, p, player, i, centres[i], 0.125, 0.1+0.001*i, 0.0, 0.0);
+            setHandPosition(now()+delay, p, player, i, 0.125, 0.1+0.001*i, 0.0, 0.0);
             ++i;
         }
     }

@@ -266,15 +266,6 @@ void MonsterDefinition::execute(SpellCaster *game, int card, bool verbose) const
     int target = game->target[card];
     int attack = computeAttack(game, card, target, verbose);
     if (target == PLAYER0) {
-#if 0
-        game->hp[0] -= attack;
-        if (verbose) {
-            board << game->description(card, false) << " ATTACKS PLAYER 0 doing damage " << attack;
-            board.highlightPlayer(0);
-            game->end_message();
-            board.noHighlightPlayer(0);
-        }
-#endif
 #ifdef BOARD
         if (verbose) {
             board << game->description(card, false) << " ATTACKS PLAYER 0";
@@ -285,15 +276,6 @@ void MonsterDefinition::execute(SpellCaster *game, int card, bool verbose) const
         game->card_end_from(Location::EXECUTING, card, verbose);
         return;
     } else if (target == PLAYER1) {
-#if 0
-        game->hp[1] -= attack;
-        if (verbose) {
-            board.highlightPlayer(1);
-            board << game->description(card, false) << " ATTACKS PLAYER 1 doing damage " << attack;
-            game->end_message();
-            board.noHighlightPlayer(1);
-        }
-#endif
 #ifdef BOARD
         if (verbose) {
             board << game->description(card, false) << " ATTACKS PLAYER 1";
@@ -445,7 +427,6 @@ void SummonMonster::execute(SpellCaster *game, int c, bool verbose) const {
         game->card_end_from(Location::EXECUTING, c, verbose);
         return;
     }
-//    if (game->doesntTargetMonster(c, verbose)) return;
 #ifdef BOARD
     if (verbose) {
         board << game->description(c, false) << " ATTACKS " << game->description(game->target[c], false);

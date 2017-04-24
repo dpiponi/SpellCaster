@@ -353,8 +353,6 @@ void SpellCaster::return_card_from(Location loc, int c, bool verbose) {
 void SpellCaster::card_end_from(Location loc, int c, bool verbose) {
     switch (card_class[c]) {
     case CardClass::PLAYER:
-//    case CardClass::MANA:
-//        assert(false);
     case CardClass::MONSTER:
         if (hasProperty(c, CardProperty::IMMINENT_DEATH)) {
             destroy_card_from(loc, c, verbose);
@@ -860,6 +858,7 @@ void SpellCaster::execute(bool verbose) {
         assert(location[c] == Location::IN_PLAY);
 
         int arena_id;
+
 #ifdef BOARD
         if (verbose) {
             double start_arena = now();
@@ -888,11 +887,9 @@ void SpellCaster::execute(bool verbose) {
             cout << "Doing an unarena" << endl;
             // execute()
             board.unArena(arena_id, c, target[c], start_unarena, end_unarena);
-        }
-#endif
+            wait_until(end_unarena);
 
-#ifdef BOARD
-        if (verbose) {
+            //
             // execute()
             board.setUpBoard(this, now(), now()+0.5);
             end_message();

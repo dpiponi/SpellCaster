@@ -492,11 +492,8 @@ void Board::unFocus(int player, int card, float delay) {
     float left_centre = left_edge+0.5*0.125;
     float right_centre = right_edge-0.5*0.125;
 
-    vector<float> centres;
-    pack(n, 2.0*0.125, left_edge, right_edge, centres);
-
     auto p = hand[player][focus];
-    setHandPosition(now()+delay, p, player, focus, centres[focus], 0.125, 0.1+0.001*focus, 0.0, 0.0);
+    setHandPosition(now()+delay, p, player, focus, 0.125, 0.1+0.001*focus, 0.0, 0.0);
 }
 
 void Board::focus(int player, int card, float delay) {
@@ -511,15 +508,12 @@ void Board::focus(int player, int card, float delay) {
     float left_centre = left_edge+0.5*0.125;
     float right_centre = right_edge-0.5*0.125;
 
-    vector<float> centres;
-    pack(n, 2.0*0.125, left_edge, right_edge, centres);
-
     auto p = hand[player][focus];
-    setHandPosition(now(), p, player, focus, centres[focus], 0.125, 0.2, 0.0, 0.0);
-    setHandPosition(now()+0.25*delay, p, player, focus, centres[focus], 1.1*0.125, 0.5, 0.0, 0.0);
-    setHandPosition(now()+0.5*delay, p, player, focus, centres[focus], 1.2*0.125, 1.0, 0.0, 0.0);
+    setHandPosition(now(), p, player, focus, 0.125, 0.2, 0.0, 0.0);
+    setHandPosition(now()+0.25*delay, p, player, focus, 1.1*0.125, 0.5, 0.0, 0.0);
+    setHandPosition(now()+0.5*delay, p, player, focus, 1.2*0.125, 1.0, 0.0, 0.0);
     for (int k = 0; k < 100; ++k) {
-        setHandPosition(now()+0.5*delay+0.3*k, p, player, focus, centres[focus], 1.2*0.125, 1.0, 0.004*cos(k), -0.004*sin(k));
+        setHandPosition(now()+0.5*delay+0.3*k, p, player, focus, 1.2*0.125, 1.0, 0.004*cos(k), -0.004*sin(k));
     }
 }
 
@@ -807,7 +801,7 @@ void Board::draw(float ratio) {
     drawables.draw(ratio);
 }
 
-void Board::setHandPosition(double time, int c, int h, int i, float x, float size, float z, float offsetx, float offsety) {
+void Board::setHandPosition(double time, int c, int h, int i, float size, float z, float offsetx, float offsety) {
     cards[c]->setPosition(time, handPosition(h, i)+Vector2f(offsetx, offsety));
     cards[c]->setZ(time, z);
     cards[c]->setSize(time, size, 2*size);
