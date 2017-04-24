@@ -858,3 +858,51 @@ void Board::shake_card(int c) {
     };
     cards[c]->setAngle(now()+0.06*16, 0.0);
 }
+
+int Board::contains(Point point) const {
+    if (discardbutton.contains(point)) {
+        return 3000;
+    }
+    if (passbutton.contains(point)) {
+        return 2000;
+    }
+    if (player.contains(point)) {
+        return 1000;
+    }
+    if (computer.contains(point)) {
+        return 1001;
+    }
+    // We want last matching card
+    // Or could traverse in reverse order...
+    // Need depth order
+    int last_card = -1;
+    for (int i = 0; i < 2; ++i) {
+        for (auto p : hand[i]) {
+            if (cards[p]->contains(point)) {
+                last_card = p;
+            }
+        }
+    }
+    for (auto p : in_play) {
+        if (cards[p]->contains(point)) {
+            last_card = p;
+        }
+    }
+    for (auto p : graveyard) {
+        if (cards[p]->contains(point)) {
+            last_card = p;
+        }
+    }
+    return last_card;
+}
+
+void Board::dump() {
+    cout << "hand0: ";
+    for (int i = 0; i < hand[0].size(); ++i) cout << hand[0][i] << ' ';
+    cout << endl;
+    for (int i = 0; i < in_play.size(); ++i) cout << in_play[i] << ' ';
+    cout << endl;
+    cout << "hand1: ";
+    for (int i = 0; i < hand[1].size(); ++i) cout << hand[1][i] << ' ';
+    cout << endl;
+}

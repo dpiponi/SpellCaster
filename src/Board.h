@@ -9,8 +9,6 @@
 #include <algorithm>
 #include <Eigen/Core>
 
-using Eigen::Vector2f;
-
 #include "CardBase.h"
 #include "Rectangle.h"
 #include "TextRectangle.h"
@@ -132,70 +130,17 @@ private:
 
     void setInPlayPosition(double time, int c, int i);
 
-    int contains(Point point) const {
-        if (discardbutton.contains(point)) {
-            return 3000;
-        }
-        if (passbutton.contains(point)) {
-            return 2000;
-        }
-        if (player.contains(point)) {
-            return 1000;
-        }
-        if (computer.contains(point)) {
-            return 1001;
-        }
-        // We want last matching card
-        // Or could traverse in reverse order...
-        // Need depth order
-        int last_card = -1;
-        for (int i = 0; i < 2; ++i) {
-            for (auto p : hand[i]) {
-                if (cards[p]->contains(point)) {
-                    last_card = p;
-                }
-            }
-        }
-        for (auto p : in_play) {
-            if (cards[p]->contains(point)) {
-                last_card = p;
-            }
-        }
-        for (auto p : graveyard) {
-            if (cards[p]->contains(point)) {
-                last_card = p;
-            }
-        }
-        return last_card;
-    }
+    int contains(Point point) const;
 
     void clear() {
         text_stream.clear();
         text_stream.str("");
     }
 
-    void dump() {
-        cout << "hand0: ";
-        for (int i = 0; i < hand[0].size(); ++i) cout << hand[0][i] << ' ';
-        cout << endl;
-        for (int i = 0; i < in_play.size(); ++i) cout << in_play[i] << ' ';
-        cout << endl;
-        cout << "hand1: ";
-        for (int i = 0; i < hand[1].size(); ++i) cout << hand[1][i] << ' ';
-        cout << endl;
-    }
+    void dump();
 
     void initTextures(const vector<const Definition *> &player_deck,
                       const vector<const Definition *> &computer_deck);
-
-
-#if 0
-    void draw_text(float ratio, vector<shared_ptr<TextRectangle>> &word) {
-        for (auto p : word) {
-            p->draw(ratio);
-        }
-    }
-#endif
 
     void drawConnection(float ratio, RGB rgb, int i, int j, int k);
     void setComputerPosition(double time, double z = 0.0);
@@ -244,15 +189,11 @@ private:
 // This is now the PUBLIC API
 // Most stuff here needs protection with mutexes
 public:
-//    vector<Rectangle> particles; // XXX
-//    Animated<float> arenaVisible;
-
     Board() : new_message(true) {
-//        arenaVisible.addEvent(0.0, 0.0);
-    word = make_shared<LinearGroup>();
-    word_annotation = make_shared<LinearGroup>();
-    word_stats0 = make_shared<LinearGroup>();
-    word_stats1 = make_shared<LinearGroup>();
+        word = make_shared<LinearGroup>();
+        word_annotation = make_shared<LinearGroup>();
+        word_stats0 = make_shared<LinearGroup>();
+        word_stats1 = make_shared<LinearGroup>();
     }
 
     // Shouldn't need mutex as this is done during startup.
