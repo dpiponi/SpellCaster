@@ -105,7 +105,7 @@ public:
 
     void drawBorder(float ratio, float line_width);
     void drawShadow(float ratio);
-    void draw(float ratio, float border_line_width = 0.0) override;
+    void drawz(float zlo, float zhi, float ratio, float border_line_width = 0.0) override;
     bool contains(Point point) const;
 };
 
@@ -114,9 +114,9 @@ class Group : public Drawable {
     map<int, shared_ptr<Drawable>> dictionary;
 public:
     Group() : next(1) { }
-    void draw(float ratio, float border_line_width = 0.0) override {
+    void drawz(float zlo, float zhi, float ratio, float border_line_width = 0.0) override {
         for (auto p : dictionary) {
-            p.second->draw(ratio, border_line_width);
+            p.second->drawz(zlo, zhi, ratio, border_line_width);
         }
     }
     int addElement(shared_ptr<Drawable> d) {

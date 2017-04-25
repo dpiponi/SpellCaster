@@ -30,18 +30,22 @@ inline void drawRectangle(Program &program, float ratio, float x, float y, float
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Rectangle::draw(float ratio, float border_line_width) {
+void Rectangle::drawz(float zlo, float zhi, float ratio, float border_line_width) {
     if (!visible || tex==0) {
         return;
     }
 
-    if (shadow) {
-        drawShadow(ratio);
+    float z_now = z.get();
+
+    if (zlo <= z_now && z_now < zhi) {
+        if (shadow) {
+            drawShadow(ratio);
+        }
+
+        drawRectangle(program, ratio, x.get(), y.get(), z_now, angle.get(), xsize.get(), ysize.get(), alpha.get(), tex);
+
+        drawBorder(ratio, border_line_width);
     }
-
-    drawRectangle(program, ratio, x.get(), y.get(), z.get(), angle.get(), xsize.get(), ysize.get(), alpha.get(), tex);
-
-    drawBorder(ratio, border_line_width);
 }
 
 bool Rectangle::contains(Point point) const {

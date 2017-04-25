@@ -5,16 +5,16 @@
 
 class TextRectangle : public Rectangle {
 public:
-    void draw(float ratio, float border_line_width = 0.0) override;
+    void drawz(float zlo, float zhi, float ratio, float border_line_width = 0.0) override;
 };
 
 class LinearGroup : public Drawable {
     vector<shared_ptr<TextRectangle>> characters;
 public:
     LinearGroup() { }
-    void draw(float ratio, float border_line_width = 0.0) override {
+    void drawz(float zlo, float zhi, float ratio, float border_line_width = 0.0) override {
         for (auto p : characters) {
-            p->draw(ratio, /* ignore1 */ 0.0);
+            p->drawz(zlo, zhi, ratio, /* ignore1 */ 0.0);
         }
     }
     void reset() {

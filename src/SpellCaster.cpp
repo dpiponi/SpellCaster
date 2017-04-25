@@ -22,6 +22,7 @@ Config default_config {/* max_cards_in_hand */          8,
 
 map<string, const Definition *>
 make_database(const vector<const Definition *> &definitions) {
+#if 0
     map<string, const Definition *> database;
 
     for (auto i : definitions) {
@@ -29,6 +30,8 @@ make_database(const vector<const Definition *> &definitions) {
     }
 
     return database;
+#endif
+    return *CardRegistry::getRegistry();
 }
 
 #define VIDEO
@@ -81,6 +84,7 @@ read_deck(const map<string, const Definition *> &database,
     return deck;
 }
 
+#if 0
 ResistWorldlyMagic resistWorldlyMagic;
 ResistAstralMagic resistAstralMagic;
 AnEvilBlast anEvilBlast;
@@ -324,6 +328,7 @@ vector<const Definition *> all_cards = {
     &wraith,
     &zombieHorde
 };
+#endif
 
 void SpellCaster::return_card_from(Location loc, int c, bool verbose) {
     assert(location[c] == loc);
@@ -345,8 +350,7 @@ void SpellCaster::return_card_from(Location loc, int c, bool verbose) {
     if (verbose) {
         // return_card_from()
         board.publicSetHandPosition(now()+0.5, c, owner[c], hand[owner[c]].size()-1, 0.125, 0.9, 0.0, 0.0);
-        //board.setUpBoard(this, now(), now()+0.5);
-        end_message();
+        //end_message();
     }
 #endif
 }
@@ -551,6 +555,7 @@ void SpellCaster::executeInstant(int c, bool verbose) {
         board.launch(c, target_card, start_launch, start_unarena);
         wait_until(start_unarena);
         // executeInstant()
+        board.publicSetGraveyardPosition(now()+0.5, c);
         board.unArena(arena_id, c, target_card, start_unarena, end_unarena);
         wait_until(end_unarena);
     }

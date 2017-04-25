@@ -21,6 +21,8 @@ set(SC_SOURCE_FILES src/Board.cpp
                     src/geometry.cpp
                     src/sc.cpp
                     src/shaders.cpp
+                    src/Spells.cpp
+                    src/Artifacts.cpp
                     glad/glad.c
                     json11/json11.cpp)
 

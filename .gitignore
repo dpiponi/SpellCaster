@@ -1,2 +1,11 @@
 assets/*.pxm
-src/*.sw*
+src/.*.sw*
+.*.sw*
+CMakeFiles/*
+CMakeCache.txt
+.DS_Store
+assets/.DS_Store
+Makefile
+tune
+sc
+cmake_install.cmake

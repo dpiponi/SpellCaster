@@ -13,7 +13,7 @@ static float triangle(float x) {
     if (x > 0) {
         return 1-x;
     }
-    return x-1;
+    return x+1;
 }
 
 inline float orientation(Vector2f v) {

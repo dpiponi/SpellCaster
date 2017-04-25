@@ -26,7 +26,7 @@ public:
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
-class JestersWish : public SpellDefinition {
+const class JestersWish : public SpellDefinition {
 public:
     JestersWish() : SpellDefinition("Jester's Wish", "🃏 ", 0, 0, 3, 1, 1, 1,
                     CardClass::SPELL,
@@ -35,9 +35,9 @@ public:
                     CardProperty::NONE, /* requirements */
                     CardProperty::NONE) { }
     virtual void executeInstant(SpellCaster *game, int c, bool verbose) const;
-};
+} jestersWish;
 
-class ManaCard : public SpellDefinition {
+const class ManaCard : public SpellDefinition {
 public:
     ManaCard() : SpellDefinition("Mana", "⚪ ", +1, 0, 0, 0, 0, 0,
                     CardClass::SPELL,
@@ -47,9 +47,9 @@ public:
                     CardProperty::NONE) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const { };
     virtual void executeInstant(SpellCaster *game, int c, bool verbose) const;
-};
+} manaCard;
 
-class Henge : public SpellDefinition {
+const class Henge : public SpellDefinition {
 public:
     Henge() : SpellDefinition("Henge", "🗿 ", +1, 0, 0, 0, 0, 0,
                     CardClass::SPELL,
@@ -59,9 +59,9 @@ public:
                     CardProperty::NONE) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const { };
     virtual void executeInstant(SpellCaster *game, int c, bool verbose) const;
-};
+} henge;
 
-class Temple : public SpellDefinition {
+const class Temple : public SpellDefinition {
 public:
     Temple() : SpellDefinition("Temple", "⛪ ", +1, 0, 0, 0, 0, 0,
                     CardClass::SPELL,
@@ -71,9 +71,9 @@ public:
                     CardProperty::NONE) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const { };
     virtual void executeInstant(SpellCaster *game, int c, bool verbose) const;
-};
+} temple;
 
-class PerpetualMachine : public PerpetualMachineBase {
+const class PerpetualMachine : public PerpetualMachineBase {
 public:
     PerpetualMachine() : PerpetualMachineBase("Perpetual Machine", "⚙️ ", +1, 4, 4, 1, 1, 6,
                     CardClass::ARTIFACT,
@@ -81,9 +81,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::NONE) { }
-};
+} perpetualMachine;
 
-class ManaWheel : public PerpetualMachineBase {
+const class ManaWheel : public PerpetualMachineBase {
 public:
     ManaWheel() : PerpetualMachineBase("Mana Wheel", "⚙️ ", +1, 2, 2, 1, 1, 3,
                     CardClass::ARTIFACT,
@@ -91,7 +91,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::NONE) { }
-};
+} manaWheel;
 
 class Push : public SpellDefinition {
 public:
@@ -104,7 +104,7 @@ public:
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
 };
 
-class Darkness : public SpellDefinition {
+const class Darkness : public SpellDefinition {
 public:
     Darkness() : SpellDefinition("Darkness", "🌘 ", +1, 1, 1, 1, 1, 1,
                     CardClass::SPELL,
@@ -113,9 +113,9 @@ public:
                     CardProperty::UNDEAD,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
-};
+} darkness;
 
-class BlueSkies : public SpellDefinition {
+const class BlueSkies : public SpellDefinition {
 public:
     BlueSkies() : SpellDefinition("Blue Skies", "☁️ ", +1, 0, 1, 1, 1, 1,
                     CardClass::SPELL,
@@ -124,9 +124,9 @@ public:
                     CardProperty::FLYING,
                     CardProperty::BLUE_MAGIC_RESISTANT) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
-};
+} blueSkies;
 
-class Plague : public SpellDefinition {
+const class Plague : public SpellDefinition {
 public:
     Plague() : SpellDefinition("Plague", "☣️ ", -1, 2, 0, 1, 1, 1,
                     CardClass::SPELL,
@@ -135,7 +135,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::ETHEREAL) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
-};
+} plague;
 
 #if 0
 const class OffByOne : public SpellDefinition {
@@ -151,7 +151,7 @@ public:
 #endif
 
 #if 0
-class ARollingStone : public SpellDefinition {
+const class ARollingStone : public SpellDefinition {
 public:
     ARollingStone() : SpellDefinition("A Rolling Stone...", "🗻 ", -1, 4, 0, 1, 1, 1,
                     CardClass::SPELL,
@@ -163,7 +163,7 @@ public:
 };
 #endif
 
-class Ambush : public SpellDefinition {
+const class Ambush : public SpellDefinition {
 public:
     Ambush() : SpellDefinition("Ambush", "💢 ", -1, 2, 1, 1, 1, 1,
                     CardClass::SPELL,
@@ -172,9 +172,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
-};
+} ambush;
 
-class Goblin : public MonsterDefinition {
+const class Goblin : public MonsterDefinition {
 public:
     Goblin() : MonsterDefinition("Goblin", "👺 ", -1, 1, 0, 1, 1, 1,
                     CardClass::MONSTER,
@@ -182,9 +182,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::ETHEREAL) { }
-};
+} goblin;
 
-class Archers : public MonsterDefinition {
+const class Archers : public MonsterDefinition {
 public:
     Archers() : MonsterDefinition("Archers", "🏹 ", -1, 2, 0, 1, 1, 1,
                     CardClass::MONSTER,
@@ -192,9 +192,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::NONE | CardProperty::ETHEREAL) { }
-};
+} archers;
 
-class BlessedLion : public MonsterDefinition {
+const class BlessedLion : public MonsterDefinition {
 public:
     BlessedLion() : MonsterDefinition("Blessed Lion", "🦁 ", -1, 1, 1, 2, 2, 2,
                     CardClass::MONSTER,
@@ -202,9 +202,9 @@ public:
                     CardProperty::BLESSED | CardProperty::FEARLESS,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::ETHEREAL) { }
-};
+} blessedLion;
 
-class ElephantMan : public MonsterDefinition {
+const class ElephantMan : public MonsterDefinition {
 public:
     ElephantMan() : MonsterDefinition("Elephant Man", "🐘 ", -1, 2, 1, 2, 2, 2,
                     CardClass::MONSTER,
@@ -212,7 +212,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::ETHEREAL) { }
-};
+} elephantMan;
 
 const class Kraken : public MonsterDefinition {
 public:
@@ -234,7 +234,7 @@ public:
                     CardProperty::FLYING | CardProperty::ETHEREAL) { }
 } dwarf;
 
-class Skeleton : public MonsterDefinition {
+const class Skeleton : public MonsterDefinition {
 public:
     Skeleton() : MonsterDefinition("Skeleton", "☠️ ", -1, 1, 1, 1, 1, 1,
                     CardClass::MONSTER,
@@ -242,9 +242,9 @@ public:
                     CardProperty::UNDEAD | CardProperty::FEARLESS,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::BLESSED | CardProperty::ETHEREAL) { }
-};
+} skeleton;
 
-class SkeletonLord : public MonsterDefinition {
+const class SkeletonLord : public MonsterDefinition {
 public:
     SkeletonLord() : MonsterDefinition("Skeleton Lord", "☠️ ", -1, 2, 2, 2, 2, 2,
                     CardClass::MONSTER,
@@ -253,9 +253,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::BLESSED | CardProperty::ETHEREAL) { }
     virtual int computeAttack(SpellCaster *game, int card, int target, bool verbose) const override;
-};
+} skeletonLord;
 
-class AvengingAngel : public MonsterDefinition {
+const class AvengingAngel : public MonsterDefinition {
 public:
     AvengingAngel() : MonsterDefinition("Avenging Angel", "👼 ", -1, 2, 2, 3, 3, 1,
                     CardClass::MONSTER,
@@ -264,9 +264,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::ETHEREAL) { }
     virtual int computeAttack(SpellCaster *game, int card, int target, bool verbose) const override;
-};
+} avengingAngel;
 
-class AngryGhost : public MonsterDefinition {
+const class AngryGhost : public MonsterDefinition {
 public:
     AngryGhost() : MonsterDefinition("Angry Ghost", "👻 ", -1, 0, 2, 1, 1, 1,
                     CardClass::MONSTER,
@@ -274,7 +274,7 @@ public:
                     CardProperty::UNDEAD | CardProperty::FEARLESS | CardProperty::ETHEREAL,
                     CardProperty::NONE,
                     CardProperty::BLESSED) { }
-};
+} angryGhost;
 
 const class Wraith : public MonsterDefinition {
 public:
@@ -286,7 +286,7 @@ public:
                     CardProperty::FLYING | CardProperty::BLESSED) { }
 } wraith;
 
-class Wight : public MonsterDefinition {
+const class Wight : public MonsterDefinition {
 public:
     Wight() : MonsterDefinition("Wight", "👽 ", -1, 2, 2, 2, 2, 2,
                     CardClass::MONSTER,
@@ -294,9 +294,9 @@ public:
                     CardProperty::UNDEAD | CardProperty::FEARLESS,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::BLESSED) { }
-};
+} wight;
 
-class Spectre : public MonsterDefinition {
+const class Spectre : public MonsterDefinition {
 public:
     Spectre() : MonsterDefinition("Spectre", "👽 ", -1, 2, 2, 2, 2, 2,
                     CardClass::MONSTER,
@@ -304,7 +304,7 @@ public:
                     CardProperty::UNDEAD | CardProperty::FEARLESS | CardProperty::ETHEREAL,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::BLESSED) { }
-};
+} spectre;
 
 // Can fly, but if involved in combat then it's not in flying form.
 // Need XXX to make vampiric again
@@ -350,7 +350,7 @@ public:
                     CardProperty::FLYING) { }
 } blowfish;
 
-class Ogre : public MonsterDefinition {
+const class Ogre : public MonsterDefinition {
 public:
     Ogre() : MonsterDefinition("Ogre", "👹 ", -1, 2, 0, 2, 2, 2,
                     CardClass::MONSTER,
@@ -358,9 +358,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::ETHEREAL) { }
-};
+} ogre;
 
-class RedDragon : public MonsterDefinition {
+const class RedDragon : public MonsterDefinition {
 public:
     RedDragon() : MonsterDefinition("Red Dragon", "🐊 ", -1, 5, 0, 4, 4, 3,
                     CardClass::MONSTER,
@@ -368,9 +368,9 @@ public:
                     CardProperty::FLYING | CardProperty::FEARLESS | CardProperty::RED_MAGIC_RESISTANT,
                     CardProperty::NONE,
                     CardProperty::ETHEREAL) { }
-};
+} redDragon;
 
-class BlueDragon : public MonsterDefinition {
+const class BlueDragon : public MonsterDefinition {
 public:
     BlueDragon() : MonsterDefinition("Blue Dragon", "🐊 ", -1, 0, 5, 4, 4, 3,
                     CardClass::MONSTER,
@@ -378,9 +378,9 @@ public:
                     CardProperty::FLYING | CardProperty::FEARLESS | CardProperty::BLUE_MAGIC_RESISTANT,
                     CardProperty::NONE,
                     CardProperty::ETHEREAL) { }
-};
+} blueDragon;
 
-class Giant : public MonsterDefinition {
+const class Giant : public MonsterDefinition {
 public:
     Giant() : MonsterDefinition("Giant", "👹 ", -1, 3, 1, 3, 3, 3,
                     CardClass::MONSTER,
@@ -388,9 +388,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::ETHEREAL) { }
-};
+} giant;
 
-class Troll : public MonsterDefinition {
+const class Troll : public MonsterDefinition {
 public:
     Troll() : MonsterDefinition("Troll", "👹 ", -1, 3, 1, 3, 3, 2,
                     CardClass::MONSTER,
@@ -398,9 +398,9 @@ public:
                     CardProperty::REGENERATING,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::ETHEREAL) { }
-};
+} troll;
 
-class Hydra : public GhoulBase {
+const class Hydra : public GhoulBase {
 public:
     Hydra() : GhoulBase("Hydra", "🐍 ", -1, 3, 2, 3, 3, 3,
                     CardClass::MONSTER,
@@ -408,9 +408,9 @@ public:
                     CardProperty::REGENERATING,
                     CardProperty::NONE,
                     CardProperty::ETHEREAL) { }
-};
+} hydra;
 
-class WormDemon : public MonsterDefinition {
+const class WormDemon : public MonsterDefinition {
 public:
     WormDemon() : MonsterDefinition("Worm Demon", "🐛 ", -1, 2, 0, 2, 2, 2,
                     CardClass::MONSTER,
@@ -418,9 +418,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::ETHEREAL) { }
-};
+} wormDemon;
 
-class Stampede : public MonsterDefinition {
+const class Stampede : public MonsterDefinition {
 public:
     Stampede() : MonsterDefinition("Stampede", "🐘 ", -1, 4, 0, 3, 3, 4,
                     CardClass::MONSTER,
@@ -428,7 +428,7 @@ public:
                     CardProperty::FEARLESS,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::ETHEREAL) { }
-};
+} stampede;
 
 const class Unicorn : public MonsterDefinition {
 public:
@@ -464,7 +464,7 @@ public:
 } batColony;
 
 // Need neutral positivity
-class AntSwarm : public MonsterDefinition {
+const class AntSwarm : public MonsterDefinition {
 public:
     AntSwarm() : MonsterDefinition("Ant Swarm", "🐜 ", 0, 2, 0, 2, 2, 1,
                     CardClass::MONSTER,
@@ -473,9 +473,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::ETHEREAL) { }
     int key () const { return 2; }
-};
+} antSwarm;
 
-class LocustPlague : public MonsterDefinition {
+const class LocustPlague : public MonsterDefinition {
 public:
     LocustPlague() : MonsterDefinition("Locust Plague", "🐜 ", 0, 2, 0, 2, 2, 1,
                     CardClass::MONSTER,
@@ -484,9 +484,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::ETHEREAL) { }
     int key () const { return 2; }
-};
+} locustPlague;
 
-class ZombieHorde : public MonsterDefinition {
+const class ZombieHorde : public MonsterDefinition {
 public:
     ZombieHorde() : MonsterDefinition("Zombie Horde", "💀 ", 0, 2, 0, 1, 1, 1,
                     CardClass::MONSTER,
@@ -495,9 +495,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::BLESSED | CardProperty::ETHEREAL) { }
     int key () const { return 3; }
-};
+} zombieHorde;
 
-class AutomatonArmy : public MonsterDefinition {
+const class AutomatonArmy : public MonsterDefinition {
 public:
     AutomatonArmy() : MonsterDefinition("Automaton Army", "⚙️ ", 0, 2, 0, 1, 1, 1,
                     CardClass::MONSTER,
@@ -506,7 +506,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::ETHEREAL) { }
     int key () const { return 4; }
-};
+} automatonArmy;
 
 const class Snake : public MonsterDefinition {
 public:
@@ -518,7 +518,7 @@ public:
                     /* Exclusions */ CardProperty::FLYING | CardProperty::ETHEREAL) { }
 } snake;
 
-class Roc : public MonsterDefinition {
+const class Roc : public MonsterDefinition {
 public:
     Roc() : MonsterDefinition("Roc", "🦅 ", -1, 2, 2, 3, 3, 2,
                     CardClass::MONSTER,
@@ -526,9 +526,9 @@ public:
                     /* Properties */ CardProperty::FLYING,
                     /* Requirements */ CardProperty::NONE,
                     /* Exclusions */ CardProperty::NONE | CardProperty::ETHEREAL) { }
-};
+} roc;
 
-class Dragon : public MonsterDefinition {
+const class Dragon : public MonsterDefinition {
 public:
     Dragon() : MonsterDefinition("Dragon", "🐉 ", -1, 2, 2, 3, 3, 2,
                     CardClass::MONSTER,
@@ -536,9 +536,9 @@ public:
                     CardProperty::FIRE_RESISTANT | CardProperty::FLYING,
                     CardProperty::NONE,
                     CardProperty::NONE | CardProperty::ETHEREAL) { }
-};
+} dragon;
 
-class Strength : public StrengthBase {
+const class Strength : public StrengthBase {
 public:
     Strength() : StrengthBase("Strength", "💪 ", +1, 2, 0, 1, 1, 1,
                     CardClass::SPELL,
@@ -546,9 +546,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT) { }
-};
+} strength;
 
-class FightingManual : public StrengthBase {
+const class FightingManual : public StrengthBase {
 public:
     FightingManual() : StrengthBase("Fighting Manual", "📜 ", +1, 2, 0, 1, 1, 1,
                     CardClass::ARTIFACT,
@@ -556,10 +556,10 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT) { }
-};
+} fightingManual;
 
 #if 0
-class OdinsWhetstone : public StrengthBase {
+const class OdinsWhetstone : public StrengthBase {
 public:
     OdinsWhetstone() : StrengthBase("Odin's Whetstone", "💪 ", +1, 2, 0, 1, 1, 1,
                     CardClass::ARTIFACT,
@@ -570,7 +570,7 @@ public:
 };
 #endif
 
-class Improve : public StrengthBase {
+const class Improve : public StrengthBase {
 public:
     Improve() : StrengthBase("Improve", "✨ ", +1, 1, 1, 1, 1, 1,
                     CardClass::SPELL,
@@ -578,9 +578,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
-};
+} improve;
 
-class Weakling : public SpellDefinition {
+const class Weakling : public SpellDefinition {
 public:
     Weakling() : SpellDefinition("Weakling", "🥀 ", -1, 1, 1, 0, 0, 1,
                     CardClass::SPELL,
@@ -589,9 +589,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
     void execute(SpellCaster *game, int c, bool verbose) const;
-};
+} weakling;
 
-class Volcano : public BlastBase {
+const class Volcano : public BlastBase {
 public:
     Volcano() : BlastBase("Volcano", "🌋 ", -1, 4, 1, 0, 0, 3,
                     CardClass::SPELL,
@@ -599,9 +599,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::FIRE_RESISTANT) { }
-};
+} volcano;
 
-class AnEvilBlast : public FollowThroughBase {
+const class AnEvilBlast : public FollowThroughBase {
 public:
     AnEvilBlast() : FollowThroughBase("An Evil Blast", "💢 ", -1, 1, 3, 0, 0, 2,
                     CardClass::SPELL,
@@ -609,9 +609,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::BLESSED) { }
-};
+} anEvilBlast;
 
-class Daylight : public BlastBase {
+const class Daylight : public BlastBase {
 public:
     Daylight() : BlastBase("Daylight", "🌞 ", -1, 2, 2, 0, 0, 3,
                     CardClass::SPELL,
@@ -619,9 +619,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::UNDEAD,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
-};
+} _daylight;
 
-class HolySymbol : public ArtifactDefinition {
+const class HolySymbol : public ArtifactDefinition {
 public:
     HolySymbol() : ArtifactDefinition("Holy Symbol", "☦ ", -1, 1, 2, 0, 0, 1,
                     CardClass::ARTIFACT,
@@ -630,9 +630,9 @@ public:
                     CardProperty::UNDEAD, // Can only target undead.
                     CardProperty::NONE) { }
     void execute(SpellCaster *game, int c, bool verbose) const;
-};
+} holySymbol;
 
-class Unspell : public DestroyBase {
+const class Unspell : public DestroyBase {
 public:
     Unspell() : DestroyBase("Unspell", "🔮 ", -1, 1, 2, 0, 0, 1,
                     CardClass::SPELL,
@@ -640,9 +640,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
-};
+} unspell;
 
-class SmashArtifact : public DestroyBase {
+const class SmashArtifact : public DestroyBase {
 public:
     SmashArtifact() : DestroyBase("Smash Artifact", "💢 ", -1, 2, 1, 0, 0, 1,
                     CardClass::SPELL,
@@ -650,9 +650,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::ETHEREAL) { }
-};
+} smashArtifact;
 
-class SuddenDeath : public DestroyBase {
+const class SuddenDeath : public DestroyBase {
 public:
     SuddenDeath() : DestroyBase("Sudden Death", "⚰️ ", -1, 3, 2, 1, 1, 1,
                     CardClass::SPELL,
@@ -660,9 +660,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::BLESSED) { }
-};
+} suddenDeath;
 
-class Double : public DoubleBase {
+const class Double : public DoubleBase {
 public:
     Double() : DoubleBase("Double", "➁ ", +1, 1, 2, 0, 0, 2,
                     CardClass::SPELL,
@@ -670,9 +670,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
-};
+} _double;
 
-class UpgradeArtifact : public DoubleBase {
+const class UpgradeArtifact : public DoubleBase {
 public:
     UpgradeArtifact() : DoubleBase("Upgrade Artifact", "⚙️ ", +1, 2, 1, 0, 0, 2,
                     CardClass::SPELL,
@@ -680,9 +680,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
-};
+} upgradeArtifact;
 
-class Fortress : public ShieldBase {
+const class Fortress : public ShieldBase {
 public:
     Fortress() : ShieldBase("Fortress", "🏯 ", +1, 2, 0, 1, 1, 1,
                     CardClass::ARTIFACT,
@@ -690,9 +690,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT) { }
-};
+} fortress;
 
-class Fear : public ReturnBase {
+const class Fear : public ReturnBase {
 public:
     Fear() : ReturnBase("Fear", "😱 ", -1, 0, 1, 2, 1, 1,
                     CardClass::SPELL,
@@ -700,9 +700,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::FEARLESS) { }
-};
+} fear;
 
-class Misfire : public ReturnBase {
+const class Misfire : public ReturnBase {
 public:
     Misfire() : ReturnBase("Misfire", "💥 ", -1, 0, 2, 1, 1, 1,
                     CardClass::SPELL,
@@ -710,9 +710,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::BLUE_MAGIC_RESISTANT) { }
-};
+} misfire;
 
-class Shield : public ShieldBase {
+const class Shield : public ShieldBase {
 public:
     Shield() : ShieldBase("Shield", "🛡 ", +1, 2, 0, 1, 1, 1,
                     CardClass::SPELL,
@@ -720,9 +720,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT) { }
-};
+} shield;
 
-class Sickness : public SpellDefinition {
+const class Sickness : public SpellDefinition {
 public:
     Sickness() : SpellDefinition("Sickness", "🤢 ", -1, 2, 0, 0, 0, 1,
                     CardClass::SPELL,
@@ -731,9 +731,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT) { }
     void execute(SpellCaster *game, int c, bool verbose) const;
-};
+} sickness;
 
-class Bribe : public TakeBase {
+const class Bribe : public TakeBase {
 public:
     Bribe() : TakeBase("Bribe", "💰 ", -1, 3, 1, 0, 0, 1,
                     CardClass::SPELL,
@@ -741,9 +741,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
-};
+} bribe;
 
-class Steal : public TakeBase {
+const class Steal : public TakeBase {
 public:
     Steal() : TakeBase("Steal", "👀 ", -1, 3, 1, 0, 0, 1,
                     CardClass::SPELL,
@@ -751,9 +751,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
-};
+} steal;
 
-class Library : public TakeBase {
+const class Library : public TakeBase {
 public:
     Library() : TakeBase("Library", "📚 ", -1, 0, 4, 0, 0, 1,
                     CardClass::ARTIFACT,
@@ -761,9 +761,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::BLUE_MAGIC_RESISTANT) { }
-};
+} library;
 
-class MakeArtifact : public SpellDefinition {
+const class MakeArtifact : public SpellDefinition {
 public:
     MakeArtifact() : SpellDefinition("Make Artifact", "🔨 ", +1, 2, 1, 0, 0, 1,
                     CardClass::SPELL,
@@ -772,9 +772,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
     void execute(SpellCaster *game, int c, bool verbose) const;
-};
+} makeArtifact;
 
-class Recall : public SpellDefinition {
+const class Recall : public SpellDefinition {
 public:
     Recall() : SpellDefinition("Recall", "◀️ ", 0, 2, 0, 0, 0, 1,
                     CardClass::SPELL,
@@ -783,9 +783,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT) { }
     void executeInstant(SpellCaster *game, int c, bool verbose) const;
-};
+} recall;
 
-class Suspend : public SpellDefinition {
+const class Suspend : public SpellDefinition {
 public:
     Suspend() : SpellDefinition("Suspend", "⚖️ ", 0, 0, 2, 0, 0, 1,
                     CardClass::ARTIFACT,
@@ -794,9 +794,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::BLUE_MAGIC_RESISTANT) { }
     void execute(SpellCaster *game, int c, bool verbose) const;
-};
+} suspend;
 
-class Excalibur : public MagicWeapon {
+const class Excalibur : public MagicWeapon {
 public:
     Excalibur() : MagicWeapon("Excalibur", "⚔️ ", -1, 2, 0, 0, 0, 1,
                     CardClass::ARTIFACT,
@@ -804,9 +804,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::FLYING) { }
-};
+} excalibur;
 
-class DrainPower : public SpellDefinition {
+const class DrainPower : public SpellDefinition {
 public:
     DrainPower() : SpellDefinition("Drain Power", "🌀 ", -1, 0, 2, 0, 0, 2,
                     CardClass::SPELL,
@@ -815,9 +815,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::BLUE_MAGIC_RESISTANT) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
-};
+} drainPower;
 
-class Sacrifice : public SpellDefinition {
+const class Sacrifice : public SpellDefinition {
 public:
     Sacrifice() : SpellDefinition("Sacrifice", "🗡 ", 0, 1, 1, 0, 0, 3,
                     CardClass::SPELL,
@@ -826,9 +826,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::UNDEAD) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
-};
+} sacrifice;
 
-class Crocodile : public MonsterDefinition {
+const class Crocodile : public MonsterDefinition {
 public:
     Crocodile() : MonsterDefinition("Crocodile", "🐊 ", -1, 3, 0, 2, 2, 2,
                     CardClass::MONSTER,
@@ -836,9 +836,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::ETHEREAL) { }
-};
+} crocodile;
 
-class GiantBoar : public MonsterDefinition {
+const class GiantBoar : public MonsterDefinition {
 public:
     GiantBoar() : MonsterDefinition("Giant Boar", "🐗 ", -1, 2, 0, 1, 1, 2,
                     CardClass::MONSTER,
@@ -846,9 +846,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::ETHEREAL) { }
-};
+} giantBoar;
 
-class GiantLizard : public MonsterDefinition {
+const class GiantLizard : public MonsterDefinition {
 public:
     GiantLizard() : MonsterDefinition("Giant Lizard", "🦎 ", -1, 3, 0, 2, 2, 2,
                     CardClass::MONSTER,
@@ -856,9 +856,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::ETHEREAL) { }
-};
+} giantLizard;
 
-class Octopus : public ImmobilisingMonsterDefinition {
+const class Octopus : public ImmobilisingMonsterDefinition {
 public:
     Octopus() : ImmobilisingMonsterDefinition("Octopus", "🐙 ", -1, 3, 0, 2, 2, 2,
                     CardClass::MONSTER,
@@ -866,9 +866,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::ETHEREAL) { }
-};
+} octopus;
 
-class GelatinousCube : public ImmobilisingMonsterDefinition {
+const class GelatinousCube : public ImmobilisingMonsterDefinition {
 public:
     GelatinousCube() : ImmobilisingMonsterDefinition("Gelatinous Cube", "⬜ ", -1, 2, 2, 3, 3, 3,
                     CardClass::MONSTER,
@@ -876,9 +876,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::ETHEREAL) { }
-};
+} gelatinousCube;
 
-class ManOWar : public ImmobilisingMonsterDefinition {
+const class ManOWar : public ImmobilisingMonsterDefinition {
 public:
     ManOWar() : ImmobilisingMonsterDefinition("Man O' War", "⬜ ", -1, 2, 1, 1, 1, 1,
                     CardClass::MONSTER,
@@ -886,42 +886,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::ETHEREAL) { }
-};
+} manOWar;
 
-class BrickWall : public ArtifactDefinition {
-public:
-    BrickWall() : ArtifactDefinition("Brick Wall", "🔴 ", -1, 2, 2, 1, 1, 1,
-                    CardClass::ARTIFACT,
-                    CardClass::MONSTER,
-                    CardProperty::NONE,
-                    CardProperty::NONE,
-                    CardProperty::FLYING | CardProperty::ETHEREAL) { }
-    virtual void execute(SpellCaster *game, int card, bool verbose) const;
-};
-
-class WarMachine : public ArtifactDefinition {
-public:
-    WarMachine() : ArtifactDefinition("War Machine", "🗼 ", -1, 0, 3, 1, 1, 3,
-                    CardClass::ARTIFACT,
-                    CardClass::MONSTER,
-                    CardProperty::NONE,
-                    CardProperty::NONE,
-                    CardProperty::FLYING | CardProperty::ETHEREAL) { }
-    virtual void execute(SpellCaster *game, int card, bool verbose) const;
-};
-
-class BiteTheHand : public SpellDefinition {
-public:
-    BiteTheHand() : SpellDefinition("Bite The Hand...", "🃏 ", -1, 2, 3, 0, 0, 1,
-                    CardClass::SPELL,
-                    CardClass::MONSTER,
-                    CardProperty::NONE,
-                    CardProperty::NONE,
-                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
-};
-
-class Blast : public BlastBase {
+const class Blast : public BlastBase {
 public:
     Blast() : BlastBase("Blast", "💥 ", -1, 1, 1, 0, 0, 1,
                     CardClass::SPELL,
@@ -929,9 +896,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::FIRE_RESISTANT) { }
-};
+} blast;
 
-class AnIllWind : public BlastBase {
+const class AnIllWind : public BlastBase {
 public:
     AnIllWind() : BlastBase("An Ill Wind", "🌬️ ", -1, 1, 1, 0, 0, 3,
                     CardClass::SPELL,
@@ -940,9 +907,9 @@ public:
                     /* Requirements */ CardProperty::FLYING,
                     /* Exclusions */ CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT
                     ) { }
-};
+} anIllWind;
 
-class Tornado : public BlastBase {
+const class Tornado : public BlastBase {
 public:
     Tornado() : BlastBase("Tornado", "🌪 ", -1, 2, 2, 0, 0, 2,
                     CardClass::SPELL,
@@ -950,9 +917,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
-};
+} tornado;
 
-class Freeze : public BlastBase {
+const class Freeze : public BlastBase {
 public:
     Freeze() : BlastBase("Freeze", "❄️ ", -1, 3, 0, 0, 0, 2,
                     CardClass::SPELL,
@@ -960,9 +927,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT) { }
-};
+} freeze;
 
-class Lightning : public BlastBase {
+const class Lightning : public BlastBase {
 public:
     Lightning() : BlastBase("Lightning", "⚡ ", -1, 2, 2, 0, 0, 4,
                     CardClass::SPELL,
@@ -971,9 +938,9 @@ public:
                     CardProperty::FLYING,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
     virtual int computeAttack(SpellCaster *game, int card, int target, bool verbose) const override;
-};
+} lightning;
 
-class Comet : public BlastBase {
+const class Comet : public BlastBase {
 public:
     Comet() : BlastBase("Comet", "☄ ", -1, 3, 2, 0, 0, 4,
                     CardClass::SPELL,
@@ -981,9 +948,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
-};
+} comet;
 
-class ShootingStars : public BlastBase {
+const class ShootingStars : public BlastBase {
 public:
     ShootingStars() : BlastBase("Shooting Stars", "✨ ", -1, 4, 0, 0, 0, 4,
                     CardClass::SPELL,
@@ -991,9 +958,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT) { }
-};
+} shootingStars;
 
-class Golem : public MonsterDefinition {
+const class Golem : public MonsterDefinition {
 public:
     Golem() : MonsterDefinition("Golem", "🗿 ", -1, 4, 0, 2, 2, 2,
                     CardClass::MONSTER,
@@ -1001,9 +968,9 @@ public:
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::FEARLESS,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::ETHEREAL) { }
-};
+} golem;
 
-class Ghoul : public GhoulBase {
+const class Ghoul : public GhoulBase {
 public:
     Ghoul() : GhoulBase("Ghoul", "👻 ", -1, 1, 1, 1, 1, 1,
                     CardClass::MONSTER,
@@ -1011,9 +978,9 @@ public:
                     CardProperty::UNDEAD | CardProperty::FEARLESS,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::BLESSED | CardProperty::ETHEREAL) { }
-};
+} ghoul;
 
-class SpellEater : public MonsterDefinition {
+const class SpellEater : public MonsterDefinition {
 public:
     SpellEater() : MonsterDefinition("Spell Eater", "🌵 ", -1, 1, 1, 1, 1, 1,
                     CardClass::MONSTER,
@@ -1022,10 +989,10 @@ public:
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::BLESSED | CardProperty::ETHEREAL) { }
     void execute(SpellCaster *game, int c, bool verbose) const;
-};
+} spellEater;
 
 // Works even with magic resistance
-class HolyWater : public BlastBase {
+const class HolyWater : public BlastBase {
 public:
     HolyWater() : BlastBase("Holy Water", "💦 ", -1, 1, 1, 0, 0, 2,
                     CardClass::SPELL,
@@ -1033,9 +1000,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::UNDEAD, /* requirements */
                     CardProperty::NONE) { }
-};
+} holyWater;
 
-class Tempest : public BlastBase {
+const class Tempest : public BlastBase {
 public:
     Tempest() : BlastBase("Tempest", "🌩️ ", -1, 2, 2, 0, 0, 3,
                     CardClass::SPELL,
@@ -1043,9 +1010,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
                     CardProperty::NONE) { }
-};
+} tempest;
 
-class Djinn : public SummonMonster {
+const class Djinn : public SummonMonster {
 public:
     Djinn() : SummonMonster("Djinn", "👳🏽 ", -1, 1,1,  1, 1, 2,
                     CardClass::SPELL,
@@ -1053,9 +1020,9 @@ public:
                     /* Properties */ CardProperty::FEARLESS,
                     /* Requirements */ CardProperty::NONE,
                     /* Exclusions */ CardProperty::FLYING) { }
-};
+} djinn;
 
-class FireElemental : public SummonMonster {
+const class FireElemental : public SummonMonster {
 public:
     FireElemental() : SummonMonster("Fire Elemental", "🔥 ", -1, 1, 3, 2, 2, 3,
                     CardClass::SPELL,
@@ -1063,9 +1030,9 @@ public:
                     CardProperty::FEARLESS | CardProperty::FIRE_RESISTANT,
                     CardProperty::NONE,
                     CardProperty::FIRE_RESISTANT) { }
-};
+} fireElemental;
 
-class Mimic : public MonsterDefinition {
+const class Mimic : public MonsterDefinition {
 public:
     Mimic() : MonsterDefinition("Mimic", "🃏 ", -1, 1, 1, 1, 1, 1,
                     CardClass::MONSTER, /* is a */
@@ -1074,9 +1041,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::FLYING) { }
     void execute(SpellCaster *game, int c, bool verbose) const;
-};
+} mimic;
 
-class Mephistopheles : public MonsterDefinition {
+const class Mephistopheles : public MonsterDefinition {
 public:
     Mephistopheles() : MonsterDefinition("Mephistopheles", "👿 ", -1, 2, 2, 3, 3, 3,
                     CardClass::MONSTER, /* is a */
@@ -1085,9 +1052,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::BLESSED) { }
     void execute(SpellCaster *game, int c, bool verbose) const;
-};
+} mephistopheles;
 
-class VorpalBunny : public MonsterDefinition {
+const class VorpalBunny : public MonsterDefinition {
 public:
     VorpalBunny() : MonsterDefinition("Vorpal Bunny", "🐰 ", -1, 2, 1, 1, 1, 3,
                     CardClass::MONSTER, /* is a */
@@ -1096,9 +1063,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::FLYING) { }
     void execute(SpellCaster *game, int c, bool verbose) const;
-};
+} vorpalBunny;
 
-class MagicSpear : public MagicWeapon {
+const class MagicSpear : public MagicWeapon {
 public:
     MagicSpear() : MagicWeapon("Magic Spear", "⚔️ ", -1, 3, 1, 1, 1, 2,
                     CardClass::ARTIFACT,
@@ -1107,9 +1074,9 @@ public:
                     CardProperty::NONE, /* requirements */
                     CardProperty::FLYING) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
-};
+} magicSpear;
 
-class NeptunesTrident : public MagicWeapon {
+const class NeptunesTrident : public MagicWeapon {
 public:
     NeptunesTrident() : MagicWeapon("Neptune's Trident", "🔱 " ,-1, 2, 1,  1, 1, 3,
                     CardClass::ARTIFACT,
@@ -1117,9 +1084,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::NONE | CardProperty::ETHEREAL) { }
-};
+} neptunesTrident;
 
-class ArtemisBow : public MagicWeapon {
+const class ArtemisBow : public MagicWeapon {
 public:
     ArtemisBow() : MagicWeapon("Artemis' Bow", "🏹 ", -1,  3, 1, 1, 1, 3,
                     CardClass::ARTIFACT,
@@ -1128,9 +1095,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE) { }
     virtual int computeAttack(SpellCaster *game, int card, int target, bool verbose) const;
-};
+} artemisBow;
 
-class ResistAstralMagic : public AntiAstralBase {
+const class ResistAstralMagic : public AntiAstralBase {
 public:
     ResistAstralMagic() : AntiAstralBase("Resist Astral Magic", "✨ ", 0, 2, 0, 1, 1, 1,
                     CardClass::SPELL,
@@ -1138,9 +1105,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
                     CardProperty::RED_MAGIC_RESISTANT) { }
-};
+} resistAstralMagic;
 
-class ResistWorldlyMagic : public AntiWorldlyBase {
+const class ResistWorldlyMagic : public AntiWorldlyBase {
 public:
     ResistWorldlyMagic() : AntiWorldlyBase("Resist Worldly Magic", "✨ ", 0, 0, 2, 1, 1, 1,
                     CardClass::SPELL,
@@ -1148,20 +1115,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
                     CardProperty::BLUE_MAGIC_RESISTANT) { }
-};
+} resistWorldlyMagic;
 
-class Bless : public SpellDefinition {
-public:
-    Bless() : SpellDefinition("Bless", "🙏🏾 " ,1, 0, 2,  1, 1, 1,
-                    CardClass::SPELL,
-                    CardClass::MONSTER,
-                    CardProperty::NONE,
-                    CardProperty::NONE, /* requirements */
-                    CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::UNDEAD) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
-};
-
-class Flight : public SpellDefinition {
+const class Flight : public SpellDefinition {
 public:
     Flight() : SpellDefinition("Flight", "🦅 ", 1, 1, 1, 1, 1, 1,
                     CardClass::SPELL,
@@ -1170,9 +1126,9 @@ public:
                     CardProperty::NONE, /* requirements */
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::FLYING) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
-};
+} flight;
 
-class FountainOfYouth : public SpellDefinition {
+const class FountainOfYouth : public SpellDefinition {
 public:
     FountainOfYouth() : SpellDefinition("Fountain of Youth", "⛲ ", 1, 0, 4, 1, 1, 1,
                     CardClass::ARTIFACT,
@@ -1181,9 +1137,9 @@ public:
                     CardProperty::NONE, /* requirements */
                     CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::REGENERATING) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
-};
+} fountainOfYouth;
 
-class Ground : public SpellDefinition {
+const class Ground : public SpellDefinition {
 public:
     Ground() : SpellDefinition("Ground", "🗻 ", -1, 2, 0, 1, 1, 1,
                     CardClass::SPELL,
@@ -1192,9 +1148,9 @@ public:
                     CardProperty::FLYING, /* requirements */
                     CardProperty::RED_MAGIC_RESISTANT) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
-};
+} ground;
 
-class Rage : public SpellDefinition {
+const class Rage : public SpellDefinition {
 public:
     Rage() : SpellDefinition("Rage", "🍄 ", 0, 1, 1, 1, 1, 1,
                     CardClass::SPELL,
@@ -1203,9 +1159,9 @@ public:
                     CardProperty::NONE, /* requirements */
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
-};
+} rage;
 
-class EtherealRing : public SpellDefinition {
+const class EtherealRing : public SpellDefinition {
 public:
     EtherealRing() : SpellDefinition("Ethereal Ring", "💍 ", 1, 0, 3, 1, 1, 1,
                     CardClass::ARTIFACT,
@@ -1214,9 +1170,9 @@ public:
                     CardProperty::NONE, /* requirements */
                     CardProperty::BLUE_MAGIC_RESISTANT) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
-};
+} etherealRing;
 
-class Link : public SpellDefinition {
+const class Link : public SpellDefinition {
 public:
     Link() : SpellDefinition("Link", "🔗 ", -1, 0, 2, 1, 1, 1,
                     CardClass::SPELL,
@@ -1225,9 +1181,9 @@ public:
                     CardProperty::NONE, /* requirements */
                     CardProperty::BLUE_MAGIC_RESISTANT) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
-};
+} _link;
 
-class Curse : public SpellDefinition {
+const class Curse : public SpellDefinition {
 public:
     Curse() : SpellDefinition("Curse", "👁 ", -1, 0, 2, 1, 1, 1,
                     CardClass::SPELL,
@@ -1236,9 +1192,9 @@ public:
                     CardProperty::NONE, /* requirements */
                     CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::UNDEAD) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
-};
+} curse;
 
-class DeathsDoor : public ImminentDeathBase {
+const class DeathsDoor : public ImminentDeathBase {
 public:
     DeathsDoor() : ImminentDeathBase("Death's Door", "🚪 ", -1, 1, 1, 1, 1, 1,
                     CardClass::SPELL,
@@ -1246,9 +1202,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::BLESSED) { }
-};
+} deathsDoor;
 
-class Banshee : public ImminentDeathBase {
+const class Banshee : public ImminentDeathBase {
 public:
     Banshee() : ImminentDeathBase("Banshee", "🎶 ", -1, 0, 4, 1, 1, 1,
                     CardClass::MONSTER,
@@ -1256,9 +1212,9 @@ public:
                     CardProperty::UNDEAD,
                     CardProperty::NONE, /* requirements */
                     CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::BLESSED) { }
-};
+} banshee;
 
-class Sleep : public SleepBase {
+const class Sleep : public SleepBase {
 public:
     Sleep() : SleepBase("Sleep", "💤 ", -1, 0, 2, 1, 1, 2,
                     CardClass::SPELL,
@@ -1266,10 +1222,10 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
                     CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::UNDEAD) { }
-};
+} _sleep;
 
 #if 0
-class Gleipnir : public SleepBase {
+const class Gleipnir : public SleepBase {
 public:
     Gleipnir() : SleepBase("Gleipnir", "⛓️ ", -1, 3, 1, 1, 1, 4,
                     CardClass::ARTIFACT,
@@ -1290,7 +1246,7 @@ public:
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::ETHEREAL) { }
 } web;
 
-class Loyalty : public SpellDefinition {
+const class Loyalty : public SpellDefinition {
 public:
     Loyalty() : SpellDefinition("Loyalty", "👑 ", +1, 0, 2, 1, 1, 1,
                     CardClass::SPELL,
@@ -1299,9 +1255,9 @@ public:
                     CardProperty::NONE, /* requirements */
                     CardProperty::BLUE_MAGIC_RESISTANT) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const;
-};
+} loyalty;
 
-class Spirit : public MonsterDefinition {
+const class Spirit : public MonsterDefinition {
 public:
     Spirit() : MonsterDefinition("Spirit", "👻 ", 
                                  /* positivity */ -1,
@@ -1314,9 +1270,9 @@ public:
                     CardProperty::LINKED,
                     CardProperty::NONE,
                     CardProperty::NONE) { }
-};
+} spirit;
 
-class Shard : public ShardBase {
+const class Shard : public ShardBase {
 public:
     Shard() : ShardBase("Shard", "💠 ", -1, 3, 1, 0, 0, 3,
                     CardClass::SPELL,
@@ -1324,9 +1280,9 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
-};
+} shard;
 
-class FieryChariot : public ShardBase {
+const class FieryChariot : public ShardBase {
 public:
     FieryChariot() : ShardBase("Fiery Chariot", "⚙️ ", -1, 4, 1, 0, 0, 4,
                     CardClass::SPELL,
@@ -1334,10 +1290,10 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::FIRE_RESISTANT) { }
-};
+} fieryChariot;
 
 #if 0
-class Cavalry : public MonsterDefinition {
+const class Cavalry : public MonsterDefinition {
 public:
     Cavalry() : MonsterDefinition("Cavalry", "🐎 ",
                                   /* positivity */ 0,

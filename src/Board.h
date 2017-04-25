@@ -203,9 +203,12 @@ public:
     }
 
     void launch3(int source_card);
-    void launch(int source_card, int target_card, double start_time, double end_time);
     void launch4(int source_card, int target_card, double start_time, double end_time);
     void launch2(int source_card);
+    void launch(int source_card, int target_card, double start_time, double end_time);
+    void launch5(int source_card, int target_card, double start_time, double end_time);
+
+    void initBackground();
 
     //
     // Most of public API protected through mutexes because
@@ -338,7 +341,19 @@ public:
         non_const->new_message = true;
     }
 
-    void draw(float ratio);
+    void drawz(float zlo, float zhi, float ratio);
+
+    void draw(float ratio) {
+        std::lock_guard<std::mutex> guard(board_mutex);
+        for (int i = 0; i < 10; ++i) {
+            drawz(0.1*i, 0.1*(i+1), ratio);
+        }
+
+        glEnable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_GEQUAL);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
 
     int mouse_press(Point point) const {
         std::lock_guard<std::mutex> guard(board_mutex);
@@ -377,6 +392,11 @@ public:
     void publicSetPlayerPosition(double time, double z = 0.0) {
         std::lock_guard<std::mutex> guard(board_mutex);
         setPlayerPosition(time, z);
+    }
+
+    void publicSetGraveyardPosition(double time, int c) {
+        std::lock_guard<std::mutex> guard(board_mutex);
+        setGraveyardPosition(time, c);
     }
 };
 

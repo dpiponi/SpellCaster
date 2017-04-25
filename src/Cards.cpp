@@ -126,14 +126,6 @@ void JestersWish::executeInstant(SpellCaster *game, int c, bool verbose) const {
 };
 
 void ManaCard::executeInstant(SpellCaster *game, int c, bool verbose) const {
-#ifdef BOARD
-#if 0
-    if (verbose) {
-        board << "Some mana for you";
-        game->end_message();
-    }
-#endif
-#endif
     game->mana[game->target[c]-PLAYER0] += Mana {3, 2}; // XXX Should be target no?
 };
 
@@ -203,61 +195,10 @@ void Sacrifice::execute(SpellCaster *game, int c, bool verbose) const {
     }
 }
 
-void BiteTheHand::execute(SpellCaster *game, int c, bool verbose) const {
-    int target_c = game->target[c];
-    game->target[target_c] = PLAYER0+game->owner[target_c];
-#ifdef BOARD
-    if (verbose) {
-        board << game->description(c, false) << " makes " << game->description(game->target[c], false) << " turn on OWNER";
-        game->end_message();
-    }
-#endif
-    game->card_end_from(Location::EXECUTING, c, verbose);
-}
-
 void BlastBase::execute(SpellCaster *game, int card, bool verbose) const {
     int target = game->target[card];
     int attack = computeAttack(game, card, target, verbose);
     game->damage_card(target, attack, verbose);
-    game->card_end_from(Location::EXECUTING, card, verbose);
-}
-
-void BrickWall::execute(SpellCaster *game, int card, bool verbose) const {
-    int target = game->target[card];
-    int attack = computeAttack(game, card, target, verbose);
-#ifdef BOARD
-    if (verbose) {
-        board << game->description(card, false) << " blocks "
-             << game->description(target, false);
-        game->end_message();
-    }
-#endif
-    game->properties[target] |= CardProperty::IMMOBILE;
-    game->damage_card(target, attack, verbose);
-    game->card_end_from(Location::EXECUTING, card, verbose);
-}
-
-void WarMachine::execute(SpellCaster *game, int card, bool verbose) const {
-    int target = game->target[card];
-    int attack = computeAttack(game, card, target, verbose);
-    if (game->basehp[target] < attack) {
-#ifdef BOARD
-        if (verbose) {
-            board << game->description(card, false) << " can't attack "
-                 << game->description(target, false) << ", it's too small";
-            game->end_message();
-        }
-#endif
-    } else {
-#ifdef BOARD
-        if (verbose) {
-            board << game->description(card, false) << " attacks "
-                 << game->description(target, false);
-            game->end_message();
-        }
-#endif
-        game->damage_card(target, attack, verbose);
-    }
     game->card_end_from(Location::EXECUTING, card, verbose);
 }
 
@@ -762,8 +703,6 @@ void Recall::executeInstant(SpellCaster *game, int c, bool verbose) const {
                 game->target[*p] = -1;
             }
         }
-//        cout << game->owner[c] << ' ' << int(game->location[c]) << ' ' << int(Location::HAND0)+game->owner[c] << endl;
-        //game->card_end_from(Location::EXECUTING/*Location(int(Location::HAND0)+game->owner[c])*/, c, verbose);
     } else {
 #ifdef BOARD
         if (verbose) {
@@ -904,18 +843,6 @@ void AntiWorldlyBase::execute(SpellCaster *game, int c, bool verbose) const {
     }
 #endif
     game->properties[game->target[c]] |= CardProperty::RED_MAGIC_RESISTANT;
-    game->card_end_from(Location::EXECUTING, c, verbose);
-}
-
-void Bless::execute(SpellCaster *game, int c, bool verbose) const {
-#ifdef BOARD
-    if (verbose) {
-        board << game->description(c, false) << " blessing "
-             << game->description(game->target[c], false);
-        game->end_message();
-    }
-#endif
-    game->properties[game->target[c]] |= CardProperty::BLESSED;
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 

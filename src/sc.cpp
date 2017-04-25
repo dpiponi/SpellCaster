@@ -143,7 +143,7 @@ int main(int argc, char *argv[]) {
     ui_state = make_shared<WaitingForFirstCard>();
 
     typedef SpellCaster Game;
-    map<string, const Definition *> database = make_database(all_cards);
+    map<string, const Definition *> database = *CardRegistry::getRegistry();
     vector<const Definition *> player_deck = read_deck(database, "player.txt");
     vector<const Definition *> computer_deck = read_deck(database, "computer.txt");
 

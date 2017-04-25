@@ -5,17 +5,35 @@
 #include <cassert>
 #include <vector>
 #include <memory>
+#include <map>
 
 using std::ostream;
 using std::istream;
 using std::vector;
 using std::pair;
 using std::shared_ptr;
+using std::map;
+using std::cout;
+using std::endl;
 
 #include "CardClass.h"
 #include "CardProperty.h"
 
 class SpellCaster;
+class Definition;
+
+class CardRegistry {
+public:
+    static map<string, const Definition *> *getRegistry() {
+        static map<string, const Definition *> *registry = new map<string, const Definition *>;
+        return registry;
+    }
+    static void registerCard(string name, const Definition *definition) {
+        auto registry = getRegistry();
+        (*registry)[name] = definition;
+        cout << "Registering: " << name << endl;
+    }
+};
 
 class Definition {
 public:
@@ -48,7 +66,9 @@ public:
                ) :
         name(n), icon(d), positivity(p), world_cost(wc), astral_cost(ac), basehp(b), attack(a), card_class(k), target_class(l),
         properties(properties0),
-        requirements(requirements0), exclusions(exclusions0) { }
+        requirements(requirements0), exclusions(exclusions0) {
+           CardRegistry::registerCard(name, this);
+        };
     virtual int key () const { return 0; }
     virtual void describe(const SpellCaster *game, ostream &out, int c) const = 0;
     virtual void execute(SpellCaster *game, int c, bool verbose) const { };// = 0;

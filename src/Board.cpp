@@ -1,7 +1,9 @@
 #include <map>
 #include <string>
+#include <algorithm>
 
 using std::map;
+using std::max;
 using std::string;
 using std::dynamic_pointer_cast;
 
@@ -208,8 +210,74 @@ void genLightning(shared_ptr<Group> particles, Vector2f src, Vector2f dst, int d
     genLightning(particles, mid, dst, depth-1, generator, time);
 }
 
-// Lightning
+// rocks
 void Board::launch(int source_card, int target_card, double start_time, double end_time) {
+    cout << "ACTUAL LAUNCH() = " << source_card << ' ' << target[source_card] << endl;
+
+    Vector2f source(-0.5, 0.0);
+    Vector2f target(0.5, 0.0);
+
+    GLuint tex = create_texture("assets/flaming rock.png");
+
+    std::minstd_rand0 generator(std::chrono::system_clock::now().time_since_epoch().count());
+    uniform_real_distribution<float> offset(0.0, 1.0);
+
+    int nrocks = 20;
+    Vector2f pos[nrocks], v[nrocks];
+    for (int i = 0; i < nrocks; ++i) {
+        pos[i] = target+Vector2f(-1.0, 1.0)+offset(generator)*Vector2f(0.9, -0.9)+offset(generator)*Vector2f(0.1, 0.1);
+        v[i] = Vector2f(0.05, -0.05)+0.01*offset(generator)*Vector2f(1.0, -1.0);
+    }
+
+    int id = 0;
+    for (int t = 0; t < 30; ++t) {
+        double time = start_time+(1/30.0)*t;
+        auto particles = make_shared<Group>();
+
+        for (int i = 0; i < nrocks; ++i) {
+            Rectangle segment;
+
+            segment.visible = true;
+            segment.setNoHighlight();
+            segment.setTexture(tex);
+
+            segment.setAngle(time, 0.0);
+            segment.setSize(time, 0.05, 0.05);
+            segment.setPosition(time, pos[i]);
+            segment.setZ(time, 0.96);
+            float alpha;
+            float z = pos[i][1];
+            if (z < 0) {
+                alpha = 1+10.0*z;
+            } else {
+                alpha = 1-z;
+            }
+            alpha = max(alpha, 0.0f);
+            segment.setAlpha(time, alpha);
+
+            pos[i] += v[i];
+
+            particles->addElement(make_shared<Rectangle>(segment));
+        }
+
+        {
+            std::lock_guard<std::mutex> guard(board_mutex);
+            if (id) {
+                drawables.removeElement(id);
+            }
+            id = drawables.addElement(particles);
+        }
+
+        wait_until(start_time+(1/30.0)*(t+1));
+    }
+    {
+        std::lock_guard<std::mutex> guard(board_mutex);
+        drawables.removeElement(id);
+    }
+}
+
+// Lightning
+void Board::launch5(int source_card, int target_card, double start_time, double end_time) {
     cout << "ACTUAL LAUNCH() = " << source_card << ' ' << target[source_card] << endl;
 
     Vector2f source(-0.5, 0.0);
@@ -232,8 +300,8 @@ void Board::launch(int source_card, int target_card, double start_time, double e
                 drawables.removeElement(id);
             }
             id = drawables.addElement(particles);
-            wait_until(start_time+0.05*(t+1));
         }
+        wait_until(start_time+0.05*(t+1)); // Here? XXX
     }
     {
         std::lock_guard<std::mutex> guard(board_mutex);
@@ -404,7 +472,8 @@ int Board::arena(int card1, int card2, double start_time, double end_time) {
     arena_rectangle->setPosition(start_time, 0.0, 0.0);
     arena_rectangle->setSize(start_time, 0.75, 0.35);
     arena_rectangle->setAngle(start_time, 0.0);
-    arena_rectangle->setTexture(create_texture("assets/colosseum.jpg"));
+    //arena_rectangle->setTexture(create_texture("assets/colosseum.jpg"));
+    arena_rectangle->setTexture(create_texture("assets/tiles.jpg"));
 
     int arena_id = drawables.addElement(arena_rectangle);
 
@@ -460,7 +529,7 @@ int Board::arena(int card1, int card2, double start_time, double end_time) {
 void Board::unArena(int arena_id, int card1, int card2, double time0, double time1) {
     {
         std::lock_guard<std::mutex> guard(board_mutex);
-        cards[card1]->setPosition(time0);
+        //cards[card1]->setPosition(time0);
         player.setPosition(time0);
 
         cout << "Returning player" << endl;
@@ -511,9 +580,9 @@ void Board::focus(int player, int card, float delay) {
     auto p = hand[player][focus];
     setHandPosition(now(), p, player, focus, 0.125, 0.2, 0.0, 0.0);
     setHandPosition(now()+0.25*delay, p, player, focus, 1.1*0.125, 0.5, 0.0, 0.0);
-    setHandPosition(now()+0.5*delay, p, player, focus, 1.2*0.125, 1.0, 0.0, 0.0);
+    setHandPosition(now()+0.5*delay, p, player, focus, 1.2*0.125, 0.999, 0.0, 0.0);
     for (int k = 0; k < 100; ++k) {
-        setHandPosition(now()+0.5*delay+0.3*k, p, player, focus, 1.2*0.125, 1.0, 0.004*cos(k), -0.004*sin(k));
+        setHandPosition(now()+0.5*delay+0.3*k, p, player, focus, 1.2*0.125, 0.999, 0.004*cos(k), -0.004*sin(k));
     }
 }
 
@@ -559,7 +628,9 @@ void Board::initTextures(const vector<const Definition *> &player_deck,
     blob_tex = create_texture("assets/blob.png");
     fire_tex = create_texture("assets/fire.png", true);
     stroke_tex = create_texture("assets/stroke.png", false, true);
-    create_texture("assets/colosseum.jpg");
+    //create_texture("assets/colosseum.jpg");
+    create_texture("assets/tiles.jpg");
+    create_texture("assets/flaming rock.png");
 
     cout << "...done" << endl;
 }
@@ -595,7 +666,7 @@ void Board::setText(shared_ptr<LinearGroup> word, const char *msg, float x, floa
 
 void Board::setGraveyardPosition(double time, int c) {
     cards[c]->setPosition(time, Vector2f(1.3, 0.0));
-    cards[c]->setZ(time, 0.0);
+    cards[c]->setZ(time, 0.9);
     cards[c]->setSize(time, 0.0625*1.5, 0.125*1.5);
     cards[c]->setAlpha(0.0, 1.0);
     cards[c]->setAngle(time, -2*M_PI);
@@ -614,6 +685,7 @@ void Board::setInPlayPosition(double time, int c, int i) {
     cards[c]->shadow = true;
 }
 
+// For now connections are at a=0.5
 void Board::drawConnection(float ratio, RGB rgb, int i, int j, int k) {
     float widthi = cards[i]->getXSize();
     float widthj = cards[j]->getXSize();
@@ -688,15 +760,19 @@ void Board::setAnnotation(int card) {
     setText(word_annotation, summary.str().c_str(), config.annotation_x-0.5*config.annotation_height+0.01, config.annotation_y-config.annotation_height-config.vertical_text_space);
 }
 
-void Board::initPlayers() {
-    std::lock_guard<std::mutex> guard(board_mutex);
-    //background.setTexture(create_texture("assets/Forest.png"));
+void Board::initBackground() {
     background.setTexture(create_texture(config.background.c_str()));
     background.setPosition(0.0, Vector2f(0.0, 0.0));
     background.setZ(0.0, 0.0);
     background.setSize(0.0, 1600.0/1172.0, 1.0);
     background.setAlpha(0.0, 1.0);
     background.visible = true;
+}
+
+void Board::initPlayers() {
+    std::lock_guard<std::mutex> guard(board_mutex);
+    //background.setTexture(create_texture("assets/Forest.png"));
+    initBackground();
 
     player.setTexture(create_texture(config.player_icon.c_str()));
     setPlayerPosition(now());
@@ -727,78 +803,71 @@ void Board::initPlayers() {
     discardbutton.shadow = true;
 }
 
-void Board::draw(float ratio) {
-    std::lock_guard<std::mutex> guard(board_mutex);
-
+void Board::drawz(float zlo, float zhi, float ratio) {
     //connect_shader();
-    glEnable(GL_BLEND);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_GEQUAL);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    background.draw(ratio, config.border_line_width);
+    background.drawz(zlo, zhi, ratio, config.border_line_width);
 
-    ::drawShadow(ratio, -0.15, 0.95, 0.0, 0.0, 0.75, 0.1, 0.35);
+    if (zlo <= 0.0 && 0.0 < zhi) {
+        ::drawShadow(ratio, -0.15, 0.95, 0.0, 0.0, 0.75, 0.1, 0.35);
+    }
 
-    player.draw(ratio, config.border_line_width);
-    computer.draw(ratio, config.border_line_width);
-    passbutton.draw(ratio, config.border_line_width);
-    discardbutton.draw(ratio, config.border_line_width);
-    word->draw(ratio, 0.0);
-    word_stats0->draw(ratio, 0.0);
-    word_stats1->draw(ratio, 0.0);
+    player.drawz(zlo, zhi, ratio, config.border_line_width);
+    computer.drawz(zlo, zhi, ratio, config.border_line_width);
+    passbutton.drawz(zlo, zhi, ratio, config.border_line_width);
+    discardbutton.drawz(zlo, zhi, ratio, config.border_line_width);
+    word->drawz(zlo, zhi, ratio, 0.0);
+    word_stats0->drawz(zlo, zhi, ratio, 0.0);
+    word_stats1->drawz(zlo, zhi, ratio, 0.0);
     for (int i = 0; i < 2; ++i) {
         for (auto p : hand[i]) {
-            cards[p]->draw(ratio, config.border_line_width);
+            cards[p]->drawz(zlo, zhi, ratio, config.border_line_width);
         }
     }
     for (auto p : in_play) {
-        cards[p]->draw(ratio, config.border_line_width);
+        cards[p]->drawz(zlo, zhi, ratio, config.border_line_width);
     }
-#if 0
-    // Only draw last 10 or so in graveyard
-    auto g = max(0UL, graveyard.size()-10);
-    for (auto i = g; i < graveyard.size(); ++i) {
-        cards[graveyard[i]].draw(ratio, config.border_line_width, 0.0);
-    }
-#endif
     for (auto p : graveyard) {
-        cards[p]->draw(ratio, config.border_line_width);
+        cards[p]->drawz(zlo, zhi, ratio, config.border_line_width);
     }
     int k = 0;
-    for (auto p : in_play) {
-        int i = p;
-        if (cards[i]->visible) {
-            if (target[i] != -1) {
-                int j = target[i];
-                RGB rgb = owner[i] ? config.computer_highlight : config.player_highlight;
-                if (j < 1000) {
-                    if (location[j] == Location::IN_PLAY) {
-                        drawConnection(ratio, rgb, i, j, k);
-                        ++k;
+    if (zlo <= 0.5 && 0.5 < zhi) {
+        for (auto p : in_play) {
+            int i = p;
+            if (cards[i]->visible) {
+                if (target[i] != -1) {
+                    int j = target[i];
+                    RGB rgb = owner[i] ? config.computer_highlight : config.player_highlight;
+                    if (j < 1000) {
+                        if (location[j] == Location::IN_PLAY) {
+                            drawConnection(ratio, rgb, i, j, k);
+                            ++k;
+                        }
+                    } else if (j==1001) {
+                        float widthi = cards[i]->getXSize();
+                        float horizontal_height = cards[i]->getY()+cards[i]->getYSize()+0.05;
+                        drawLine(ratio, config.border_line_width, rgb, cards[i]->getX()-0.5*widthi, cards[i]->getY()+cards[i]->getYSize(),
+                                        cards[i]->getX()-0.5*widthi, horizontal_height);
+                    } else if (j==1000) {
+                        float widthi = cards[i]->getXSize();
+                        float horizontal_height = cards[i]->getY()-cards[i]->getYSize()-0.05;
+                        drawLine(ratio, config.border_line_width, rgb, cards[i]->getX()-0.5*widthi, cards[i]->getY()-cards[i]->getYSize(),
+                                        cards[i]->getX()-0.5*widthi, horizontal_height);
                     }
-                } else if (j==1001) {
-                    float widthi = cards[i]->getXSize();
-                    float horizontal_height = cards[i]->getY()+cards[i]->getYSize()+0.05;
-                    drawLine(ratio, config.border_line_width, rgb, cards[i]->getX()-0.5*widthi, cards[i]->getY()+cards[i]->getYSize(),
-                                    cards[i]->getX()-0.5*widthi, horizontal_height);
-                } else if (j==1000) {
-                    float widthi = cards[i]->getXSize();
-                    float horizontal_height = cards[i]->getY()-cards[i]->getYSize()-0.05;
-                    drawLine(ratio, config.border_line_width, rgb, cards[i]->getX()-0.5*widthi, cards[i]->getY()-cards[i]->getYSize(),
-                                    cards[i]->getX()-0.5*widthi, horizontal_height);
                 }
             }
         }
     }
-    if (annotation.visible) {
-        ::drawShadow(ratio, -1.1, 0.0, 0.0, 0.0, 0.2, 0.8, 0.35);
-        annotation.draw(ratio, config.border_line_width);
-        //draw_text(ratio, word_annotation);
-        word_annotation->draw(ratio, 0.0);
+    if (zlo <= 0.0 && 0.0 < zhi) {
+        if (annotation.visible) {
+            ::drawShadow(ratio, -1.1, 0.0, 0.0, 0.0, 0.2, 0.8, 0.35);
+            annotation.drawz(zlo, zhi, ratio, config.border_line_width);
+            //draw_text(ratio, word_annotation);
+            word_annotation->drawz(zlo, zhi, ratio, 0.0);
+        }
     }
 
-    drawables.draw(ratio);
+    drawables.drawz(zlo, zhi, ratio);
 }
 
 void Board::setHandPosition(double time, int c, int h, int i, float size, float z, float offsetx, float offsety) {

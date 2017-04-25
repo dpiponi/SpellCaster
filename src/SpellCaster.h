@@ -450,7 +450,7 @@ public:
     void show() const;
 };
 
-extern vector<const Definition *> all_cards;
+//extern vector<const Definition *> all_cards;
 
 void dump_cards();
 
