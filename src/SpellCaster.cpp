@@ -544,15 +544,16 @@ void SpellCaster::executeInstant(int c, bool verbose) {
 
         double start_arena = now();
         double start_launch = start_arena+1.0;
-        double start_unarena = start_launch+1.0;
-        double end_unarena = start_unarena+1.0;
 
         int target_card = target[c];
 
         int arena_id = board.arena(c, target_card, start_arena, start_launch);
         wait_until(start_launch);
         // executeInstant()
-        board.launch(c, target_card, start_launch, start_unarena);
+        //board.launch(c, target_card, start_launch, start_unarena);
+        double start_unarena = now();
+        double end_unarena = start_unarena+1.0;
+        definitions[c]->animate(this, board, c, target_card, verbose);
         wait_until(start_unarena);
         // executeInstant()
         board.publicSetGraveyardPosition(now()+0.5, c);
@@ -874,7 +875,8 @@ void SpellCaster::execute(bool verbose) {
             arena_id = board.arena(c, target[c], start_arena, start_launch);
             wait_until(start_launch);
             // execute()
-            board.launch(c, target[c], start_launch, end_launch);
+            //board.launch(c, target[c], start_launch, end_launch);
+            definitions[c]->animate(this, board, c, target[c], verbose);
             cout << "Should be an unareana soon" << endl;
         }
 #endif

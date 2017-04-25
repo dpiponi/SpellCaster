@@ -3,6 +3,14 @@
 #include "Cards.h"
 #include "SpellCaster.h"
 
+void Definition::animate(SpellCaster *game, Board &board, int card, int target, bool verbose) const {
+#ifdef BOARD
+    if (verbose) {
+        board.launch(card, target, now(), now()+2.0);
+    }
+#endif
+};
+
 inline void describe_cost(ostream &out, const Mana &mana) {
     if (mana.world > 0) {
         out << red << mana.world << normal;

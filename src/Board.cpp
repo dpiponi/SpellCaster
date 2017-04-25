@@ -217,34 +217,37 @@ void Board::launch(int source_card, int target_card, double start_time, double e
     Vector2f source(-0.5, 0.0);
     Vector2f target(0.5, 0.0);
 
-    GLuint tex = create_texture("assets/flaming rock.png");
+    //GLuint tex = create_texture("assets/flaming rock.png");
+    GLuint tex = create_texture("assets/miracle.png");
 
     std::minstd_rand0 generator(std::chrono::system_clock::now().time_since_epoch().count());
-    uniform_real_distribution<float> offset(0.0, 1.0);
+    uniform_real_distribution<float> offset(-1.0, 1.0);
 
-    int nrocks = 20;
+    int nrocks = 30;
     Vector2f pos[nrocks], v[nrocks];
     for (int i = 0; i < nrocks; ++i) {
-        pos[i] = target+Vector2f(-1.0, 1.0)+offset(generator)*Vector2f(0.9, -0.9)+offset(generator)*Vector2f(0.1, 0.1);
-        v[i] = Vector2f(0.05, -0.05)+0.01*offset(generator)*Vector2f(1.0, -1.0);
+        pos[i] = target+Vector2f(-1.0, 1.0)+offset(generator)*Vector2f(0.5, -0.5)+offset(generator)*Vector2f(0.1, 0.1);
+        v[i] = Vector2f(0.75, -0.75)+0.25*offset(generator)*Vector2f(1.0, -1.0);
     }
 
     int id = 0;
-    for (int t = 0; t < 30; ++t) {
-        double time = start_time+(1/30.0)*t;
-        auto particles = make_shared<Group>();
+    auto particles = make_shared<Group>();
 
-        for (int i = 0; i < nrocks; ++i) {
-            Rectangle segment;
+    double dt = (end_time-start_time)/10;
+    for (int i = 0; i < nrocks; ++i) {
+        shared_ptr<Rectangle> segment = make_shared<Rectangle>();
+        for (int t = 0; t < 10; ++t) {
+            double time = start_time+dt*t;
 
-            segment.visible = true;
-            segment.setNoHighlight();
-            segment.setTexture(tex);
+            segment->visible = true;
+            segment->setNoHighlight();
+            segment->setTexture(tex);
+            segment->shadow = false;
 
-            segment.setAngle(time, 0.0);
-            segment.setSize(time, 0.05, 0.05);
-            segment.setPosition(time, pos[i]);
-            segment.setZ(time, 0.96);
+            segment->setAngle(time, 0.0);
+            segment->setSize(time, 0.075, 0.075);
+            segment->setPosition(time, pos[i]);
+            segment->setZ(time, 0.96);
             float alpha;
             float z = pos[i][1];
             if (z < 0) {
@@ -252,24 +255,23 @@ void Board::launch(int source_card, int target_card, double start_time, double e
             } else {
                 alpha = 1-z;
             }
-            alpha = max(alpha, 0.0f);
-            segment.setAlpha(time, alpha);
+            alpha = max(0.5f+0.5f*alpha, 0.0f);
+            alpha = min(alpha, 2.0f-0.2f*t);
+            segment->setAlpha(time, alpha);
 
-            pos[i] += v[i];
+            pos[i] += dt*v[i];
 
-            particles->addElement(make_shared<Rectangle>(segment));
         }
-
-        {
-            std::lock_guard<std::mutex> guard(board_mutex);
-            if (id) {
-                drawables.removeElement(id);
-            }
-            id = drawables.addElement(particles);
-        }
-
-        wait_until(start_time+(1/30.0)*(t+1));
+        particles->addElement(segment);
     }
+
+    {
+        std::lock_guard<std::mutex> guard(board_mutex);
+        id = drawables.addElement(particles);
+    }
+
+    wait_until(end_time);
+
     {
         std::lock_guard<std::mutex> guard(board_mutex);
         drawables.removeElement(id);
@@ -631,6 +633,7 @@ void Board::initTextures(const vector<const Definition *> &player_deck,
     //create_texture("assets/colosseum.jpg");
     create_texture("assets/tiles.jpg");
     create_texture("assets/flaming rock.png");
+    create_texture("assets/miracle.png");
 
     cout << "...done" << endl;
 }

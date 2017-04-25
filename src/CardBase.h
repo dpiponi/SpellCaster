@@ -21,6 +21,7 @@ using std::endl;
 
 class SpellCaster;
 class Definition;
+class Board;
 
 class CardRegistry {
 public:
@@ -74,6 +75,7 @@ public:
     virtual void execute(SpellCaster *game, int c, bool verbose) const { };// = 0;
     virtual void executeInstant(SpellCaster *game, int c, bool verbose) const  { }
     virtual int computeAttack(SpellCaster *game, int card, int target, bool verbose) const;
+    virtual void animate(SpellCaster *game, Board &board, int card, int target, bool verbose) const;
 };
 
 
