@@ -62,6 +62,7 @@ class GameApp : public Application {
     Json text_shader;
     Json line_shader;
     Json fire_shader;
+    Json glow_shader;
 public:
     GameApp(Json json) {
         shader = json["shader"];
@@ -69,6 +70,7 @@ public:
         text_shader = json["text_shader"];
         line_shader = json["line_shader"];
         fire_shader = json["fire_shader"];
+        glow_shader = json["glow_shader"];
     }
     void mouse(int button, int action, int mode) override {
         if (action==APP_PRESS) {
@@ -108,6 +110,7 @@ public:
         //glGenBuffers(1, &line_vertex_buffer);
 
         program = Program(shader);
+        glow_program = Program(glow_shader);
         line_program = LineProgram(line_shader);
         shadow_program = ShadowProgram(shadow_shader);
         text_program = TextProgram(text_shader);

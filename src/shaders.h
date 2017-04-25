@@ -63,11 +63,18 @@ public:
     }
 };
 
-class Program : public ProgramBase {
+class RectangleProgram : public ProgramBase {
+public:
+    RectangleProgram() { }
+    RectangleProgram(Json shader) : ProgramBase(shader) { }
+    virtual void set(const Mat44 &mvp, float alpha, float z) = 0;
+};
+
+class Program : public RectangleProgram {
     GLint mvp_location, alpha_location, vpos_location, uv_location, z_location;
 public:
-    Program () { } // XX Should go eventually
-    Program(Json shader) : ProgramBase(shader) {
+    Program() { } // XX Should go eventually
+    Program(Json shader) : RectangleProgram(shader) {
         mvp_location = uniform("MVP");
         alpha_location = uniform("alpha");
         z_location = uniform("z");
@@ -80,7 +87,31 @@ public:
 
         unbindVertexArray();
     }
-    void set(const Mat44 &mvp, float alpha, float z) {
+    void set(const Mat44 &mvp, float alpha, float z) override {
+        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) &mvp);
+        glUniform1f(alpha_location, alpha);
+        glUniform1f(z_location, z);
+    }
+};
+
+class GlowProgram : public RectangleProgram {
+    GLint mvp_location, alpha_location, vpos_location, uv_location, z_location;
+public:
+    GlowProgram() { } // XX Should go eventually
+    GlowProgram(Json shader) : RectangleProgram(shader) {
+        mvp_location = uniform("MVP");
+        alpha_location = uniform("alpha");
+        z_location = uniform("z");
+
+        glGenVertexArrays(1, &vao);
+        bindVertexArray();
+
+        vpos_location = attrib("vPos", 2, 7, 0);
+        uv_location = attrib("uvCoord", 2, 7, 5);
+
+        unbindVertexArray();
+    }
+    void set(const Mat44 &mvp, float alpha, float z) override {
         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) &mvp);
         glUniform1f(alpha_location, alpha);
         glUniform1f(z_location, z);
@@ -197,7 +228,7 @@ public:
     }
 };
 
-extern Program program;
+extern Program program, glow_program;
 extern ShadowProgram shadow_program;
 extern LineProgram line_program;
 extern TextProgram text_program;

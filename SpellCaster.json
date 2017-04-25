@@ -36,6 +36,10 @@
      "fire_shader": {
          "vertex": "shaders/fire_vertex.glsl",
          "fragment": "shaders/fire_fragment.glsl"
+     },
+     "glow_shader": {
+         "vertex": "shaders/glow_vertex.glsl",
+         "fragment": "shaders/glow_fragment.glsl"
      }
 }
 

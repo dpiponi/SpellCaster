@@ -137,6 +137,14 @@ void ManaCard::executeInstant(SpellCaster *game, int c, bool verbose) const {
     game->mana[game->target[c]-PLAYER0] += Mana {3, 2}; // XXX Should be target no?
 };
 
+void ManaCard::animate(SpellCaster *game, Board &board, int card, int target, bool verbose) const {
+#ifdef BOARD
+    if (verbose) {
+        board.glow(card, target, now(), now()+2.0);
+    }
+#endif
+}
+
 void Henge::executeInstant(SpellCaster *game, int c, bool verbose) const {
     game->mana[game->target[c]-PLAYER0] += Mana {4, 1};
 #ifdef BOARD

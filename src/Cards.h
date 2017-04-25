@@ -47,6 +47,7 @@ public:
                     CardProperty::NONE) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const { };
     virtual void executeInstant(SpellCaster *game, int c, bool verbose) const;
+    virtual void animate(SpellCaster *game, Board &board, int card, int target, bool verbose) const;
 } manaCard;
 
 const class Henge : public SpellDefinition {

@@ -23,15 +23,11 @@ GLint attribute_coord, uniform_tex;
 //GLint shadow_mvp_location, shadow_vpos_location;
 GLuint /*vao, line_vao, shadow_vao, */text_vao;
 
-Program program;
+Program program, glow_program;
 ShadowProgram shadow_program;
 LineProgram line_program;
 TextProgram text_program;
 FireProgram fire_program;
-
-/*GLuint program;*/
-//GLuint line_program;
-//GLuint text_program;
 
 GLuint compile_shader(GLuint shader_type, const char *shader_src) {
     GLuint shader = glCreateShader(shader_type);

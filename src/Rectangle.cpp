@@ -10,7 +10,7 @@ void Rectangle::drawShadow(float ratio) {
                  /* alpha= */ 0.35);
 }
 
-inline void drawRectangle(Program &program, float ratio, float x, float y, float z, float angle, float xsize, float ysize, float alpha, GLuint tex) {
+inline void drawRectangle(Program *shader, float ratio, float x, float y, float z, float angle, float xsize, float ysize, float alpha, GLuint tex) {
     Mat44 mvp;
     make_matrix(mvp, ratio, x, y, angle, xsize, ysize);
 
@@ -19,14 +19,14 @@ inline void drawRectangle(Program &program, float ratio, float x, float y, float
     if (tex==fire_tex) {
         drawFire(ratio, x, y, z, angle, xsize, ysize, alpha, tex);
     }
-    program.use();
-    program.bindVertexArray();
-    program.set(mvp, alpha, z);
-    program.bufferData(sizeof(vertices), (void *)vertices);
+    shader->use();
+    shader->bindVertexArray();
+    shader->set(mvp, alpha, z);
+    shader->bufferData(sizeof(vertices), (void *)vertices);
     glBindTexture(GL_TEXTURE_2D, tex);
     glDrawArrays(GL_TRIANGLES, 0, 6);
-    program.unbindVertexArray();
-    program.unuse();
+    shader->unbindVertexArray();
+    shader->unuse();
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
@@ -42,7 +42,7 @@ void Rectangle::drawz(float zlo, float zhi, float ratio, float border_line_width
             drawShadow(ratio);
         }
 
-        drawRectangle(program, ratio, x.get(), y.get(), z_now, angle.get(), xsize.get(), ysize.get(), alpha.get(), tex);
+        drawRectangle(shader, ratio, x.get(), y.get(), z_now, angle.get(), xsize.get(), ysize.get(), alpha.get(), tex);
 
         drawBorder(ratio, border_line_width);
     }

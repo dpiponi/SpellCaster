@@ -278,6 +278,48 @@ void Board::launch(int source_card, int target_card, double start_time, double e
     }
 }
 
+void Board::glow(int source_card, int target_card, double start_time, double end_time) {
+    cout << "ACTUAL LAUNCH() = " << source_card << ' ' << target[source_card] << endl;
+
+    Vector2f source(-0.5, 0.0);
+    Vector2f target(0.5, 0.0);
+
+    GLuint tex = create_texture("assets/glow.png");
+
+    int id = 0;
+    double dt = (end_time-start_time)/10;
+    shared_ptr<Rectangle> segment = make_shared<Rectangle>();
+    segment->setShader(&glow_program);
+    for (int t = 0; t < 10; ++t) {
+        double time = start_time+dt*t;
+
+        segment->visible = true;
+        segment->setNoHighlight();
+        segment->setTexture(tex);
+        segment->shadow = false;
+
+        segment->setAngle(time, 0.0);
+        float size = sqrt(triangle(2*(0.1*t)-0.5));
+        segment->setSize(time, 0.25*(0.1+size), 0.25*(0.1+size));
+        segment->setPosition(time, target);
+        segment->setZ(time, 0.8);
+        float alpha = size;
+        segment->setAlpha(time, alpha);
+    }
+
+    {
+        std::lock_guard<std::mutex> guard(board_mutex);
+        id = drawables.addElement(segment);
+    }
+
+    wait_until(end_time);
+
+    {
+        std::lock_guard<std::mutex> guard(board_mutex);
+        drawables.removeElement(id);
+    }
+}
+
 // Lightning
 void Board::launch5(int source_card, int target_card, double start_time, double end_time) {
     cout << "ACTUAL LAUNCH() = " << source_card << ' ' << target[source_card] << endl;
@@ -634,6 +676,7 @@ void Board::initTextures(const vector<const Definition *> &player_deck,
     create_texture("assets/tiles.jpg");
     create_texture("assets/flaming rock.png");
     create_texture("assets/miracle.png");
+    create_texture("assets/glow.png");
 
     cout << "...done" << endl;
 }
