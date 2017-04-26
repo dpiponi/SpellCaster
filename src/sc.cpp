@@ -110,7 +110,7 @@ public:
         //glGenBuffers(1, &line_vertex_buffer);
 
         program = Program(shader);
-        glow_program = Program(glow_shader);
+        glow_program = GlowProgram(glow_shader);
         line_program = LineProgram(line_shader);
         shadow_program = ShadowProgram(shadow_shader);
         text_program = TextProgram(text_shader);

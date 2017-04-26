@@ -5,6 +5,7 @@
 #include <Eigen/Core>
 
 using Eigen::Matrix;
+using Eigen::Vector3f;
 typedef Matrix<float, 4, 4, Eigen::RowMajor> Mat44;
 
 using std::cout;
@@ -67,7 +68,7 @@ class RectangleProgram : public ProgramBase {
 public:
     RectangleProgram() { }
     RectangleProgram(Json shader) : ProgramBase(shader) { }
-    virtual void set(const Mat44 &mvp, float alpha, float z) = 0;
+    virtual void set(const Mat44 &mvp, float alpha, float z, float time) = 0;
 };
 
 class Program : public RectangleProgram {
@@ -87,7 +88,7 @@ public:
 
         unbindVertexArray();
     }
-    void set(const Mat44 &mvp, float alpha, float z) override {
+    void set(const Mat44 &mvp, float alpha, float z, float time) override {
         glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) &mvp);
         glUniform1f(alpha_location, alpha);
         glUniform1f(z_location, z);
@@ -95,13 +96,16 @@ public:
 };
 
 class GlowProgram : public RectangleProgram {
-    GLint mvp_location, alpha_location, vpos_location, uv_location, z_location;
+    GLint mvp_location, alpha_location, vpos_location, uv_location, z_location, time_location, col_location;
+    Vector3f col;
 public:
     GlowProgram() { } // XX Should go eventually
     GlowProgram(Json shader) : RectangleProgram(shader) {
         mvp_location = uniform("MVP");
         alpha_location = uniform("alpha");
         z_location = uniform("z");
+        time_location = uniform("time");
+        col_location = uniform("col");
 
         glGenVertexArrays(1, &vao);
         bindVertexArray();
@@ -111,10 +115,15 @@ public:
 
         unbindVertexArray();
     }
-    void set(const Mat44 &mvp, float alpha, float z) override {
-        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat*) &mvp);
+    void setColor(const Vector3f &colour) {
+        col = colour;
+    }
+    void set(const Mat44 &mvp, float alpha, float z, float time) override {
+        glUniformMatrix4fv(mvp_location, 1, GL_FALSE, (const GLfloat *)&mvp);
         glUniform1f(alpha_location, alpha);
         glUniform1f(z_location, z);
+        glUniform1f(time_location, time);
+        glUniform3f(col_location, col(0), col(1), col(2));
     }
 };
 
@@ -228,7 +237,8 @@ public:
     }
 };
 
-extern Program program, glow_program;
+extern Program program;
+extern GlowProgram glow_program;
 extern ShadowProgram shadow_program;
 extern LineProgram line_program;
 extern TextProgram text_program;

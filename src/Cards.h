@@ -37,43 +37,6 @@ public:
     virtual void executeInstant(SpellCaster *game, int c, bool verbose) const;
 } jestersWish;
 
-const class ManaCard : public SpellDefinition {
-public:
-    ManaCard() : SpellDefinition("Mana", "⚪ ", +1, 0, 0, 0, 0, 0,
-                    CardClass::SPELL,
-                    CardClass::PLAYER,
-                    CardProperty::INSTANT,
-                    CardProperty::NONE,
-                    CardProperty::NONE) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const { };
-    virtual void executeInstant(SpellCaster *game, int c, bool verbose) const;
-    virtual void animate(SpellCaster *game, Board &board, int card, int target, bool verbose) const;
-} manaCard;
-
-const class Henge : public SpellDefinition {
-public:
-    Henge() : SpellDefinition("Henge", "🗿 ", +1, 0, 0, 0, 0, 0,
-                    CardClass::SPELL,
-                    CardClass::PLAYER,
-                    CardProperty::INSTANT,
-                    CardProperty::NONE,
-                    CardProperty::NONE) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const { };
-    virtual void executeInstant(SpellCaster *game, int c, bool verbose) const;
-} henge;
-
-const class Temple : public SpellDefinition {
-public:
-    Temple() : SpellDefinition("Temple", "⛪ ", +1, 0, 0, 0, 0, 0,
-                    CardClass::SPELL,
-                    CardClass::PLAYER,
-                    CardProperty::INSTANT,
-                    CardProperty::NONE,
-                    CardProperty::NONE) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const { };
-    virtual void executeInstant(SpellCaster *game, int c, bool verbose) const;
-} temple;
-
 const class PerpetualMachine : public PerpetualMachineBase {
 public:
     PerpetualMachine() : PerpetualMachineBase("Perpetual Machine", "⚙️ ", +1, 4, 4, 1, 1, 6,

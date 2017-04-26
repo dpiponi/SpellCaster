@@ -35,7 +35,7 @@ protected:
     float g_highlight;
     float b_highlight;
     bool highlight;
-    Program *shader;
+    RectangleProgram *shader;
 public:
     bool shadow;
     bool visible;
@@ -66,7 +66,7 @@ public:
     Rectangle() : highlight(false), visible(false), tex(0), shadow(false) {
         shader = &program;
     }
-    void setShader(Program *s) { shader = s; }
+    void setShader(RectangleProgram *s) { shader = s; }
     void setTexture(GLuint t) { tex = t; }
     void setPosition(double time) {
         x.addEvent(time);

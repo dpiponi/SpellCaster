@@ -278,7 +278,7 @@ void Board::launch(int source_card, int target_card, double start_time, double e
     }
 }
 
-void Board::glow(int source_card, int target_card, double start_time, double end_time) {
+void Board::glow(Vector3f colour, int source_card, int target_card, double start_time, double end_time) {
     cout << "ACTUAL LAUNCH() = " << source_card << ' ' << target[source_card] << endl;
 
     Vector2f source(-0.5, 0.0);
@@ -290,6 +290,8 @@ void Board::glow(int source_card, int target_card, double start_time, double end
     double dt = (end_time-start_time)/10;
     shared_ptr<Rectangle> segment = make_shared<Rectangle>();
     segment->setShader(&glow_program);
+    //glow_program.use();
+    glow_program.setColor(colour);
     for (int t = 0; t < 10; ++t) {
         double time = start_time+dt*t;
 
@@ -299,11 +301,11 @@ void Board::glow(int source_card, int target_card, double start_time, double end
         segment->shadow = false;
 
         segment->setAngle(time, 0.0);
-        float size = sqrt(triangle(2*(0.1*t)-0.5));
+        float size = 0.5+0.5*0.1*t;//sqrt(triangle(2*(0.1*t)-0.5));
         segment->setSize(time, 0.25*(0.1+size), 0.25*(0.1+size));
         segment->setPosition(time, target);
         segment->setZ(time, 0.8);
-        float alpha = size;
+        float alpha = sqrt(triangle(2*(0.1*t)-0.5));
         segment->setAlpha(time, alpha);
     }
 

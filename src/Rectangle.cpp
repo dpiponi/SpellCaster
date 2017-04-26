@@ -10,7 +10,7 @@ void Rectangle::drawShadow(float ratio) {
                  /* alpha= */ 0.35);
 }
 
-inline void drawRectangle(Program *shader, float ratio, float x, float y, float z, float angle, float xsize, float ysize, float alpha, GLuint tex) {
+inline void drawRectangle(RectangleProgram *shader, float ratio, float x, float y, float z, float angle, float xsize, float ysize, float alpha, GLuint tex) {
     Mat44 mvp;
     make_matrix(mvp, ratio, x, y, angle, xsize, ysize);
 
@@ -21,7 +21,7 @@ inline void drawRectangle(Program *shader, float ratio, float x, float y, float 
     }
     shader->use();
     shader->bindVertexArray();
-    shader->set(mvp, alpha, z);
+    shader->set(mvp, alpha, z, now());
     shader->bufferData(sizeof(vertices), (void *)vertices);
     glBindTexture(GL_TEXTURE_2D, tex);
     glDrawArrays(GL_TRIANGLES, 0, 6);

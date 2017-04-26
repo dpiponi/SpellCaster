@@ -206,7 +206,7 @@ public:
     void launch4(int source_card, int target_card, double start_time, double end_time);
     void launch2(int source_card);
     void launch(int source_card, int target_card, double start_time, double end_time);
-    void glow(int source_card, int target_card, double start_time, double end_time);
+    void glow(Vector3f colour, int source_card, int target_card, double start_time, double end_time);
     void launch5(int source_card, int target_card, double start_time, double end_time);
 
     void initBackground();

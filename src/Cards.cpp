@@ -133,43 +133,86 @@ void JestersWish::executeInstant(SpellCaster *game, int c, bool verbose) const {
     }
 };
 
-void ManaCard::executeInstant(SpellCaster *game, int c, bool verbose) const {
-    game->mana[game->target[c]-PLAYER0] += Mana {3, 2}; // XXX Should be target no?
-};
-
-void ManaCard::animate(SpellCaster *game, Board &board, int card, int target, bool verbose) const {
+const class ManaCard : public SpellDefinition {
+public:
+    ManaCard() : SpellDefinition("Mana", "⚪ ", +1, 0, 0, 0, 0, 0,
+                    CardClass::SPELL,
+                    CardClass::PLAYER,
+                    CardProperty::INSTANT,
+                    CardProperty::NONE,
+                    CardProperty::NONE) { }
+    virtual void execute(SpellCaster *game, int c, bool verbose) const { }
+    void executeInstant(SpellCaster *game, int c, bool verbose) const {
+        game->mana[game->target[c]-PLAYER0] += Mana {3, 2}; // XXX Should be target no?
+    }
+    void animate(SpellCaster *game, Board &board, int card, int target, bool verbose) const {
 #ifdef BOARD
-    if (verbose) {
-        board.glow(card, target, now(), now()+2.0);
-    }
+        if (verbose) {
+            board.glow(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+2.0);
+        }
 #endif
-}
+    }
+} manaCard;
 
-void Henge::executeInstant(SpellCaster *game, int c, bool verbose) const {
-    game->mana[game->target[c]-PLAYER0] += Mana {4, 1};
+const class Henge : public SpellDefinition {
+public:
+    Henge() : SpellDefinition("Henge", "🗿 ", +1, 0, 0, 0, 0, 0,
+                    CardClass::SPELL,
+                    CardClass::PLAYER,
+                    CardProperty::INSTANT,
+                    CardProperty::NONE,
+                    CardProperty::NONE) { }
+    virtual void execute(SpellCaster *game, int c, bool verbose) const { };
+    void executeInstant(SpellCaster *game, int c, bool verbose) const {
+        game->mana[game->target[c]-PLAYER0] += Mana {4, 1};
 #ifdef BOARD
-    if (verbose) {
-        board << "Some mana for you";
-        game->end_message();
-    }
+        if (verbose) {
+            board << "Some mana for you";
+            game->end_message();
+        }
 #endif
-};
+    };
+    void animate(SpellCaster *game, Board &board, int card, int target, bool verbose) const {
+#ifdef BOARD
+        if (verbose) {
+            board.glow(Vector3f(0.0, 1.0, 0.0), card, target, now(), now()+2.0);
+        }
+#endif
+    }
+} henge;
 
-void Temple::executeInstant(SpellCaster *game, int c, bool verbose) const {
-    int count = 0;
-    for (auto p = game->in_play.begin(); p != game->in_play.end(); ++p) {
-        count += game->hasProperty(*p, CardProperty::BLESSED);
-    }
-    game->mana[game->target[c]-PLAYER0] += Mana {1, 4+count};
+const class Temple : public SpellDefinition {
+public:
+    Temple() : SpellDefinition("Temple", "⛪ ", +1, 0, 0, 0, 0, 0,
+                    CardClass::SPELL,
+                    CardClass::PLAYER,
+                    CardProperty::INSTANT,
+                    CardProperty::NONE,
+                    CardProperty::NONE) { }
+    virtual void execute(SpellCaster *game, int c, bool verbose) const { }
+    void executeInstant(SpellCaster *game, int c, bool verbose) const {
+        int count = 0;
+        for (auto p = game->in_play.begin(); p != game->in_play.end(); ++p) {
+            count += game->hasProperty(*p, CardProperty::BLESSED);
+        }
+        game->mana[game->target[c]-PLAYER0] += Mana {1, 4+count};
 #ifdef BOARD
-    if (verbose) {
-        board << "Some mana for you";
-        game->end_message();
-        board << "Plus extra " << count << " astral";
-        game->end_message();
-    }
+        if (verbose) {
+            board << "Some mana for you";
+            game->end_message();
+            board << "Plus extra " << count << " astral";
+            game->end_message();
+        }
 #endif
-};
+    }
+    void animate(SpellCaster *game, Board &board, int card, int target, bool verbose) const {
+#ifdef BOARD
+        if (verbose) {
+            board.glow(Vector3f(0.8, 0.75, 0.0), card, target, now(), now()+2.0);
+        }
+#endif
+    }
+} temple;
 
 void DrainPower::execute(SpellCaster *game, int c, bool verbose) const {
     int target_c = game->target[c];

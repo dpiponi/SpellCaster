@@ -1,3 +1,14 @@
+Burn
+Burn
+Burn
+Burn
+Burn
+Burn
+Burn
+Burn
+Burn
+Burn
+Burn
 Shooting Stars
 Ambush
 An Evil Blast
@@ -49,6 +60,8 @@ Goblin
 Golem
 Ground
 Haste
+Henge
+Henge
 Henge
 Henge
 Henge
@@ -164,6 +177,19 @@ Strength
 Sudden Death
 Suspend
 Tempest
+Temple
+Temple
+Temple
+Temple
+Temple
+Temple
+Temple
+Temple
+Temple
+Temple
+Temple
+Temple
+Temple
 Temple
 Tornado
 Troll

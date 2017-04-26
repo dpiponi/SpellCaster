@@ -46,3 +46,19 @@ public:
     }
 } bless;
 
+const class Burn : public BlastBase {
+public:
+    Burn() : BlastBase("Burn", "🔥 ", -1, 4, 0, 0, 0, 3,
+                    CardClass::SPELL,
+                    CardClass::MONSTER,
+                    CardProperty::NONE,
+                    CardProperty::NONE,
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::FIRE_RESISTANT) { }
+    void animate(SpellCaster *game, Board &board, int card, int target, bool verbose) const {
+#ifdef BOARD
+        if (verbose) {
+            board.glow(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+2.0);
+        }
+#endif
+    }
+} fire;
