@@ -278,6 +278,50 @@ void Board::launch(int source_card, int target_card, double start_time, double e
     }
 }
 
+void Board::flame(Vector3f colour, int source_card, int target_card, double start_time, double end_time) {
+    cout << "ACTUAL LAUNCH() = " << source_card << ' ' << target[source_card] << endl;
+
+    Vector2f source(-0.5, 0.0);
+    Vector2f target(0.5, 0.0);
+
+    GLuint tex = create_texture("assets/glow.png");
+
+    int id = 0;
+    double dt = (end_time-start_time)/10;
+    shared_ptr<Rectangle> segment = make_shared<Rectangle>();
+    segment->setShader(&flame_program);
+    //glow_program.use();
+    flame_program.setColor(colour);
+    for (int t = 0; t < 10; ++t) {
+        double time = start_time+dt*t;
+
+        segment->visible = true;
+        segment->setNoHighlight();
+        segment->setTexture(tex);
+        segment->shadow = false;
+
+        segment->setAngle(time, 0.0);
+        float size = 0.5;
+        segment->setSize(time, size, size);
+        segment->setPosition(time, target);
+        segment->setZ(time, 0.99);
+        float alpha = sqrt(triangle(2*(0.1*t)-0.5));
+        segment->setAlpha(time, alpha);
+    }
+
+    {
+        std::lock_guard<std::mutex> guard(board_mutex);
+        id = drawables.addElement(segment);
+    }
+
+    wait_until(end_time);
+
+    {
+        std::lock_guard<std::mutex> guard(board_mutex);
+        drawables.removeElement(id);
+    }
+}
+
 void Board::glow(Vector3f colour, int source_card, int target_card, double start_time, double end_time) {
     cout << "ACTUAL LAUNCH() = " << source_card << ' ' << target[source_card] << endl;
 

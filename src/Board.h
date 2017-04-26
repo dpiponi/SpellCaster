@@ -208,6 +208,7 @@ public:
     void launch(int source_card, int target_card, double start_time, double end_time);
     void glow(Vector3f colour, int source_card, int target_card, double start_time, double end_time);
     void launch5(int source_card, int target_card, double start_time, double end_time);
+    void flame(Vector3f colour, int source_card, int target_card, double start_time, double end_time);
 
     void initBackground();
 

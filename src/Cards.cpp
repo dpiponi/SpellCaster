@@ -148,7 +148,7 @@ public:
     void animate(SpellCaster *game, Board &board, int card, int target, bool verbose) const {
 #ifdef BOARD
         if (verbose) {
-            board.glow(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+2.0);
+            board.flame(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+10.0);
         }
 #endif
     }

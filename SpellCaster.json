@@ -40,6 +40,10 @@
      "glow_shader": {
          "vertex": "shaders/glow_vertex.glsl",
          "fragment": "shaders/glow_fragment.glsl"
+     },
+     "flame_shader": {
+         "vertex": "shaders/flame_vertex.glsl",
+         "fragment": "shaders/flame_fragment.glsl"
      }
 }
 

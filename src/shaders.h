@@ -239,6 +239,7 @@ public:
 
 extern Program program;
 extern GlowProgram glow_program;
+extern GlowProgram flame_program;
 extern ShadowProgram shadow_program;
 extern LineProgram line_program;
 extern TextProgram text_program;

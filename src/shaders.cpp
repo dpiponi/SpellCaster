@@ -25,6 +25,7 @@ GLuint /*vao, line_vao, shadow_vao, */text_vao;
 
 Program program;
 GlowProgram glow_program;
+GlowProgram flame_program;
 ShadowProgram shadow_program;
 LineProgram line_program;
 TextProgram text_program;
