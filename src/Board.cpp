@@ -289,7 +289,7 @@ void Board::flame(Vector3f colour, int source_card, int target_card, double star
     int id = 0;
     double dt = (end_time-start_time)/20;
     shared_ptr<Rectangle> segment = make_shared<Rectangle>();
-    static GlowProgram *flame_program = ProgramRegistry::getProgram<GlowProgram>("glow");
+    static GlowProgram *flame_program = ProgramRegistry::getProgram<GlowProgram>("flame");
     segment->setShader(flame_program);
     //glow_program.use();
     flame_program->setColor(colour);
