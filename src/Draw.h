@@ -27,6 +27,10 @@ struct RGB {
 
 inline void drawLine(float ratio, float line_width, RGB rgb,
                      float x0, float y0, float x1, float y1) {
+
+    static LineProgram *line_program = ProgramRegistry::getProgram<LineProgram>("line");
+    assert(line_program);
+
     const Vertex vertices[2] = {
         { x0, y0, rgb.r, rgb.g, rgb.b, 0.5f, 0.5f },
         { x1, y1, rgb.r, rgb.g, rgb.b, 0.5f, 0.5f }
@@ -37,13 +41,13 @@ inline void drawLine(float ratio, float line_width, RGB rgb,
     mat4x4_identity(m);
     mat4x4_mul(mvp, p, m);
 
-    line_program.bindVertexArray();
-    line_program.use();
-    line_program.set(mvp, 1.0, ratio);
-    line_program.bufferData(sizeof(vertices), (void *)vertices);
+    line_program->bindVertexArray();
+    line_program->use();
+    line_program->set(mvp, 1.0, ratio);
+    line_program->bufferData(sizeof(vertices), (void *)vertices);
     glDrawArrays(GL_LINES, 0, 2);
-    line_program.unuse();
-    line_program.unbindVertexArray();
+    line_program->unuse();
+    line_program->unbindVertexArray();
 }
 
 //Eigen::Mat44 zz;
@@ -68,14 +72,17 @@ inline void drawFire(float ratio, float x, float y, float z, float angle, float 
     Mat44 mvp;
     make_matrix(mvp, ratio, x, y, angle, xsize, ysize);
 
-    fire_program.use();
-    fire_program.bindVertexArray();
-    fire_program.set(mvp, now(), z);
-    fire_program.bufferData(sizeof(vertices), (void *)vertices);
+    static FireProgram *fire_program = ProgramRegistry::getProgram<FireProgram>("fire");
+    assert(fire_program);
+
+    fire_program->use();
+    fire_program->bindVertexArray();
+    fire_program->set(mvp, now(), z);
+    fire_program->bufferData(sizeof(vertices), (void *)vertices);
     glBindTexture(GL_TEXTURE_2D, tex);
     glDrawArrays(GL_TRIANGLES, 0, 6);
-    fire_program.unbindVertexArray();
-    fire_program.unuse();
+    fire_program->unbindVertexArray();
+    fire_program->unuse();
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 #endif
@@ -85,27 +92,33 @@ inline void drawShadow(float ratio, float x, float y, float z,
     Mat44 mvp;
     make_matrix(mvp, ratio, x, y, angle, xsize, ysize);
 
-    shadow_program.use();
-    shadow_program.bindVertexArray();
-    shadow_program.set(mvp, alpha, z);
-    shadow_program.bufferData(sizeof(vertices), (void *)vertices);
-    shadow_program.draw();
-    shadow_program.unbindVertexArray();
-    program.unuse();
+    static ShadowProgram *shadow_program = ProgramRegistry::getProgram<ShadowProgram>("shadow");
+    assert(shadow_program);
+
+    shadow_program->use();
+    shadow_program->bindVertexArray();
+    shadow_program->set(mvp, alpha, z);
+    shadow_program->bufferData(sizeof(vertices), (void *)vertices);
+    shadow_program->draw();
+    shadow_program->unbindVertexArray();
+    shadow_program->unuse();
 }
 
 inline void drawTextRectangle(float ratio, float x, float y, float angle, float xsize, float ysize, float brightness, GLuint tex) {
     Mat44 mvp;
     make_matrix(mvp, ratio, x, y, angle, xsize, ysize);
 
-    text_program.use();
-    text_program.bindVertexArray();
-    text_program.set(mvp, brightness, RGB {1.0, 1.0, 0.5});
-    text_program.bufferData(sizeof(vertices), (void *)vertices);
+    static TextProgram *text_program = ProgramRegistry::getProgram<TextProgram>("text");
+    assert(text_program);
+
+    text_program->use();
+    text_program->bindVertexArray();
+    text_program->set(mvp, brightness, RGB {1.0, 1.0, 0.5});
+    text_program->bufferData(sizeof(vertices), (void *)vertices);
     glBindTexture(GL_TEXTURE_2D, tex);
-    text_program.draw();
-    text_program.unbindVertexArray();
-    text_program.unuse();
+    text_program->draw();
+    text_program->unbindVertexArray();
+    text_program->unuse();
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 

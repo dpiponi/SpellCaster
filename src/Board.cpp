@@ -287,12 +287,13 @@ void Board::flame(Vector3f colour, int source_card, int target_card, double star
     GLuint tex = create_texture("assets/glow.png");
 
     int id = 0;
-    double dt = (end_time-start_time)/10;
+    double dt = (end_time-start_time)/20;
     shared_ptr<Rectangle> segment = make_shared<Rectangle>();
-    segment->setShader(&flame_program);
+    static GlowProgram *flame_program = ProgramRegistry::getProgram<GlowProgram>("glow");
+    segment->setShader(flame_program);
     //glow_program.use();
-    flame_program.setColor(colour);
-    for (int t = 0; t < 10; ++t) {
+    flame_program->setColor(colour);
+    for (int t = 0; t < 20; ++t) {
         double time = start_time+dt*t;
 
         segment->visible = true;
@@ -305,7 +306,8 @@ void Board::flame(Vector3f colour, int source_card, int target_card, double star
         segment->setSize(time, size, size);
         segment->setPosition(time, target);
         segment->setZ(time, 0.99);
-        float alpha = sqrt(triangle(2*(0.1*t)-0.5));
+        float s = (t-start_time)/(end_time-start_time);
+        float alpha = 2*linstep(0.0, 0.05, s)*linstep(1.0, 0.25, s);
         segment->setAlpha(time, alpha);
     }
 
@@ -333,9 +335,10 @@ void Board::glow(Vector3f colour, int source_card, int target_card, double start
     int id = 0;
     double dt = (end_time-start_time)/10;
     shared_ptr<Rectangle> segment = make_shared<Rectangle>();
-    segment->setShader(&glow_program);
+    static GlowProgram *glow_program = ProgramRegistry::getProgram<GlowProgram>("glow");
+    segment->setShader(glow_program);
     //glow_program.use();
-    glow_program.setColor(colour);
+    glow_program->setColor(colour);
     for (int t = 0; t < 10; ++t) {
         double time = start_time+dt*t;
 
@@ -345,10 +348,10 @@ void Board::glow(Vector3f colour, int source_card, int target_card, double start
         segment->shadow = false;
 
         segment->setAngle(time, 0.0);
-        float size = 0.5+0.5*0.1*t;//sqrt(triangle(2*(0.1*t)-0.5));
-        segment->setSize(time, 0.25*(0.1+size), 0.25*(0.1+size));
+        float size = 0.5*(1.0*0.1*t);//sqrt(triangle(2*(0.1*t)-0.5));
+        segment->setSize(time, size, size);
         segment->setPosition(time, target);
-        segment->setZ(time, 0.8);
+        segment->setZ(time, 0.99);
         float alpha = sqrt(triangle(2*(0.1*t)-0.5));
         segment->setAlpha(time, alpha);
     }
@@ -587,7 +590,7 @@ int Board::arena(int card1, int card2, double start_time, double end_time) {
 
         player.setPosition(end_time, 0.5, 0);
         player.setZ(end_time, 0.95);
-        player.setSize(end_time, size, size);
+        player.setSize(end_time, size, 2*size);
         player.setAlpha(0.0, 1.0);
         player.visible = true;
         player.shadow = true;
@@ -597,7 +600,7 @@ int Board::arena(int card1, int card2, double start_time, double end_time) {
 
         computer.setPosition(end_time, 0.5, 0);
         computer.setZ(end_time, 0.95);
-        computer.setSize(end_time, size, size);
+        computer.setSize(end_time, size, 2*size);
         computer.setAlpha(0.0, 1.0);
         computer.visible = true;
         computer.shadow = true;
@@ -795,7 +798,7 @@ void Board::drawConnection(float ratio, RGB rgb, int i, int j, int k) {
 void Board::setPlayerPosition(double time, double z) {
     player.setPosition(time, 0.95, -0.8);
     player.setZ(time, z);
-    player.setSize(time, 0.1, 0.1);
+    player.setSize(time, 0.125, 0.25);
     player.setAlpha(time, 1.0);
     player.visible = true;
     player.shadow = true;
@@ -873,7 +876,7 @@ void Board::initPlayers() {
     computer.setTexture(create_texture(config.computer_icon.c_str()));
     computer.setPosition(0.0, 0.95, 0.8);
     computer.setZ(0.0, 0.0);
-    computer.setSize(0.0, 0.1, 0.1);
+    computer.setSize(0.0, 0.125, 0.25);
     computer.setAlpha(0.0, 1.0);
     computer.visible = true;
     computer.shadow = true;

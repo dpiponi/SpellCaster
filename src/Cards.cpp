@@ -3,10 +3,10 @@
 #include "Cards.h"
 #include "SpellCaster.h"
 
-void Definition::animate(SpellCaster *game, Board &board, int card, int target, bool verbose) const {
+void Definition::animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
-        board.launch(card, target, now(), now()+2.0);
+        board->launch(card, target, now(), now()+2.0);
     }
 #endif
 };
@@ -55,7 +55,7 @@ void MagicWeapon::execute(SpellCaster *game, int card, bool verbose) const {
     int target = game->target[card];
 #ifdef BOARD
     if (verbose) {
-        board << game->description(card, false) << " ATTACKS "
+        *board << game->description(card, false) << " ATTACKS "
              << game->description(game->target[card], false);
         game->end_message();
     }
@@ -74,8 +74,8 @@ void Pop::execute(SpellCaster *game, int c, bool verbose) const {
     game->in_play.push_back(game->target[c]);
 #ifdef BOARD
     if (verbose) {
-        board << game->description(game->target[c], false);
-        board << " POPPED to top of stack";
+        *board << game->description(game->target[c], false);
+        *board << " POPPED to top of stack";
         game->end_message();
     }
 #endif
@@ -91,8 +91,8 @@ void Push::execute(SpellCaster *game, int c, bool verbose) const {
     game->in_play.insert(game->in_play.begin(), game->target[c]);
 #ifdef BOARD
     if (verbose) {
-        board << game->description(game->target[c], false);
-        board << " PUSHED to bottom of stack";
+        *board << game->description(game->target[c], false);
+        *board << " PUSHED to bottom of stack";
         game->end_message();
     }
 #endif
@@ -104,21 +104,21 @@ void JestersWish::executeInstant(SpellCaster *game, int c, bool verbose) const {
     if (game->target[c] != PLAYER0+player) {
 #ifdef BOARD
         if (verbose) {
-            board << "Can't discard opponent's cards";
+            *board << "Can't discard opponent's cards";
             game->end_message();
         }
 #endif
     } else if (game->hand[player].size() == 0) {
 #ifdef BOARD
         if (verbose) {
-            board << "No cards to discard";
+            *board << "No cards to discard";
             game->end_message();
         }
 #endif
     } else {
 #ifdef BOARD
         if (verbose) {
-            board << "Discarding all cards in hand";
+            *board << "Discarding all cards in hand";
             game->end_message();
         }
 #endif
@@ -145,10 +145,11 @@ public:
     void executeInstant(SpellCaster *game, int c, bool verbose) const {
         game->mana[game->target[c]-PLAYER0] += Mana {3, 2}; // XXX Should be target no?
     }
-    void animate(SpellCaster *game, Board &board, int card, int target, bool verbose) const {
+    void animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const {
 #ifdef BOARD
         if (verbose) {
-            board.flame(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+10.0);
+            board->glow(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+3.0);
+            //board->flame(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+5.0);
         }
 #endif
     }
@@ -167,15 +168,15 @@ public:
         game->mana[game->target[c]-PLAYER0] += Mana {4, 1};
 #ifdef BOARD
         if (verbose) {
-            board << "Some mana for you";
+            *board << "Some mana for you";
             game->end_message();
         }
 #endif
     };
-    void animate(SpellCaster *game, Board &board, int card, int target, bool verbose) const {
+    void animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const {
 #ifdef BOARD
         if (verbose) {
-            board.glow(Vector3f(0.0, 1.0, 0.0), card, target, now(), now()+2.0);
+            board->glow(Vector3f(0.0, 1.0, 0.0), card, target, now(), now()+2.0);
         }
 #endif
     }
@@ -198,17 +199,17 @@ public:
         game->mana[game->target[c]-PLAYER0] += Mana {1, 4+count};
 #ifdef BOARD
         if (verbose) {
-            board << "Some mana for you";
+            *board << "Some mana for you";
             game->end_message();
-            board << "Plus extra " << count << " astral";
+            *board << "Plus extra " << count << " astral";
             game->end_message();
         }
 #endif
     }
-    void animate(SpellCaster *game, Board &board, int card, int target, bool verbose) const {
+    void animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const {
 #ifdef BOARD
         if (verbose) {
-            board.glow(Vector3f(0.8, 0.75, 0.0), card, target, now(), now()+2.0);
+            board->glow(Vector3f(0.8, 0.75, 0.0), card, target, now(), now()+2.0);
         }
 #endif
     }
@@ -220,7 +221,7 @@ void DrainPower::execute(SpellCaster *game, int c, bool verbose) const {
     game->mana[game->owner[c]].world += damage;
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " drains "
+        *board << game->description(c, false) << " drains "
              << damage << " power from "
              << game->description(game->target[c], false)
              << " into world mana";
@@ -237,7 +238,7 @@ void Sacrifice::execute(SpellCaster *game, int c, bool verbose) const {
         game->mana[game->owner[c]] += Mana{damage, damage};
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " gains " << damage << " power from sacrificing " << game->description(game->target[c], false);
+            *board << game->description(c, false) << " gains " << damage << " power from sacrificing " << game->description(game->target[c], false);
             game->end_message();
         }
 #endif
@@ -246,7 +247,7 @@ void Sacrifice::execute(SpellCaster *game, int c, bool verbose) const {
     } else {
 #ifdef BOARD
         if (verbose) {
-            board << "Can only sacrifice own card";
+            *board << "Can only sacrifice own card";
             game->end_message();
         }
 #endif
@@ -268,7 +269,7 @@ void MonsterDefinition::execute(SpellCaster *game, int card, bool verbose) const
     if (target == PLAYER0) {
 #ifdef BOARD
         if (verbose) {
-            board << game->description(card, false) << " ATTACKS PLAYER 0";
+            *board << game->description(card, false) << " ATTACKS PLAYER 0";
             game->end_message();
         }
 #endif
@@ -276,14 +277,14 @@ void MonsterDefinition::execute(SpellCaster *game, int card, bool verbose) const
         game->card_end_from(Location::EXECUTING, card, verbose);
 #ifdef BOARD
         if (verbose) {
-            board.publicSetPlayerPosition(now()+0.5, 0.95);
+            board->publicSetPlayerPosition(now()+0.5, 0.95);
         }
 #endif
         return;
     } else if (target == PLAYER1) {
 #ifdef BOARD
         if (verbose) {
-            board << game->description(card, false) << " ATTACKS PLAYER 1";
+            *board << game->description(card, false) << " ATTACKS PLAYER 1";
             game->end_message();
         }
 #endif
@@ -293,7 +294,7 @@ void MonsterDefinition::execute(SpellCaster *game, int card, bool verbose) const
     }
 #ifdef BOARD
     if (verbose) {
-        board << game->description(card, false) << " ATTACKS " << game->description(game->target[card], false);
+        *board << game->description(card, false) << " ATTACKS " << game->description(game->target[card], false);
         game->end_message();
     }
 #endif
@@ -306,7 +307,7 @@ void GhoulBase::execute(SpellCaster *game, int c, bool verbose) const {
         game->hp[0] -= game->attack[c];
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " ATTACKS PLAYER 0 doing damage " << game->attack[c];
+            *board << game->description(c, false) << " ATTACKS PLAYER 0 doing damage " << game->attack[c];
             game->end_message();
         }
 #endif
@@ -316,7 +317,7 @@ void GhoulBase::execute(SpellCaster *game, int c, bool verbose) const {
         game->hp[1] -= game->attack[c];
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " ATTACKS PLAYER 1 doing damage " << game->attack[c];
+            *board << game->description(c, false) << " ATTACKS PLAYER 1 doing damage " << game->attack[c];
             game->end_message();
         }
 #endif
@@ -325,7 +326,7 @@ void GhoulBase::execute(SpellCaster *game, int c, bool verbose) const {
     }
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " ATTACKS " << game->description(game->target[c], false);
+        *board << game->description(c, false) << " ATTACKS " << game->description(game->target[c], false);
         game->end_message();
     }
 #endif
@@ -335,7 +336,7 @@ void GhoulBase::execute(SpellCaster *game, int c, bool verbose) const {
         game->kill_card(game->target[c]);
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " KILLS " << game->description(game->target[c], false) << " and gains 1 HP";
+            *board << game->description(c, false) << " KILLS " << game->description(game->target[c], false) << " and gains 1 HP";
             game->end_message();
         }
 #endif
@@ -350,7 +351,7 @@ void SpellEater::execute(SpellCaster *game, int c, bool verbose) const {
         game->hp[0] -= game->attack[c];
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " ATTACKS PLAYER 0 doing damage " << game->attack[c];
+            *board << game->description(c, false) << " ATTACKS PLAYER 0 doing damage " << game->attack[c];
             game->end_message();
         }
 #endif
@@ -360,7 +361,7 @@ void SpellEater::execute(SpellCaster *game, int c, bool verbose) const {
         game->hp[1] -= game->attack[c];
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " ATTACKS PLAYER 1 doing damage " << game->attack[c];
+            *board << game->description(c, false) << " ATTACKS PLAYER 1 doing damage " << game->attack[c];
             game->end_message();
         }
 #endif
@@ -369,7 +370,7 @@ void SpellEater::execute(SpellCaster *game, int c, bool verbose) const {
     }
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " ATTACKS " << game->description(game->target[c], false);
+        *board << game->description(c, false) << " ATTACKS " << game->description(game->target[c], false);
         game->end_message();
     }
 #endif
@@ -380,7 +381,7 @@ void SpellEater::execute(SpellCaster *game, int c, bool verbose) const {
         // Spell
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " destroyed " << game->description(target, false);
+            *board << game->description(c, false) << " destroyed " << game->description(target, false);
             game->end_message();
         }
 #endif
@@ -406,7 +407,7 @@ void SummonMonster::execute(SpellCaster *game, int c, bool verbose) const {
     if (game->card_class[c] == CardClass::SPELL || game->card_class[c] == CardClass::ARTIFACT) {
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " summonned";
+            *board << game->description(c, false) << " summonned";
         }
 #endif
         game->card_class[c] = CardClass::MONSTER;
@@ -415,7 +416,7 @@ void SummonMonster::execute(SpellCaster *game, int c, bool verbose) const {
         game->hp[0] -= game->attack[c];
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " ATTACKS PLAYER 0 doing damage " << game->attack[c];
+            *board << game->description(c, false) << " ATTACKS PLAYER 0 doing damage " << game->attack[c];
             game->end_message();
         }
 #endif
@@ -425,7 +426,7 @@ void SummonMonster::execute(SpellCaster *game, int c, bool verbose) const {
         game->hp[1] -= game->attack[c];
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " ATTACKS PLAYER 1 doing damage " << game->attack[c];
+            *board << game->description(c, false) << " ATTACKS PLAYER 1 doing damage " << game->attack[c];
             game->end_message();
         }
 #endif
@@ -434,7 +435,7 @@ void SummonMonster::execute(SpellCaster *game, int c, bool verbose) const {
     }
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " ATTACKS " << game->description(game->target[c], false);
+        *board << game->description(c, false) << " ATTACKS " << game->description(game->target[c], false);
         game->end_message();
     }
 #endif
@@ -446,8 +447,8 @@ void HolySymbol::execute(SpellCaster *game, int c, bool verbose) const {
     if (game->card_class[game->target[c]] == CardClass::MONSTER && toBool(game->properties[game->target[c]] & CardProperty::UNDEAD)) {
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c) << " RESISTS ";
-            board << game->description(game->target[c], false);
+            *board << game->description(c) << " RESISTS ";
+            *board << game->description(game->target[c], false);
             game->end_message();
         }
 #endif
@@ -455,7 +456,7 @@ void HolySymbol::execute(SpellCaster *game, int c, bool verbose) const {
     } else {
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c) << " TARGETS non-suitable CARD";
+            *board << game->description(c) << " TARGETS non-suitable CARD";
             game->end_message();
         }
 #endif
@@ -468,7 +469,7 @@ void Vampire::execute(SpellCaster *game, int c, bool verbose) const {
         game->hp[0] -= game->attack[c];
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " ATTACKS PLAYER 0 doing damage " << game->attack[c];
+            *board << game->description(c, false) << " ATTACKS PLAYER 0 doing damage " << game->attack[c];
             game->end_message();
         }
 #endif
@@ -478,7 +479,7 @@ void Vampire::execute(SpellCaster *game, int c, bool verbose) const {
         game->hp[1] -= game->attack[c];
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " ATTACKS PLAYER 1 doing damage " << game->attack[c];
+            *board << game->description(c, false) << " ATTACKS PLAYER 1 doing damage " << game->attack[c];
             game->end_message();
         }
 #endif
@@ -487,15 +488,15 @@ void Vampire::execute(SpellCaster *game, int c, bool verbose) const {
     }
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " ATTACKS and sucks life from ";
-        board << game->description(game->target[c], false);
+        *board << game->description(c, false) << " ATTACKS and sucks life from ";
+        *board << game->description(game->target[c], false);
         game->end_message();
     }
 #endif
     int availableHp = game->damage_card(game->target[c], game->attack[c]);
 #ifdef BOARD
     if (verbose) {
-        board << "PLAYER " << game->owner[c] << " receives " << availableHp
+        *board << "PLAYER " << game->owner[c] << " receives " << availableHp
              << " mana.";
     }
 #endif
@@ -508,7 +509,7 @@ void Mimic::execute(SpellCaster *game, int c, bool verbose) const {
         game->hp[0] -= game->attack[c];
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " ATTACKS PLAYER 0 doing damage " << game->attack[c];
+            *board << game->description(c, false) << " ATTACKS PLAYER 0 doing damage " << game->attack[c];
             game->end_message();
         }
 #endif
@@ -518,7 +519,7 @@ void Mimic::execute(SpellCaster *game, int c, bool verbose) const {
         game->hp[1] -= game->attack[c];
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " ATTACKS PLAYER 1 doing damage " << game->attack[c];
+            *board << game->description(c, false) << " ATTACKS PLAYER 1 doing damage " << game->attack[c];
             game->end_message();
         }
 #endif
@@ -527,8 +528,8 @@ void Mimic::execute(SpellCaster *game, int c, bool verbose) const {
     }
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " ATTACKS ";
-        board << game->description(game->target[c], false);
+        *board << game->description(c, false) << " ATTACKS ";
+        *board << game->description(game->target[c], false);
         game->end_message();
     }
 #endif
@@ -538,7 +539,7 @@ void Mimic::execute(SpellCaster *game, int c, bool verbose) const {
     if (game->cardhp[game->target[c]] <= 0) {
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " KILLS and takes on characteristics of " << game->description(game->target[c], false);
+            *board << game->description(c, false) << " KILLS and takes on characteristics of " << game->description(game->target[c], false);
             game->basehp[c] = game->basehp[game->target[c]];
             game->attack[c] = game->attack[game->target[c]];
             game->end_message();
@@ -553,7 +554,7 @@ void MagicSpear::execute(SpellCaster *game, int c, bool verbose) const {
     if (game->card_class[game->target[c]] == CardClass::SPELL) {
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " destroys " << game->description(game->target[c], false);
+            *board << game->description(c, false) << " destroys " << game->description(game->target[c], false);
             game->end_message();
         }
 #endif
@@ -562,7 +563,7 @@ void MagicSpear::execute(SpellCaster *game, int c, bool verbose) const {
     } else {
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " ATTACKS " << game->description(game->target[c], false);
+            *board << game->description(c, false) << " ATTACKS " << game->description(game->target[c], false);
             game->end_message();
         }
 #endif
@@ -576,7 +577,7 @@ void PoisonMonster::execute(SpellCaster *game, int c, bool verbose) const {
         game->hp[0] -= game->attack[c];
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " ATTACKS PLAYER 0 doing damage " << game->attack[c];
+            *board << game->description(c, false) << " ATTACKS PLAYER 0 doing damage " << game->attack[c];
             game->end_message();
         }
 #endif
@@ -586,7 +587,7 @@ void PoisonMonster::execute(SpellCaster *game, int c, bool verbose) const {
         game->hp[1] -= game->attack[c];
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " ATTACKS PLAYER 1 doing damage " << game->attack[c];
+            *board << game->description(c, false) << " ATTACKS PLAYER 1 doing damage " << game->attack[c];
             game->end_message();
         }
 #endif
@@ -595,8 +596,8 @@ void PoisonMonster::execute(SpellCaster *game, int c, bool verbose) const {
     } 
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " ATTACKS " << game->description(game->target[c], false);
-        board << " with POISON";
+        *board << game->description(c, false) << " ATTACKS " << game->description(game->target[c], false);
+        *board << " with POISON";
         game->end_message();
     }
 #endif
@@ -607,9 +608,9 @@ void PoisonMonster::execute(SpellCaster *game, int c, bool verbose) const {
         game->kill_card(game->target[c]);
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false);
-            board << " KILLS ";
-            board << game->description(game->target[c], false);
+            *board << game->description(c, false);
+            *board << " KILLS ";
+            *board << game->description(game->target[c], false);
             game->end_message();
         }
 #endif
@@ -620,9 +621,9 @@ void PoisonMonster::execute(SpellCaster *game, int c, bool verbose) const {
 void StrengthBase::execute(SpellCaster *game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false);
-        board << " INCREASES attack OF ";
-        board << game->description(game->target[c], false);
+        *board << game->description(c, false);
+        *board << " INCREASES attack OF ";
+        *board << game->description(game->target[c], false);
         game->end_message();
     }
 #endif
@@ -634,8 +635,8 @@ void StrengthBase::execute(SpellCaster *game, int c, bool verbose) const {
 void Weakling::execute(SpellCaster *game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c) << " LOWERS STRENGTH OF ";
-        board << game->description(game->target[c]) << " to 1";
+        *board << game->description(c) << " LOWERS STRENGTH OF ";
+        *board << game->description(game->target[c]) << " to 1";
         game->end_message();
     }
 #endif
@@ -646,9 +647,9 @@ void Weakling::execute(SpellCaster *game, int c, bool verbose) const {
 void TakeBase::execute(SpellCaster *game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false);
-        board << " TAKES ";
-        board << game->description(game->target[c], false);
+        *board << game->description(c, false);
+        *board << " TAKES ";
+        *board << game->description(game->target[c], false);
         game->end_message();
     }
 #endif
@@ -660,7 +661,7 @@ void TakeBase::execute(SpellCaster *game, int c, bool verbose) const {
 void ShieldBase::execute(SpellCaster *game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " INCREASES HP OF "
+        *board << game->description(c, false) << " INCREASES HP OF "
              << game->description(game->target[c], false);
         game->end_message();
     }
@@ -674,7 +675,7 @@ void ShieldBase::execute(SpellCaster *game, int c, bool verbose) const {
 void DestroyBase::execute(SpellCaster *game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " destroyed " << game->description(game->target[c], false);
+        *board << game->description(c, false) << " destroyed " << game->description(game->target[c], false);
         game->end_message();
     }
 #endif
@@ -685,7 +686,7 @@ void DestroyBase::execute(SpellCaster *game, int c, bool verbose) const {
 void DoubleBase::execute(SpellCaster *game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " doubled in power " << game->description(game->target[c], false);
+        *board << game->description(c, false) << " doubled in power " << game->description(game->target[c], false);
         game->end_message();
     }
 #endif
@@ -696,7 +697,7 @@ void DoubleBase::execute(SpellCaster *game, int c, bool verbose) const {
 void ReturnBase::execute(SpellCaster *game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c) << " RETURNS "
+        *board << game->description(c) << " RETURNS "
              << game->description(game->target[c], false);
         game->end_message();
     }
@@ -708,7 +709,7 @@ void ReturnBase::execute(SpellCaster *game, int c, bool verbose) const {
 void Sickness::execute(SpellCaster *game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " DECREASES HEALTH OF "
+        *board << game->description(c, false) << " DECREASES HEALTH OF "
              << game->description(game->target[c], false);
         game->end_message();
     }
@@ -722,7 +723,7 @@ void Sickness::execute(SpellCaster *game, int c, bool verbose) const {
         game->kill_card(game->target[c]);
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " KILLS "
+            *board << game->description(c, false) << " KILLS "
                  << game->description(game->target[c], false);
             game->end_message();
         }
@@ -734,8 +735,8 @@ void Sickness::execute(SpellCaster *game, int c, bool verbose) const {
 void MakeArtifact::execute(SpellCaster *game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " out of ";
-        board << game->description(game->target[c], false);
+        *board << game->description(c, false) << " out of ";
+        *board << game->description(game->target[c], false);
         game->end_message();
     }
 #endif
@@ -750,8 +751,8 @@ void Recall::executeInstant(SpellCaster *game, int c, bool verbose) const {
     if (game->owner[c] == game->owner[target]) {
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c) << " recalls ";
-            board << game->description(game->target[c], false);
+            *board << game->description(c) << " recalls ";
+            *board << game->description(game->target[c], false);
             game->end_message();
         }
 #endif
@@ -765,7 +766,7 @@ void Recall::executeInstant(SpellCaster *game, int c, bool verbose) const {
     } else {
 #ifdef BOARD
         if (verbose) {
-            board << "Can only recall own card";
+            *board << "Can only recall own card";
             game->end_message();
         }
 #endif
@@ -778,7 +779,7 @@ void Mephistopheles::execute(SpellCaster *game, int c, bool verbose) const {
         game->hp[0] -= game->attack[c];
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " ATTACKS PLAYER 0 doing damage " << game->attack[c];
+            *board << game->description(c, false) << " ATTACKS PLAYER 0 doing damage " << game->attack[c];
             game->end_message();
         }
 #endif
@@ -788,7 +789,7 @@ void Mephistopheles::execute(SpellCaster *game, int c, bool verbose) const {
         game->hp[1] -= game->attack[c];
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " ATTACKS PLAYER 1 doing damage " << game->attack[c];
+            *board << game->description(c, false) << " ATTACKS PLAYER 1 doing damage " << game->attack[c];
             game->end_message();
         }
 #endif
@@ -797,7 +798,7 @@ void Mephistopheles::execute(SpellCaster *game, int c, bool verbose) const {
     }
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " ATTACKS " << game->description(game->target[c], false);
+        *board << game->description(c, false) << " ATTACKS " << game->description(game->target[c], false);
         game->end_message();
     }
 #endif
@@ -808,12 +809,12 @@ void Mephistopheles::execute(SpellCaster *game, int c, bool verbose) const {
         --game->hp[game->owner[c]];
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " KILLS "
+            *board << game->description(c, false) << " KILLS "
                  << game->description(game->target[c], false);
             if (game->hp[game->owner[c]] <= 0) {
-                 board << " and KILLS PLAYER" << game->owner[c];
+                 *board << " and KILLS PLAYER" << game->owner[c];
             } else {
-                 board << " and DAMAGES PLAYER" << game->owner[c];
+                 *board << " and DAMAGES PLAYER" << game->owner[c];
             }
             game->end_message();
         }
@@ -827,7 +828,7 @@ void VorpalBunny::execute(SpellCaster *game, int c, bool verbose) const {
         game->hp[0] -= game->attack[c];
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " ATTACKS PLAYER 0 doing damage " << game->attack[c];
+            *board << game->description(c, false) << " ATTACKS PLAYER 0 doing damage " << game->attack[c];
             game->end_message();
         }
 #endif
@@ -837,7 +838,7 @@ void VorpalBunny::execute(SpellCaster *game, int c, bool verbose) const {
         game->hp[1] -= game->attack[c];
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " ATTACKS PLAYER 1 doing damage " << game->attack[c];
+            *board << game->description(c, false) << " ATTACKS PLAYER 1 doing damage " << game->attack[c];
             game->end_message();
         }
 #endif
@@ -846,7 +847,7 @@ void VorpalBunny::execute(SpellCaster *game, int c, bool verbose) const {
     }
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " ATTACKS " << game->description(game->target[c], false);
+        *board << game->description(c, false) << " ATTACKS " << game->description(game->target[c], false);
         game->end_message();
     }
 #endif
@@ -856,7 +857,7 @@ void VorpalBunny::execute(SpellCaster *game, int c, bool verbose) const {
         game->kill_card(game->target[c]);
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " KILLS "
+            *board << game->description(c, false) << " KILLS "
                  << game->description(game->target[c], false);
             game->end_message();
         }
@@ -865,14 +866,14 @@ void VorpalBunny::execute(SpellCaster *game, int c, bool verbose) const {
         --game->hp[game->owner[c]];
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " FAILS To KILL "
+            *board << game->description(c, false) << " FAILS To KILL "
                  << game->description(game->target[c], false);
-            board << " and player loses life";
+            *board << " and player loses life";
             game->end_message();
             if (game->hp[game->owner[c]] <= 0) {
-                 board << " and KILLS PLAYER" << game->owner[c];
+                 *board << " and KILLS PLAYER" << game->owner[c];
             } else {
-                 board << " and DAMAGES PLAYER" << game->owner[c];
+                 *board << " and DAMAGES PLAYER" << game->owner[c];
             }
             game->end_message();
         }
@@ -884,7 +885,7 @@ void VorpalBunny::execute(SpellCaster *game, int c, bool verbose) const {
 void AntiAstralBase::execute(SpellCaster *game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " giving astral magic-resistance to "
+        *board << game->description(c, false) << " giving astral magic-resistance to "
              << game->description(game->target[c], false);
         game->end_message();
     }
@@ -896,7 +897,7 @@ void AntiAstralBase::execute(SpellCaster *game, int c, bool verbose) const {
 void AntiWorldlyBase::execute(SpellCaster *game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " giving worldly magic-resistance to "
+        *board << game->description(c, false) << " giving worldly magic-resistance to "
              << game->description(game->target[c], false);
         game->end_message();
     }
@@ -908,7 +909,7 @@ void AntiWorldlyBase::execute(SpellCaster *game, int c, bool verbose) const {
 void Curse::execute(SpellCaster *game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " cursing "
+        *board << game->description(c, false) << " cursing "
              << game->description(game->target[c], false);
         game->end_message();
     }
@@ -920,7 +921,7 @@ void Curse::execute(SpellCaster *game, int c, bool verbose) const {
 void ImminentDeathBase::execute(SpellCaster *game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " causing imminent death for "
+        *board << game->description(c, false) << " causing imminent death for "
              << game->description(game->target[c], false);
         game->end_message();
     }
@@ -933,7 +934,7 @@ void SleepBase::execute(SpellCaster *game, int c, bool verbose) const {
     if (game->cardhp[game->target[c]] > game->attack[c]) {
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " not powerful enough to affect "
+            *board << game->description(c, false) << " not powerful enough to affect "
                  << game->description(game->target[c], false);
             game->end_message();
         }
@@ -943,7 +944,7 @@ void SleepBase::execute(SpellCaster *game, int c, bool verbose) const {
     }
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " immobilises "
+        *board << game->description(c, false) << " immobilises "
              << game->description(game->target[c], false);
         game->end_message();
     }
@@ -958,7 +959,7 @@ void Loyalty::execute(SpellCaster *game, int c, bool verbose) const {
     game->cost[game->target[c]] = new_cost;
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " reduces world cost of "
+        *board << game->description(c, false) << " reduces world cost of "
              << game->description(game->target[c], false) << " to " << new_cost.world
              << " and astral cost to " << new_cost.astral;
         game->end_message();
@@ -974,7 +975,7 @@ void OffByOne::execute(SpellCaster *game, int c, bool verbose) const {
     int targets_target = game->target[target_card];
     if (targets_target == PLAYER0 || targets_target == PLAYER1) {
         if (verbose) {
-            board << game->description(c, false) << " has no effect on "
+            *board << game->description(c, false) << " has no effect on "
                  << game->description(target_card, false)
                  << " as it targets a player";
 
@@ -985,7 +986,7 @@ void OffByOne::execute(SpellCaster *game, int c, bool verbose) const {
     auto target_location = find(game->in_play.begin(), game->in_play.end(), targets_target);
     if (target_location == game->in_play.end()) {
         if (verbose) {
-            board << game->description(c, false) << " has no effect on "
+            *board << game->description(c, false) << " has no effect on "
                  << game->description(target_card, false)
                  << " as its target is no longer in play";
         }
@@ -994,10 +995,10 @@ void OffByOne::execute(SpellCaster *game, int c, bool verbose) const {
     }
     assert(*target_location == targets_target);
     if (verbose)
-        board << target_location-game->in_play.begin();
+        *board << target_location-game->in_play.begin();
     if (target_location == game->in_play.begin()) {
         if (verbose) {
-            board << game->description(c, false) << " has no effect on "
+            *board << game->description(c, false) << " has no effect on "
                  << game->description(game->target[c], false)
                  << " as it is already targetting last card";
             game->end_message();
@@ -1010,7 +1011,7 @@ void OffByOne::execute(SpellCaster *game, int c, bool verbose) const {
         assert(*target_location != targets_target);
         game->target[target_card] = new_target;
         if (verbose) {
-            board << game->description(c, false) << " causes "
+            *board << game->description(c, false) << " causes "
                  << game->description(target_card, false)
                  << " to target " << game->description(new_target);
             game->end_message();
@@ -1023,7 +1024,7 @@ void OffByOne::execute(SpellCaster *game, int c, bool verbose) const {
 void Darkness::execute(SpellCaster *game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " makes darkness fall on "
+        *board << game->description(c, false) << " makes darkness fall on "
              << game->description(game->target[c], false);
         game->end_message();
     }
@@ -1035,7 +1036,7 @@ void Darkness::execute(SpellCaster *game, int c, bool verbose) const {
             game->attack[card] += bonus;
 #ifdef BOARD
             if (verbose) {
-                board << game->description(card, false) << " gains attack of "
+                *board << game->description(card, false) << " gains attack of "
                      << bonus;
             }
 #endif
@@ -1047,7 +1048,7 @@ void Darkness::execute(SpellCaster *game, int c, bool verbose) const {
 void BlueSkies::execute(SpellCaster *game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " clears skies for " 
+        *board << game->description(c, false) << " clears skies for " 
              << game->description(game->target[c], false);
         game->end_message();
     }
@@ -1059,7 +1060,7 @@ void BlueSkies::execute(SpellCaster *game, int c, bool verbose) const {
             game->attack[card] += bonus;
 #ifdef BOARD
             if (verbose) {
-                board << game->description(card, false) << " gains attack of "
+                *board << game->description(card, false) << " gains attack of "
                      << bonus;
             }
 #endif
@@ -1072,7 +1073,7 @@ void BlueSkies::execute(SpellCaster *game, int c, bool verbose) const {
 void Plague::execute(SpellCaster *game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " causes plague on "
+        *board << game->description(c, false) << " causes plague on "
              << game->description(game->target[c], false);
         game->end_message();
     }
@@ -1086,7 +1087,7 @@ void Plague::execute(SpellCaster *game, int c, bool verbose) const {
             game->cardhp[*p] = new_hp;
 #ifdef BOARD
             if (verbose) {
-                board << game->description(card, false) << " health drops to "
+                *board << game->description(card, false) << " health drops to "
                      << new_hp;
             }
 #endif
@@ -1107,7 +1108,7 @@ void PerpetualMachineBase::execute(SpellCaster *game, int c, bool verbose) const
     game->mana[player_number] += Mana{bonus, bonus};
 #ifdef BOARD
     if (verbose) {
-        board << "Player " << player_number << " receives " << bonus << " MANA";
+        *board << "Player " << player_number << " receives " << bonus << " MANA";
         game->end_message();
     }
 #endif
@@ -1143,7 +1144,7 @@ void ARollingStone::execute(SpellCaster *game, int c, bool verbose) const {
 void FollowThroughBase::execute(SpellCaster *game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " damages "
+        *board << game->description(c, false) << " damages "
              << game->description(game->target[c], false);
         game->end_message();
     }
@@ -1154,10 +1155,10 @@ void FollowThroughBase::execute(SpellCaster *game, int c, bool verbose) const {
         game->kill_card(target);
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false);
-            board << " KILLS ";
-            board << game->description(target, false);
-            board << " and follows through to owner";
+            *board << game->description(c, false);
+            *board << " KILLS ";
+            *board << game->description(target, false);
+            *board << " and follows through to owner";
             game->end_message();
         }
 #endif
@@ -1167,7 +1168,7 @@ void FollowThroughBase::execute(SpellCaster *game, int c, bool verbose) const {
         if (game->hp[game->owner[target]] <= 0) {
 #ifdef BOARD
             if (verbose) {
-                board << "And KILLS PLAYER" << game->owner[c];
+                *board << "And KILLS PLAYER" << game->owner[c];
                 game->end_message();
             }
 #endif
@@ -1181,7 +1182,7 @@ void ImmobilisingMonsterDefinition::execute(SpellCaster *game, int c, bool verbo
         game->hp[0] -= game->attack[c];
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " ATTACKS PLAYER 0 doing damage " << game->attack[c];
+            *board << game->description(c, false) << " ATTACKS PLAYER 0 doing damage " << game->attack[c];
             game->end_message();
         }
 #endif
@@ -1191,7 +1192,7 @@ void ImmobilisingMonsterDefinition::execute(SpellCaster *game, int c, bool verbo
         game->hp[1] -= game->attack[c];
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " ATTACKS PLAYER 1 doing damage " << game->attack[c];
+            *board << game->description(c, false) << " ATTACKS PLAYER 1 doing damage " << game->attack[c];
             game->end_message();
         }
 #endif
@@ -1201,7 +1202,7 @@ void ImmobilisingMonsterDefinition::execute(SpellCaster *game, int c, bool verbo
     game->properties[game->target[c]] |= CardProperty::IMMOBILE;
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " ATTACKS and immobilises " << game->description(game->target[c], false);
+        *board << game->description(c, false) << " ATTACKS and immobilises " << game->description(game->target[c], false);
         game->end_message();
     }
 #endif
@@ -1215,7 +1216,7 @@ void VampiricMonster::execute(SpellCaster *game, int c, bool verbose) const {
         game->hp[0] -= game->attack[c];
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " ATTACKS PLAYER 0 doing damage " << game->attack[c];
+            *board << game->description(c, false) << " ATTACKS PLAYER 0 doing damage " << game->attack[c];
             game->end_message();
         }
 #endif
@@ -1225,7 +1226,7 @@ void VampiricMonster::execute(SpellCaster *game, int c, bool verbose) const {
         game->hp[1] -= game->attack[c];
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " ATTACKS PLAYER 1 doing damage " << game->attack[c];
+            *board << game->description(c, false) << " ATTACKS PLAYER 1 doing damage " << game->attack[c];
             game->end_message();
         }
 #endif
@@ -1234,8 +1235,8 @@ void VampiricMonster::execute(SpellCaster *game, int c, bool verbose) const {
     }
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " ATTACKS and sucks life from ";
-        board << game->description(game->target[c], false);
+        *board << game->description(c, false) << " ATTACKS and sucks life from ";
+        *board << game->description(game->target[c], false);
         game->end_message();
     }
 #endif
@@ -1247,7 +1248,7 @@ void VampiricMonster::execute(SpellCaster *game, int c, bool verbose) const {
 void dump_cards() {
 #if 0
     for (auto p = all_cards.begin(); p != all_cards.end(); ++p) {
-        board << (*p)->name;
+        *board << (*p)->name;
     }
 #endif
 }
@@ -1259,7 +1260,7 @@ void Ambush::execute(SpellCaster *game, int c, bool verbose) const {
     if (targets_target == PLAYER0 || targets_target == PLAYER1) {
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " has no effect on "
+            *board << game->description(c, false) << " has no effect on "
                  << game->description(target_card, false)
                  << " as it targets a player";
 
@@ -1271,7 +1272,7 @@ void Ambush::execute(SpellCaster *game, int c, bool verbose) const {
     if (game->card_class[target_card] != CardClass::MONSTER) {
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " can only target "
+            *board << game->description(c, false) << " can only target "
                  << "a monster targetting a monster.";
         }
 #endif
@@ -1285,7 +1286,7 @@ void Ambush::execute(SpellCaster *game, int c, bool verbose) const {
     if (target_target_location == game->in_play.end()) {
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " has no effect on "
+            *board << game->description(c, false) << " has no effect on "
                  << game->description(target_card, false)
                  << " as its target is no longer in play";
         }
@@ -1301,7 +1302,7 @@ void Ambush::execute(SpellCaster *game, int c, bool verbose) const {
 
 #ifdef BOARD
     if (verbose) {
-        board << game->description(targets_target, false) << " ambushes "
+        *board << game->description(targets_target, false) << " ambushes "
              << game->description(target_card, false);
     }
 #endif
@@ -1312,7 +1313,7 @@ void Ambush::execute(SpellCaster *game, int c, bool verbose) const {
 void Link::execute(SpellCaster *game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " linking "
+        *board << game->description(c, false) << " linking "
              << game->description(game->target[c], false) 
              << " to owner.";
         game->end_message();
@@ -1329,7 +1330,7 @@ void ShardBase::execute(SpellCaster *game, int c, bool verbose) const {
     if (damage < total_damage) {
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " follows through to player";
+            *board << game->description(c, false) << " follows through to player";
         }
 #endif
         game->damage_player(game->owner[target_card], total_damage-damage);
@@ -1340,7 +1341,7 @@ void ShardBase::execute(SpellCaster *game, int c, bool verbose) const {
 void EtherealRing::execute(SpellCaster *game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " making "
+        *board << game->description(c, false) << " making "
              << game->description(game->target[c], false)
              << " ethereal";
         game->end_message();
@@ -1354,7 +1355,7 @@ void Rage::execute(SpellCaster *game, int c, bool verbose) const {
     int target_card = game->target[c];
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " sends "
+        *board << game->description(c, false) << " sends "
              << game->description(target_card, false)
              << " into crazed frenzy.";
         game->end_message();
@@ -1368,7 +1369,7 @@ void Rage::execute(SpellCaster *game, int c, bool verbose) const {
 void Flight::execute(SpellCaster *game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " bestows flight on "
+        *board << game->description(c, false) << " bestows flight on "
              << game->description(game->target[c], false);
         game->end_message();
     }
@@ -1381,7 +1382,7 @@ void Flight::execute(SpellCaster *game, int c, bool verbose) const {
 void FountainOfYouth::execute(SpellCaster *game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " bestows regeneration on "
+        *board << game->description(c, false) << " bestows regeneration on "
              << game->description(game->target[c], false);
         game->end_message();
     }
@@ -1393,7 +1394,7 @@ void FountainOfYouth::execute(SpellCaster *game, int c, bool verbose) const {
 void Ground::execute(SpellCaster *game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
-        board << game->description(c, false) << " grounds "
+        *board << game->description(c, false) << " grounds "
              << game->description(game->target[c], false);
         game->end_message();
     }
@@ -1407,8 +1408,8 @@ void Suspend::execute(SpellCaster *game, int c, bool verbose) const {
     if (game->owner[c] == game->owner[game->target[c]]) {
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c) << " recalls ";
-            board << game->description(game->target[c], false);
+            *board << game->description(c) << " recalls ";
+            *board << game->description(game->target[c], false);
             game->end_message();
         }
 #endif
@@ -1417,7 +1418,7 @@ void Suspend::execute(SpellCaster *game, int c, bool verbose) const {
     } else {
 #ifdef BOARD
         if (verbose) {
-            board << "Can only recall own card";
+            *board << "Can only recall own card";
             game->end_message();
         }
 #endif
@@ -1430,7 +1431,7 @@ void SpellEater::execute(SpellCaster *game, int c, bool verbose) const {
     int card_target = game->target[c];
     if (game->card_class[c] == CardClass::SPELL) {
         if (verbose) {
-            board << game->description(c, false) << " eats spell " << game->description(target_card, false);
+            *board << game->description(c, false) << " eats spell " << game->description(target_card, false);
             game->end_message();
         }
         game->cardhp[c] += game->attack[target_card];
@@ -1443,7 +1444,7 @@ void SpellEater::execute(SpellCaster *game, int c, bool verbose) const {
     if (game->target[c] == PLAYER0) {
         game->hp[0] -= game->attack[c];
         if (verbose) {
-            board << game->description(c, false) << " ATTACKS PLAYER 0 doing damage " << game->attack[c];
+            *board << game->description(c, false) << " ATTACKS PLAYER 0 doing damage " << game->attack[c];
             game->end_message();
         }
         game->card_end_from(Location::EXECUTING, c, verbose);
@@ -1451,14 +1452,14 @@ void SpellEater::execute(SpellCaster *game, int c, bool verbose) const {
     } else if (game->target[c] == PLAYER1) {
         game->hp[1] -= game->attack[c];
         if (verbose) {
-            board << game->description(c, false) << " ATTACKS PLAYER 1 doing damage " << game->attack[c];
+            *board << game->description(c, false) << " ATTACKS PLAYER 1 doing damage " << game->attack[c];
             game->end_message();
         }
         game->card_end_from(Location::EXECUTING, c, verbose);
         return;
     }
     if (verbose) {
-        board << game->description(c, false) << " ATTACKS " << game->description(game->target[c], false);
+        *board << game->description(c, false) << " ATTACKS " << game->description(game->target[c], false);
         game->end_message();
     }
     game->damage_card(game->target[c], game->attack[c], verbose);
@@ -1472,7 +1473,7 @@ int ArtemisBow::computeAttack(SpellCaster *game, int card, int target, bool verb
         ++attack;
 #ifdef BOARD
         if (verbose) {
-            board << "Extra +1 damage because target is flying";
+            *board << "Extra +1 damage because target is flying";
             game->end_message();
         }
 #endif
@@ -1493,7 +1494,7 @@ int Lightning::computeAttack(SpellCaster *game, int card, int target, bool verbo
         ++attack;
 #ifdef BOARD
         if (verbose) {
-            board << "Extra +1 damage against aquatic monsters";
+            *board << "Extra +1 damage against aquatic monsters";
             game->end_message();
         }
 #endif
@@ -1511,7 +1512,7 @@ int SkeletonLord::computeAttack(SpellCaster *game, int card, int target, bool ve
     if (count > 0) {
 #ifdef BOARD
         if (verbose) {
-            board << "Extra +" << count << " damage due to presence of undead";
+            *board << "Extra +" << count << " damage due to presence of undead";
             game->end_message();
         }
 #endif

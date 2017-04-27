@@ -18,7 +18,7 @@ public:
         int attack = computeAttack(game, card, target, verbose);
 #ifdef BOARD
         if (verbose) {
-            board << game->description(card, false) << " blocks "
+            *board << game->description(card, false) << " blocks "
                  << game->description(target, false);
             game->end_message();
         }
@@ -44,7 +44,7 @@ public:
         if (game->basehp[target] < attack) {
 #ifdef BOARD
             if (verbose) {
-                board << game->description(card, false) << " can't attack "
+                *board << game->description(card, false) << " can't attack "
                      << game->description(target, false) << ", it's too small";
                 game->end_message();
             }
@@ -52,7 +52,7 @@ public:
         } else {
 #ifdef BOARD
             if (verbose) {
-                board << game->description(card, false) << " attacks "
+                *board << game->description(card, false) << " attacks "
                      << game->description(target, false);
                 game->end_message();
             }

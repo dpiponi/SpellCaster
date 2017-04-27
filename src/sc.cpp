@@ -50,7 +50,7 @@ UCTParameters params {
 
 // Globals
 shared_ptr<SpellCaster> game;
-Board board;
+shared_ptr<Board> board;
 std::future<Best<SpellCaster>> future_best;
 std::future<void> future_player_move;
 std::future<void> future_computer_move;
@@ -101,16 +101,18 @@ public:
         glClearDepth(0.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        board.draw(ratio);
+        board->draw(ratio);
         swapBuffers();
     }
     void init() {
         createWindow();
         initOpenGL();
+        ProgramRegistry::init();
 
         //glGenBuffers(1, &vertex_buffer);
         //glGenBuffers(1, &line_vertex_buffer);
 
+#if 0
         program = Program(shader);
         glow_program = GlowProgram(glow_shader);
         flame_program = GlowProgram(flame_shader);
@@ -118,6 +120,7 @@ public:
         shadow_program = ShadowProgram(shadow_shader);
         text_program = TextProgram(text_shader);
         fire_program = FireProgram(fire_shader);
+#endif
     }
 };
 
@@ -162,14 +165,15 @@ int main(int argc, char *argv[]) {
     makeFont(font_name, font_size);
 
     BoardConfig board_config(my_json);
-    board.setConfig(board_config);
-    board.initCards(player_deck, computer_deck);
-    board.initPlayers();
-    board << "SpellCaster";
-    board.setNewMessage();
-    board.setUpBoard(game, now(), now()+0.5);
-    board << "Select card or pass";
-    board.unHighlightAll();
+    board = make_shared<Board>();
+    board->setConfig(board_config);
+    board->initCards(player_deck, computer_deck);
+    board->initPlayers();
+    *board << "SpellCaster";
+    board->setNewMessage();
+    board->setUpBoard(game, now(), now()+0.5);
+    *board << "Select card or pass";
+    board->unHighlightAll();
 
     highlightLegalFirstCard(game);
 

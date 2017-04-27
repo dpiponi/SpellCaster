@@ -334,7 +334,7 @@ void SpellCaster::return_card_from(Location loc, int c, bool verbose) {
     assert(location[c] == loc);
 #ifdef BOARD
     if (verbose) {
-        board.noHighlightCard(c);
+        board->noHighlightCard(c);
     }
 #endif
     location[c] = owner[c] ? Location::HAND1 : Location::HAND0;
@@ -349,7 +349,7 @@ void SpellCaster::return_card_from(Location loc, int c, bool verbose) {
 #ifdef BOARD
     if (verbose) {
         // return_card_from()
-        board.publicSetHandPosition(now()+0.5, c, owner[c], hand[owner[c]].size()-1, 0.125, 0.9, 0.0, 0.0);
+        board->publicSetHandPosition(now()+0.5, c, owner[c], hand[owner[c]].size()-1, 0.125, 0.9, 0.0, 0.0);
         //end_message();
     }
 #endif
@@ -380,7 +380,7 @@ bool SpellCaster::targetNotLegal(int c, bool verbose) {
     if (reason) {
 #ifdef BOARD
         if (verbose) {
-            board << description(c) << ' ' << reason;
+            *board << description(c) << ' ' << reason;
             end_message();
         }
 #endif
@@ -395,19 +395,19 @@ bool SpellCaster::cardImmobile(int c, bool verbose) {
     if (hasProperty(c, CardProperty::IMMOBILE)) {
 #ifdef BOARD
         if (verbose) {
-            board << description(c);
+            *board << description(c);
             switch (card_class[c]) {
             case CardClass::PLAYER:
 //            case CardClass::MANA:
 //                assert(false);
             case CardClass::SPELL:
-                board << " fails";
+                *board << " fails";
                 break;
             case CardClass::ARTIFACT:
-                board << " fails to operate";
+                *board << " fails to operate";
                 break;
             case CardClass::MONSTER:
-                board << " unable to move";
+                *board << " unable to move";
                 break;
             }
             end_message();
@@ -434,7 +434,7 @@ bool SpellCaster::cardCombining(int c, bool verbose) {
         attack[t] += attack[c];
 #ifdef BOARD
         if (verbose) {
-            board << description(c) << " combines with " << description(t);
+            *board << description(c) << " combines with " << description(t);
             end_message();
         }
 #endif
@@ -488,7 +488,7 @@ SpellCaster::doExecution(bool verbose) {
 #ifdef BOARD
     if (verbose) {
         // doExecution()
-        board.setUpBoard(this, now(), now()+0.5);
+        board->setUpBoard(this, now(), now()+0.5);
         end_message();
     }
 #endif
@@ -508,10 +508,10 @@ void SpellCaster::handleInstant(int c, int card_number, int t, bool verbose) {
 
 #ifdef BOARD
     if (verbose) {
-        board.expose(c);
+        board->expose(c);
         int target_card = target[c];
         if (isCard(target_card)) {
-            board.expose(target_card);
+            board->expose(target_card);
         }
     }
 #endif
@@ -526,7 +526,7 @@ void SpellCaster::handleInstant(int c, int card_number, int t, bool verbose) {
         // handleInstant()
         double start_setup = now();
         double end_setup = start_setup+1.0;
-        board.setUpBoard(this, start_setup, end_setup);
+        board->setUpBoard(this, start_setup, end_setup);
         //end_message();
     }
 #endif
@@ -547,17 +547,17 @@ void SpellCaster::executeInstant(int c, bool verbose) {
 
         int target_card = target[c];
 
-        int arena_id = board.arena(c, target_card, start_arena, start_launch);
+        int arena_id = board->arena(c, target_card, start_arena, start_launch);
         wait_until(start_launch);
         // executeInstant()
-        //board.launch(c, target_card, start_launch, start_unarena);
+        //board->launch(c, target_card, start_launch, start_unarena);
         double start_unarena = now();
         double end_unarena = start_unarena+1.0;
         definitions[c]->animate(this, board, c, target_card, verbose);
         wait_until(start_unarena);
         // executeInstant()
-        board.publicSetGraveyardPosition(now()+0.5, c);
-        board.unArena(arena_id, c, target_card, start_unarena, end_unarena);
+        board->publicSetGraveyardPosition(now()+0.5, c);
+        board->unArena(arena_id, c, target_card, start_unarena, end_unarena);
         wait_until(end_unarena);
     }
 #endif
@@ -578,9 +578,9 @@ void SpellCaster::doDiscard(int verbose, int c, int card_number) {
 #ifdef BOARD
     if (verbose) {
         // doMove(): DISCARD
-        board.setUpBoard(this, now(), now()+0.5);
+        board->setUpBoard(this, now(), now()+0.5);
         end_message();
-        board << description(c, verbose) << " discarded";
+        *board << description(c, verbose) << " discarded";
         end_message();
     }
 #endif
@@ -605,7 +605,7 @@ void SpellCaster::doPlay(Move m, int c, int card_number, int verbose) {
 #ifdef BOARD
     if (verbose) {
         // doMove(): move to in_play
-        board.setUpBoard(this, now(), now()+0.5);
+        board->setUpBoard(this, now(), now()+0.5);
         end_message();
     }
 #endif
@@ -670,14 +670,14 @@ vector<SpellCaster::Move> SpellCaster::legalMoves() const {
 
 bool SpellCaster::isLegalId(Move m, bool verbose) const {
     assert(this);
-    //board << m ;
+    //*board << m ;
     if (m.card == -1) {
         return true;
     }
     if (m.card < 0) {
 #ifdef BOARD
         if (verbose) {
-            board << "Not a valid card" ;
+            *board << "Not a valid card" ;
             cout << "Not a valid card" << endl;
         }
 #endif
@@ -687,7 +687,7 @@ bool SpellCaster::isLegalId(Move m, bool verbose) const {
     if (find(hand[nextPlayer].begin(), hand[nextPlayer].end(), m.card) == hand[nextPlayer].end()) {
 #ifdef BOARD
         if (verbose) {
-            board << "That card isn't in hand" ;
+            *board << "That card isn't in hand" ;
             cout << "Card not in hand" << endl;
         }
 #endif
@@ -701,7 +701,7 @@ bool SpellCaster::isLegalId(Move m, bool verbose) const {
     if (m.target < 0) {
 #ifdef BOARD
         if (verbose) {
-            board << "Not a valid target" ;
+            *board << "Not a valid target" ;
             cout << "Invalid target" << endl;
         }
 #endif
@@ -710,7 +710,7 @@ bool SpellCaster::isLegalId(Move m, bool verbose) const {
     if (!(find(in_play.begin(), in_play.end(), m.target) != in_play.end() || m.target == PLAYER0 || m.target == PLAYER1 || m.target == DISCARD)) {
 #ifdef BOARD
         if (verbose) {
-            board << "Target is neither a player nor in-play";
+            *board << "Target is neither a player nor in-play";
             cout << "Target not player or in play" << endl;
         }
 #endif
@@ -719,7 +719,7 @@ bool SpellCaster::isLegalId(Move m, bool verbose) const {
     if (m.target != DISCARD && cost[m.card].world > mana[nextPlayer].world) {
 #ifdef BOARD
         if (verbose) {
-            board << "Not enough world mana" ;
+            *board << "Not enough world mana" ;
             cout << "Not enough world mana" << endl;
         }
 #endif
@@ -728,7 +728,7 @@ bool SpellCaster::isLegalId(Move m, bool verbose) const {
     if (m.target != DISCARD && cost[m.card].astral > mana[nextPlayer].astral) {
 #ifdef BOARD
         if (verbose) {
-            board << "Not enough astral mana" ;
+            *board << "Not enough astral mana" ;
             cout << "Not enough astral mana" << endl;
         }
 #endif
@@ -740,7 +740,7 @@ bool SpellCaster::isLegalId(Move m, bool verbose) const {
         if (reason) {
 #ifdef BOARD
             if (verbose) {
-                board << reason ;
+                *board << reason ;
                 cout << reason << endl;
             }
 #endif
@@ -872,10 +872,10 @@ void SpellCaster::execute(bool verbose) {
             double start_launch = start_arena+1.0;
             double end_launch = start_launch+1.0;
 
-            arena_id = board.arena(c, target[c], start_arena, start_launch);
+            arena_id = board->arena(c, target[c], start_arena, start_launch);
             wait_until(start_launch);
             // execute()
-            //board.launch(c, target[c], start_launch, end_launch);
+            //board->launch(c, target[c], start_launch, end_launch);
             definitions[c]->animate(this, board, c, target[c], verbose);
             cout << "Should be an unareana soon" << endl;
         }
@@ -894,12 +894,12 @@ void SpellCaster::execute(bool verbose) {
             double end_unarena = start_unarena+1.0;
             cout << "Doing an unarena" << endl;
             // execute()
-            board.unArena(arena_id, c, target[c], start_unarena, end_unarena);
+            board->unArena(arena_id, c, target[c], start_unarena, end_unarena);
             wait_until(end_unarena);
 
             //
             // execute()
-            board.setUpBoard(this, now(), now()+0.5);
+            board->setUpBoard(this, now(), now()+0.5);
             end_message();
         }
 #endif
@@ -925,13 +925,13 @@ int SpellCaster::damage_card(int card, int damage, bool verbose) {
     int damage_done = old_hp-new_hp;
 #ifdef BOARD
     if (verbose) {
-        board.highlightCard(card);
-        board << description(card, false) << " takes "
+        board->highlightCard(card);
+        *board << description(card, false) << " takes "
              << damage_done << " damage." ;
              cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! DAMAGE CARD!!!!!!!!!" << endl;
-        board.shake_card(card);
+        board->shake_card(card);
         end_message();
-        board.noHighlightCard(card);
+        board->noHighlightCard(card);
     }
 #endif
     if (cardhp[card] <= 0) {
@@ -944,7 +944,7 @@ int SpellCaster::damage_card(int card, int damage, bool verbose) {
         damage_done = old_hp-new_hp;
 #ifdef BOARD
         if (verbose) {
-            board << "Link means player " << owner[card] << " takes "
+            *board << "Link means player " << owner[card] << " takes "
                  << damage_done << " damage." ;
             end_message();
         }
@@ -961,8 +961,8 @@ int SpellCaster::damage_player(int player, int damage, bool verbose) {
     int damage_done = old_hp-new_hp;
 #ifdef BOARD
     if (verbose) {
-        board << "PLAYER " << player << " takes " << damage_done << " damage" ;
-        board.shakePlayer(player);
+        *board << "PLAYER " << player << " takes " << damage_done << " damage" ;
+        board->shakePlayer(player);
         end_message();
     }
 #endif
@@ -978,7 +978,7 @@ void SpellCaster::kill_card(int c, bool verbose) {
     exposedTo[1][c] = true;
 #ifdef BOARD
     if (verbose) {
-        board << description(c, false)
+        *board << description(c, false)
              << " is killed." ;
         end_message();
     }
@@ -987,7 +987,7 @@ void SpellCaster::kill_card(int c, bool verbose) {
 #ifdef BOARD
     if (verbose) {
         // kill_card()
-        board.setUpBoard(this, now(), now()+0.5);
+        board->setUpBoard(this, now(), now()+0.5);
         end_message();
     }
 #endif
@@ -998,7 +998,7 @@ void SpellCaster::destroy_card_from(Location loc, int c, bool verbose) {
     assert(location[c] == loc);
 #ifdef BOARD
     if (verbose) {
-        board << description(c, verbose) << " to GRAVEYARD" ;
+        *board << description(c, verbose) << " to GRAVEYARD" ;
     }
 #endif
     in_play.erase(std::remove(in_play.begin(), in_play.end(), c), in_play.end());
@@ -1010,7 +1010,7 @@ void SpellCaster::destroy_card_from(Location loc, int c, bool verbose) {
 #ifdef BOARD
     if (verbose) {
         // destroy_card_from()
-        board.setUpBoard(this, now(), now()+0.5);
+        board->setUpBoard(this, now(), now()+0.5);
         end_message();
     }
 #endif
@@ -1025,8 +1025,8 @@ bool SpellCaster::targetNotInPlay(int c, bool verbose) {
     }
 #ifdef BOARD
     if (verbose) {
-        board << description(c);
-        board << " target no longer in play" ;
+        *board << description(c);
+        *board << " target no longer in play" ;
         end_message();
     }
 #endif

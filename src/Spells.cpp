@@ -17,7 +17,7 @@ public:
         game->target[target_c] = PLAYER0+game->owner[target_c];
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " makes " << game->description(game->target[c], false) << " turn on OWNER";
+            *board << game->description(c, false) << " makes " << game->description(game->target[c], false) << " turn on OWNER";
             game->end_message();
         }
 #endif
@@ -36,7 +36,7 @@ public:
     void execute(SpellCaster *game, int c, bool verbose) const {
 #ifdef BOARD
         if (verbose) {
-            board << game->description(c, false) << " blessing "
+            *board << game->description(c, false) << " blessing "
                  << game->description(game->target[c], false);
             game->end_message();
         }
@@ -57,7 +57,7 @@ public:
     void animate(SpellCaster *game, Board &board, int card, int target, bool verbose) const {
 #ifdef BOARD
         if (verbose) {
-            board.glow(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+2.0);
+            board.flame(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+3.0);
         }
 #endif
     }

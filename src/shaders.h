@@ -2,6 +2,8 @@
 #define SHADERS_H
 
 #include <iostream>
+#include <map>
+#include <string>
 #include <Eigen/Core>
 
 using Eigen::Matrix;
@@ -9,24 +11,58 @@ using Eigen::Vector3f;
 typedef Matrix<float, 4, 4, Eigen::RowMajor> Mat44;
 
 using std::cout;
+using std::cerr;
 using std::endl;
+using std::map;
+using std::string;
 
 #include <glad/glad.h>
 
 #include "linmath.h"
 
 #include "json11/json11.hpp"
-using json11::Json;
+//using json11::Json;
 
-GLuint compileProgram(Json shader);
+//GLuint compileProgram(Json shader);
+GLuint compileProgram(const char *vertex_program, const char *fragment_program, const char *geometry_program = 0);
+
+class ProgramBase;
+
+class ProgramRegistry {
+public:
+    static map<string, ProgramBase *> *getRegistry() {
+        cout << "Creating program registry" << endl;
+        static map<string, ProgramBase *> *registry = new map<string, ProgramBase *>;
+        return registry;
+    }
+    static void registerProgram(string name, ProgramBase *definition) {
+        auto registry = getRegistry();
+        (*registry)[name] = definition;
+        cout << "Registering program: " << name << endl;
+    }
+    template<typename P> static P *getProgram(const char *name) {
+        auto registry = getRegistry();
+        auto p = registry->find(name);
+        if (p == registry->end()) {
+            cerr << "Couldn't find program " << name << endl;
+        }
+        P *program = dynamic_cast<P *>(p->second);
+        assert(program);
+        return program;
+    }
+    static void init();
+};
 
 class ProgramBase {
 protected:
     GLuint program;
     GLuint vao;
     GLuint vertex_buffer;
+    const char *vertex_program;
+    const char *fragment_program;
+    const char *geometry_program;
 public:
-    ProgramBase() { } // XXX Delete eventually.
+    //ProgramBase() { } // XXX Delete eventually.
     void bindVertexArray() const {
         glBindVertexArray(vao);
     }
@@ -39,9 +75,14 @@ public:
     void unuse() const {
         glUseProgram(0);
     }
-    ProgramBase(Json shader) {
-        program = compileProgram(shader);
-
+    ProgramBase(const char *name, const char *vertex_program0, const char *fragment_program0, const char *geometry_program0) :
+        vertex_program(vertex_program0), fragment_program(fragment_program0), geometry_program(geometry_program0) {
+        ProgramRegistry::registerProgram(name, this);
+    }
+    virtual void init() {
+        cout << "compiling" << endl;
+        program = compileProgram(vertex_program, fragment_program, geometry_program);
+        cout << "compiling done" << endl;
         glGenBuffers(1, &vertex_buffer);
         glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
     }
@@ -62,20 +103,24 @@ public:
         glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_DYNAMIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0); // ?? 
     }
+    virtual ~ProgramBase() { /* dummy */ }
 };
 
 class RectangleProgram : public ProgramBase {
 public:
-    RectangleProgram() { }
-    RectangleProgram(Json shader) : ProgramBase(shader) { }
+    //RectangleProgram() { }
+    RectangleProgram(const char *name, const char *vertex_program, const char *fragment_program, const char *geometry_program) : ProgramBase(name, vertex_program, fragment_program, geometry_program) { }
     virtual void set(const Mat44 &mvp, float alpha, float z, float time) = 0;
 };
 
 class Program : public RectangleProgram {
     GLint mvp_location, alpha_location, vpos_location, uv_location, z_location;
 public:
-    Program() { } // XX Should go eventually
-    Program(Json shader) : RectangleProgram(shader) {
+    //Program() { } // XX Should go eventually
+    Program(const char *name, const char *vertex_program, const char *fragment_program, const char *geometry_program = 0) : RectangleProgram(name, vertex_program, fragment_program, geometry_program) {
+    }
+    void init() override {
+        ProgramBase::init();
         mvp_location = uniform("MVP");
         alpha_location = uniform("alpha");
         z_location = uniform("z");
@@ -95,12 +140,35 @@ public:
     }
 };
 
+// XXX Duplicate
+struct RGB {
+    float r;
+    float g;
+    float b;
+};
+
+#if 0
+extern Program program;
+extern GlowProgram glow_program;
+extern GlowProgram flame_program;
+extern ShadowProgram shadow_program;
+extern LineProgram line_program;
+extern TextProgram text_program;
+extern FireProgram fire_program;
+#endif
+
+extern int width, height;
+
 class GlowProgram : public RectangleProgram {
     GLint mvp_location, alpha_location, vpos_location, uv_location, z_location, time_location, col_location;
     Vector3f col;
 public:
-    GlowProgram() { } // XX Should go eventually
-    GlowProgram(Json shader) : RectangleProgram(shader) {
+    //GlowProgram() { } // XX Should go eventually
+    GlowProgram(const char *name, const char *vertex_shader, const char *fragment_shader_src, const char *geometry_shader = 0) : RectangleProgram(name, vertex_shader, fragment_shader_src, geometry_shader) { }
+    void init() override {
+        cout << "Glow init" << endl;
+        ProgramBase::init();
+        cout << "Glow init done" << endl;
         mvp_location = uniform("MVP");
         alpha_location = uniform("alpha");
         z_location = uniform("z");
@@ -130,8 +198,10 @@ public:
 class ShadowProgram : public ProgramBase {
     GLint mvp_location, vpos_location, alpha_location, z_location;
 public:
-    ShadowProgram () { } // XX Should go eventually
-    ShadowProgram(Json shader) : ProgramBase(shader) {
+    //ShadowProgram () { } // XX Should go eventually
+    ShadowProgram(const char *name, const char *vertex_shader, const char *fragment_shader, const char *geometry_shader = 0) : ProgramBase(name, vertex_shader, fragment_shader, geometry_shader) { }
+    void init() override {
+        ProgramBase::init();
         mvp_location = uniform("MVP");
         z_location = uniform("z");
 
@@ -156,8 +226,10 @@ public:
 class LineProgram : public ProgramBase {
     GLint mvp_location, brightness_location, vpos_location, vcol_location, ratio_location;
 public:
-    LineProgram () { } // XX Should go eventually
-    LineProgram(Json shader) : ProgramBase(shader) {
+    //LineProgram () { } // XX Should go eventually
+    LineProgram(const char *name, const char *vertex_shader, const char *fragment_shader, const char *geometry_shader = 0) : ProgramBase(name, vertex_shader, fragment_shader, geometry_shader) { }
+    void init() override {
+        ProgramBase::init();
         mvp_location = uniform("MVP");
         brightness_location = uniform("brightness");
         ratio_location = uniform("ratio");
@@ -177,18 +249,13 @@ public:
     }
 };
 
-// XXX Duplicate
-struct RGB {
-    float r;
-    float g;
-    float b;
-};
-
 class TextProgram : public ProgramBase {
     GLint mvp_location, brightness_location, vpos_location, color_location, uv_location;
 public:
-    TextProgram () { } // XX Should go eventually
-    TextProgram(Json shader) : ProgramBase(shader) {
+    //TextProgram () { } // XX Should go eventually
+    TextProgram(const char *name, const char *vertex_shader, const char *fragment_shader, const char *geometry_shader = 0) : ProgramBase(name, vertex_shader, fragment_shader, geometry_shader) { }
+    void init() override {
+        ProgramBase::init();
         mvp_location = uniform("MVP");
         brightness_location = uniform("brightness");
 
@@ -215,8 +282,10 @@ public:
 class FireProgram : public ProgramBase {
     GLint mvp_location, z_location, vpos_location, uv_location, time_location;
 public:
-    FireProgram () { } // XX Should go eventually
-    FireProgram(Json shader) : ProgramBase(shader) {
+    //FireProgram () { } // XX Should go eventually
+    FireProgram(const char *name, const char *vertex_shader, const char *fragment_shader, const char *geometry_shader = 0) : ProgramBase("fire", vertex_shader, fragment_shader, geometry_shader) { }
+    void init() override {
+        ProgramBase::init();
         mvp_location = uniform("MVP");
         z_location = uniform("z");
 
@@ -236,16 +305,6 @@ public:
         glUniform1f(z_location, z);
     }
 };
-
-extern Program program;
-extern GlowProgram glow_program;
-extern GlowProgram flame_program;
-extern ShadowProgram shadow_program;
-extern LineProgram line_program;
-extern TextProgram text_program;
-extern FireProgram fire_program;
-
-extern int width, height;
 
 //extern GLint attribute_coord, uniform_tex;
 #endif

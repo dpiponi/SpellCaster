@@ -9,6 +9,11 @@ Burn
 Burn
 Burn
 Burn
+Burn
+Burn
+Burn
+Burn
+Burn
 Shooting Stars
 Ambush
 An Evil Blast
@@ -87,6 +92,8 @@ Loyalty
 Magic Spear
 Make Artifact
 Man O' War
+Mana
+Mana
 Mana
 Mana
 Mana

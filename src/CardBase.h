@@ -26,13 +26,14 @@ class Board;
 class CardRegistry {
 public:
     static map<string, const Definition *> *getRegistry() {
+        cout << "Creating card registry" << endl;
         static map<string, const Definition *> *registry = new map<string, const Definition *>;
         return registry;
     }
     static void registerCard(string name, const Definition *definition) {
         auto registry = getRegistry();
         (*registry)[name] = definition;
-        cout << "Registering: " << name << endl;
+        cout << "Registering card: " << name << endl;
     }
 };
 
@@ -75,7 +76,7 @@ public:
     virtual void execute(SpellCaster *game, int c, bool verbose) const { };// = 0;
     virtual void executeInstant(SpellCaster *game, int c, bool verbose) const  { }
     virtual int computeAttack(SpellCaster *game, int card, int target, bool verbose) const;
-    virtual void animate(SpellCaster *game, Board &board, int card, int target, bool verbose) const;
+    virtual void animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const;
 };
 
 

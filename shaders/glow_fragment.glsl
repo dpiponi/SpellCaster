@@ -17,7 +17,7 @@ void main() {
     v = v-0.5;
     float theta = atan(v, u);
     float r = sqrt(u*u+v*v);
-    float scale = 1.0+0.15*sin(4*theta+3.141/2)+0.04*cos(11*theta+13.0*time)+0.03*sin(23*theta+35.0*time);
+    float scale = 1.2+0.2*(1+2*sin(2*theta+3.14159/2))+0.1*sin(4*theta+3.141/2)+0.04*cos(11*theta+13.0*time)+0.03*sin(23*theta+35.0*time);
     r = r*scale;
     vec4 color;
     if (r < 0.5) {

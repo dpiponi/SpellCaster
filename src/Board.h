@@ -355,6 +355,7 @@ public:
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_GEQUAL);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        //glHint(GL_FRAGMENT_SHADER_DERIVATIVE_HINT, GL_NICEST);
     }
 
     int mouse_press(Point point) const {

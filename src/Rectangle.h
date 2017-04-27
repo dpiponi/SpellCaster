@@ -64,7 +64,9 @@ public:
         highlight = false;
     }
     Rectangle() : highlight(false), visible(false), tex(0), shadow(false) {
-        shader = &program;
+        static Program *program = ProgramRegistry::getProgram<Program>("rect");
+        assert(program);
+        shader = program;
     }
     void setShader(RectangleProgram *s) { shader = s; }
     void setTexture(GLuint t) { tex = t; }

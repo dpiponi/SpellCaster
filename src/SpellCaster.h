@@ -75,7 +75,7 @@ const int PASS = -1;
 #include "Board.h"
 
 #ifdef BOARD
-extern Board board;
+extern shared_ptr<Board> board;
 #endif
 
 class SpellCaster {
@@ -241,7 +241,7 @@ public:
 
     void end_message() const {
 #ifdef BOARD
-        board.setNewMessage();
+        board->setNewMessage();
         usleep(PAUSE);
 #endif
     }
@@ -277,8 +277,8 @@ public:
             int c = hand[player].front();
 #ifdef BOARD
             if (verbose) {
-                board << "Player " << player << " loses ";
-                board << description(c, false) ;
+                *board << "Player " << player << " loses ";
+                *board << description(c, false) ;
             }
 #endif
             //hand[player].pop_front();
@@ -358,7 +358,7 @@ public:
     void doPass(bool verbose) {
 #ifdef BOARD
         if (verbose) {
-            board << "PASS";
+            *board << "PASS";
             end_message();
         }
 #endif
@@ -419,7 +419,7 @@ public:
         definitions[c]->execute(this, c, verbose);
 #ifdef BOARD
         if (verbose) {
-            board.setUpBoard(this, now(), now()+0.5);
+            board->setUpBoard(this, now(), now()+0.5);
         }
 #endif
     }
