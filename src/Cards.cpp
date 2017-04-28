@@ -165,23 +165,20 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const override { };
-    void executeInstant(SpellCaster *game, int c, bool verbose) const override {
-        game->mana[game->target[c]-PLAYER0] += Mana {4, 1};
+    void executeInstant(SpellCaster *game, int card, bool verbose) const override {
+        int target_card = game->target[card];
+        int target_player = target_card-PLAYER0;
+        game->mana[target_player] += Mana {4, 1};
 #ifdef BOARD
         if (verbose) {
             *board << "Some mana for you";
+            cout << "GLOW FOR " << target_player << endl;
+            board->glow(Vector3f(0.0, 1.0, 0.0), card, target_card, now(), now()+2.0, board->positionOfPlayer(target_player));
             game->end_message();
         }
 #endif
     };
-    void animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const override {
-#ifdef BOARD
-        if (verbose) {
-            int target_player = target-PLAYER0;
-            board->glow(Vector3f(0.0, 1.0, 0.0), card, target, now(), now()+2.0, board->positionOfPlayer(target_player));
-        }
-#endif
-    }
+    void animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const override { }
 } henge;
 
 const class Temple : public SpellDefinition {
@@ -193,15 +190,18 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE) { }
     virtual void execute(SpellCaster *game, int c, bool verbose) const override { }
-    void executeInstant(SpellCaster *game, int c, bool verbose) const override {
+    void executeInstant(SpellCaster *game, int card, bool verbose) const override {
         int count = 0;
         for (auto p = game->in_play.begin(); p != game->in_play.end(); ++p) {
             count += game->hasProperty(*p, CardProperty::BLESSED);
         }
-        game->mana[game->target[c]-PLAYER0] += Mana {1, 4+count};
+        game->mana[game->target[card]-PLAYER0] += Mana {1, 4+count};
 #ifdef BOARD
         if (verbose) {
+            int target_card = game->target[card];
             *board << "Some mana for you";
+            int target_player = target_card-PLAYER0;
+            board->glow(Vector3f(0.8, 0.75, 0.0), card, target_card, now(), now()+2.0, board->positionOfPlayer(target_player));
             game->end_message();
             *board << "Plus extra " << count << " astral";
             game->end_message();
@@ -209,11 +209,13 @@ public:
 #endif
     }
     void animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const override {
+#if 0
 #ifdef BOARD
         if (verbose) {
             int target_player = target-PLAYER0;
             board->glow(Vector3f(0.8, 0.75, 0.0), card, target, now(), now()+2.0, board->positionOfPlayer(target_player));
         }
+#endif
 #endif
     }
 } temple;
@@ -951,6 +953,7 @@ void SleepBase::execute(SpellCaster *game, int c, bool verbose) const {
             *board << game->description(c, false) << " not powerful enough to affect "
                  << game->description(game->target[c], false);
             game->end_message();
+            cout << "Sleep failed" << endl;
         }
 #endif
         game->card_end_from(Location::EXECUTING, c, verbose);

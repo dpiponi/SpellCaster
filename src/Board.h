@@ -289,7 +289,7 @@ public:
     int arena(int card1, int card2, double start_time, double end_time);
     void unArena(int arena_id, int card1, int card2, double time0, double time1);
     void unFocus(int player, int card, float delay);
-    void focus(int player, int card, float delay);
+    void focus(int player, int card, float delay, bool wobble = true);
 
     void setUpBoard(const SpellCaster *game, double time0, double time1);
 

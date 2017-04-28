@@ -395,6 +395,7 @@ bool SpellCaster::cardImmobile(int c, bool verbose) {
     if (hasProperty(c, CardProperty::IMMOBILE)) {
 #ifdef BOARD
         if (verbose) {
+            cout << "IMMOBILE!!!!!!!!!!" << endl;
             *board << description(c);
             switch (card_class[c]) {
             case CardClass::PLAYER:
@@ -537,28 +538,24 @@ void SpellCaster::handleInstant(int c, int card_number, int t, bool verbose) {
 }
 
 void SpellCaster::executeInstant(int c, bool verbose) {
-    definitions[c]->executeInstant(this, c, verbose);
 #ifdef BOARD
+    int target_card;
     if (verbose) {
         cout << "Instant Launch from " << c << " to " << target[c] << endl;
 
         double start_arena = now();
         double start_launch = start_arena+1.0;
 
-        int target_card = target[c];
+        target_card = target[c];
 
-//        int arena_id = board->arena(c, target_card, start_arena, start_launch);
-//        wait_until(start_launch);
-        // executeInstant()
-        //board->launch(c, target_card, start_launch, start_unarena);
-//        double start_unarena = now();
-//        double end_unarena = start_unarena+1.0;
+        board->focus(owner[c], c, 0.0, false);
+    }
+#endif
+    definitions[c]->executeInstant(this, c, verbose);
+#ifdef BOARD
+    if (verbose) {
         definitions[c]->animate(this, board, c, target_card, verbose);
-//        wait_until(start_unarena);
-        // executeInstant()
         board->publicSetGraveyardPosition(now()+0.5, c);
-//        board->unArena(arena_id, c, target_card, start_unarena, end_unarena);
-//        wait_until(end_unarena);
     }
 #endif
 }

@@ -662,10 +662,11 @@ void Board::unFocus(int player, int card, float delay) {
     setHandPosition(now()+delay, p, player, focus, 0.125, 0.1+0.001*focus, 0.0, 0.0);
 }
 
-void Board::focus(int player, int card, float delay) {
+void Board::focus(int player, int card, float delay, bool wobble) {
     std::lock_guard<std::mutex> guard(board_mutex);
-    int focus = find(hand[0].begin(), hand[0].end(), card)-hand[0].begin();
-    assert(hand[0][focus] == card);
+    int focus = find(hand[player].begin(), hand[player].end(), card)-hand[player].begin();
+    cout << "FOCUS " << player << ' ' << card << ' ' << focus << endl;
+    assert(hand[player][focus] == card);
 
     int n = hand[player].size();
     float left_edge = config.hand_left-0.5*0.125;
@@ -678,8 +679,10 @@ void Board::focus(int player, int card, float delay) {
     setHandPosition(now(), p, player, focus, 0.125, 0.2, 0.0, 0.0);
     setHandPosition(now()+0.25*delay, p, player, focus, 1.1*0.125, 0.5, 0.0, 0.0);
     setHandPosition(now()+0.5*delay, p, player, focus, 1.2*0.125, 0.999, 0.0, 0.0);
-    for (int k = 0; k < 100; ++k) {
-        setHandPosition(now()+0.5*delay+0.3*k, p, player, focus, 1.2*0.125, 0.999, 0.004*cos(k), -0.004*sin(k));
+    if (wobble) {
+        for (int k = 0; k < 100; ++k) {
+            setHandPosition(now()+0.5*delay+0.3*k, p, player, focus, 1.2*0.125, 0.999, 0.004*cos(k), -0.004*sin(k));
+        }
     }
 }
 
@@ -1027,7 +1030,6 @@ int Board::contains(Point point) const {
         return 2000;
     }
     if (player.contains(point)) {
-        cout << "Clicked on player!!!!!!!!!!!!!!!  " << player.getX() << ' ' << player.getY() << endl;
         return 1000;
     }
     if (computer.contains(point)) {
