@@ -87,8 +87,8 @@ GLuint compileProgram(const char *vertex_program, const char *fragment_program, 
     //shader.dump();
     string vertex_shader_src = read_file(vertex_program);
     string fragment_shader_src = read_file(fragment_program);
-    cout << "vertex_program=" << endl << vertex_shader_src << endl;
-    cout << "fragment_program=" << endl << fragment_shader_src << endl;
+    //cout << "vertex_program=" << endl << vertex_shader_src << endl;
+    //cout << "fragment_program=" << endl << fragment_shader_src << endl;
     if (geometry_program) {
         cout << "Compiling geometry!!!" << endl;
         string geometry_shader_src = read_file(geometry_program);

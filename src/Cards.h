@@ -738,17 +738,6 @@ public:
     void execute(SpellCaster *game, int c, bool verbose) const;
 } makeArtifact;
 
-const class Recall : public SpellDefinition {
-public:
-    Recall() : SpellDefinition("Recall", "◀️ ", 0, 2, 0, 0, 0, 1,
-                    CardClass::SPELL,
-                    CardClass::SPELL | CardClass::MONSTER | CardClass::ARTIFACT,
-                    CardProperty::INSTANT,
-                    CardProperty::NONE,
-                    CardProperty::RED_MAGIC_RESISTANT) { }
-    void executeInstant(SpellCaster *game, int c, bool verbose) const;
-} recall;
-
 const class Suspend : public SpellDefinition {
 public:
     Suspend() : SpellDefinition("Suspend", "⚖️ ", 0, 0, 2, 0, 0, 1,

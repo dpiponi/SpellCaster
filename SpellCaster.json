@@ -44,6 +44,12 @@
      "flame_shader": {
          "vertex": "shaders/flame_vertex.glsl",
          "fragment": "shaders/flame_fragment.glsl"
-     }
+     },
+     "player_row": -0.6,
+     "computer_row": 0.6,
+     "player_column": 0.95,
+     "player_stats_row": -0.55,
+     "computer_stats_row": 0.65,
+     "player_stats_column": 1.1
 }
 

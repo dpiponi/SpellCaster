@@ -54,10 +54,11 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::FIRE_RESISTANT) { }
-    void animate(SpellCaster *game, Board &board, int card, int target, bool verbose) const {
+    void animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const override {
 #ifdef BOARD
         if (verbose) {
-            board.flame(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+3.0);
+            cout << "BBBBBBBBBUUUUUUUUURRRRRRRRRRRRNNNNNNNNNNNN!!!!!!!!!" << endl;
+            board->flame(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+3.0);
         }
 #endif
     }

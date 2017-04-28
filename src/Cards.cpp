@@ -141,14 +141,15 @@ public:
                     CardProperty::INSTANT,
                     CardProperty::NONE,
                     CardProperty::NONE) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const { }
-    void executeInstant(SpellCaster *game, int c, bool verbose) const {
+    virtual void execute(SpellCaster *game, int c, bool verbose) const override { }
+    void executeInstant(SpellCaster *game, int c, bool verbose) const override {
         game->mana[game->target[c]-PLAYER0] += Mana {3, 2}; // XXX Should be target no?
     }
-    void animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const {
+    void animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const override {
 #ifdef BOARD
         if (verbose) {
-            board->glow(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+3.0);
+            int target_player = target-PLAYER0;
+            board->glow(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+3.0, board->positionOfPlayer(target_player));
             //board->flame(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+5.0);
         }
 #endif
@@ -163,8 +164,8 @@ public:
                     CardProperty::INSTANT,
                     CardProperty::NONE,
                     CardProperty::NONE) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const { };
-    void executeInstant(SpellCaster *game, int c, bool verbose) const {
+    virtual void execute(SpellCaster *game, int c, bool verbose) const override { };
+    void executeInstant(SpellCaster *game, int c, bool verbose) const override {
         game->mana[game->target[c]-PLAYER0] += Mana {4, 1};
 #ifdef BOARD
         if (verbose) {
@@ -173,10 +174,11 @@ public:
         }
 #endif
     };
-    void animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const {
+    void animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const override {
 #ifdef BOARD
         if (verbose) {
-            board->glow(Vector3f(0.0, 1.0, 0.0), card, target, now(), now()+2.0);
+            int target_player = target-PLAYER0;
+            board->glow(Vector3f(0.0, 1.0, 0.0), card, target, now(), now()+2.0, board->positionOfPlayer(target_player));
         }
 #endif
     }
@@ -190,8 +192,8 @@ public:
                     CardProperty::INSTANT,
                     CardProperty::NONE,
                     CardProperty::NONE) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const { }
-    void executeInstant(SpellCaster *game, int c, bool verbose) const {
+    virtual void execute(SpellCaster *game, int c, bool verbose) const override { }
+    void executeInstant(SpellCaster *game, int c, bool verbose) const override {
         int count = 0;
         for (auto p = game->in_play.begin(); p != game->in_play.end(); ++p) {
             count += game->hasProperty(*p, CardProperty::BLESSED);
@@ -206,10 +208,11 @@ public:
         }
 #endif
     }
-    void animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const {
+    void animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const override {
 #ifdef BOARD
         if (verbose) {
-            board->glow(Vector3f(0.8, 0.75, 0.0), card, target, now(), now()+2.0);
+            int target_player = target-PLAYER0;
+            board->glow(Vector3f(0.8, 0.75, 0.0), card, target, now(), now()+2.0, board->positionOfPlayer(target_player));
         }
 #endif
     }
@@ -745,34 +748,45 @@ void MakeArtifact::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-// Exactly like TakeBase except you need to own target.
-void Recall::executeInstant(SpellCaster *game, int c, bool verbose) const {
-    int target = game->target[c];
-    if (game->owner[c] == game->owner[target]) {
+const class Recall : public SpellDefinition {
+public:
+    Recall() : SpellDefinition("Recall", "◀️ ", 0, 2, 0, 0, 0, 1,
+                    CardClass::SPELL,
+                    CardClass::SPELL | CardClass::MONSTER | CardClass::ARTIFACT,
+                    CardProperty::INSTANT,
+                    CardProperty::NONE,
+                    CardProperty::RED_MAGIC_RESISTANT) { }
+    void animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const override { }
+
+    // Exactly like TakeBase except you need to own target.
+    void executeInstant(SpellCaster *game, int c, bool verbose) const override {
+        int target = game->target[c];
+        if (game->owner[c] == game->owner[target]) {
 #ifdef BOARD
-        if (verbose) {
-            *board << game->description(c) << " recalls ";
-            *board << game->description(game->target[c], false);
-            game->end_message();
-        }
-#endif
-        game->return_card_from(Location::IN_PLAY, target, verbose);
-        // Clean up dangling targets
-        for (auto p = game->in_play.begin(); p != game->in_play.end(); ++p) {
-            if (game->target[*p] == target) {
-                game->target[*p] = -1;
+            if (verbose) {
+                *board << game->description(c) << " recalls ";
+                *board << game->description(game->target[c], false);
+                game->end_message();
             }
-        }
-    } else {
-#ifdef BOARD
-        if (verbose) {
-            *board << "Can only recall own card";
-            game->end_message();
-        }
 #endif
+            game->return_card_from(Location::IN_PLAY, target, verbose);
+            // Clean up dangling targets
+            for (auto p = game->in_play.begin(); p != game->in_play.end(); ++p) {
+                if (game->target[*p] == target) {
+                    game->target[*p] = -1;
+                }
+            }
+        } else {
+#ifdef BOARD
+            if (verbose) {
+                *board << "Can only recall own card";
+                game->end_message();
+            }
+#endif
+        }
+        //game->card_end_from(Location::EXECUTING, c, verbose);
     }
-    //game->card_end_from(Location::EXECUTING, c, verbose);
-}
+} recall;
 
 void Mephistopheles::execute(SpellCaster *game, int c, bool verbose) const {
     if (game->target[c] == PLAYER0) {

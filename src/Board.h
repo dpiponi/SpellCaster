@@ -29,13 +29,6 @@ using std::ostringstream;
 using std::default_random_engine;
 using std::uniform_real_distribution;
 
-//
-// Timing for instants
-// 0:1s     Move to arena
-// 1:2s     Effect
-// 2:3s     Return and discard
-//
-
 GLuint create_texture(const char *filename, bool repeat = false, bool mipmap = true);
 extern GLuint blob_tex, fire_tex, stroke_tex;
 
@@ -55,29 +48,15 @@ struct BoardConfig {
     string player_icon;
     string background;
     float vertical_text_space;
+    float player_row;
+    float computer_row;
+    float player_column;
+    float player_stats_row;
+    float computer_stats_row;
+    float player_stats_column;
 public:
     BoardConfig() { } // XXX SHouldn't ever be used
-    BoardConfig(Json json) {
-        in_play_left = json["in_play_left"].number_value();
-        hand_left = json["hand_left"].number_value();
-        in_play_spacing = json["in_play_spacing"].number_value();
-        hand_spacing = json["hand_spacing"].number_value();
-        offset_for_player = json["offset_for_player"].number_value();
-        annotation_x = json["annotation_x"].number_value();
-        annotation_y = json["annotation_y"].number_value();
-        annotation_height = json["annotation_height"].number_value();
-        player_highlight.r = json["player_highlight"].array_items()[0].number_value();
-        player_highlight.g = json["player_highlight"].array_items()[1].number_value();
-        player_highlight.b = json["player_highlight"].array_items()[2].number_value();
-        computer_highlight.r = json["computer_highlight"].array_items()[0].number_value();
-        computer_highlight.g = json["computer_highlight"].array_items()[1].number_value();
-        computer_highlight.b = json["computer_highlight"].array_items()[2].number_value();
-        border_line_width = json["border_line_width"].number_value();
-        computer_icon = json["computer_icon"].string_value();
-        player_icon = json["player_icon"].string_value();
-        background = json["background"].string_value();
-        vertical_text_space = json["vertical_text_space"].number_value();
-    }
+    BoardConfig(Json json);
 };
 
 class Board {
@@ -147,27 +126,21 @@ private:
     void setPlayerPosition(double time, double z = 0.0);
 
     Vector2f handPosition(int player, int i) {
-        return Vector2f(config.hand_left+i*config.hand_spacing, player ? 0.6 : -0.6);
+        return Vector2f(config.hand_left+i*config.hand_spacing, player ? config.computer_row : config.player_row);
     }
 
     void setHandPosition(double time, int card, int player, int position_in_hand,
                          float size, float z, float offsetx, float offsety);
 
-#if 0
-    // Get position of ith card in a hand of n cards help by player p
-    void positionInHand(int p, int i, int n) {
-        float x = -0.5+0.1*i;
-        float y = 
-    }
-#endif
-
     void setUpHand(int player, int focus = -1, float delay = 0.5) {
         int n = hand[player].size();
+#if 0
         float left_edge = config.hand_left-0.5*0.125;
         float right_edge = config.hand_left+config.hand_spacing*(n-1)+0.5*0.125;
 
         float left_centre = left_edge+0.5*0.125;
         float right_centre = right_edge-0.5*0.125;
+#endif
 
         int i = 0;
         for (auto p : hand[player]) {
@@ -206,7 +179,7 @@ public:
     void launch4(int source_card, int target_card, double start_time, double end_time);
     void launch2(int source_card);
     void launch(int source_card, int target_card, double start_time, double end_time);
-    void glow(Vector3f colour, int source_card, int target_card, double start_time, double end_time);
+    void glow(Vector3f colour, int source_card, int target_card, double start_time, double end_time, Vector2f target);
     void launch5(int source_card, int target_card, double start_time, double end_time);
     void flame(Vector3f colour, int source_card, int target_card, double start_time, double end_time);
 
@@ -375,7 +348,7 @@ public:
         ss << "hp:" << hp[0]
                     << "\nworld:" << mana[0].world
                     << "\nastral:" << mana[0].astral;
-        setText(word_stats0, ss.str().c_str(), 1.1, -0.75);
+        setText(word_stats0, ss.str().c_str(), config.player_stats_column, config.player_stats_row);
     }
 
     void renderComputerStats() {
@@ -383,7 +356,7 @@ public:
         st << "hp:" << hp[1]
            << "\nworld:" << mana[1].world
            << "\nastral:" << mana[1].astral;
-        setText(word_stats1, st.str().c_str(), 1.1, 0.85);
+        setText(word_stats1, st.str().c_str(), config.player_stats_column, config.computer_stats_row);
     }
 
     void publicSetHandPosition(double time, int card, int player, int position_in_hand,
@@ -400,6 +373,18 @@ public:
     void publicSetGraveyardPosition(double time, int c) {
         std::lock_guard<std::mutex> guard(board_mutex);
         setGraveyardPosition(time, c);
+    }
+
+    Vector2f positionOfPlayer(int player) const {
+            switch (player) {
+            case 0:
+                return Vector2f(config.player_column, config.player_row);
+            case 1:
+                return Vector2f(config.player_column, config.computer_row);
+            default:
+                assert(false);
+            }
+            return Vector2f(0.0, 0.0);
     }
 };
 

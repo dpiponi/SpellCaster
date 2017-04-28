@@ -547,18 +547,18 @@ void SpellCaster::executeInstant(int c, bool verbose) {
 
         int target_card = target[c];
 
-        int arena_id = board->arena(c, target_card, start_arena, start_launch);
-        wait_until(start_launch);
+//        int arena_id = board->arena(c, target_card, start_arena, start_launch);
+//        wait_until(start_launch);
         // executeInstant()
         //board->launch(c, target_card, start_launch, start_unarena);
-        double start_unarena = now();
-        double end_unarena = start_unarena+1.0;
+//        double start_unarena = now();
+//        double end_unarena = start_unarena+1.0;
         definitions[c]->animate(this, board, c, target_card, verbose);
-        wait_until(start_unarena);
+//        wait_until(start_unarena);
         // executeInstant()
         board->publicSetGraveyardPosition(now()+0.5, c);
-        board->unArena(arena_id, c, target_card, start_unarena, end_unarena);
-        wait_until(end_unarena);
+//        board->unArena(arena_id, c, target_card, start_unarena, end_unarena);
+//        wait_until(end_unarena);
     }
 #endif
 }

@@ -39,13 +39,13 @@ protected:
 public:
     bool shadow;
     bool visible;
-    float getX() {
+    float getX() const {
         return x.get();
     }
-    float getZ() {
+    float getZ() const {
         return x.get();
     }
-    float getY() {
+    float getY() const {
         return y.get();
     }
     float getXSize() {

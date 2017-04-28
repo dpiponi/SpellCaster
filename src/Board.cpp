@@ -289,7 +289,7 @@ void Board::flame(Vector3f colour, int source_card, int target_card, double star
     int id = 0;
     double dt = (end_time-start_time)/20;
     shared_ptr<Rectangle> segment = make_shared<Rectangle>();
-    static GlowProgram *flame_program = ProgramRegistry::getProgram<GlowProgram>("glow");
+    static GlowProgram *flame_program = ProgramRegistry::getProgram<GlowProgram>("flame");
     segment->setShader(flame_program);
     //glow_program.use();
     flame_program->setColor(colour);
@@ -306,17 +306,22 @@ void Board::flame(Vector3f colour, int source_card, int target_card, double star
         segment->setSize(time, size, size);
         segment->setPosition(time, target);
         segment->setZ(time, 0.99);
-        float s = (t-start_time)/(end_time-start_time);
+        float s = 0.05*t;
         float alpha = 2*linstep(0.0, 0.05, s)*linstep(1.0, 0.25, s);
+        cout << "s=" <<s << endl;
+        cout << "alpha=" <<alpha << endl;
         segment->setAlpha(time, alpha);
     }
 
     {
         std::lock_guard<std::mutex> guard(board_mutex);
+        cout << "Adding segment element" << endl;
         id = drawables.addElement(segment);
     }
 
+    cout << "Waiting" << endl;
     wait_until(end_time);
+    cout << "Done" << endl;
 
     {
         std::lock_guard<std::mutex> guard(board_mutex);
@@ -324,11 +329,11 @@ void Board::flame(Vector3f colour, int source_card, int target_card, double star
     }
 }
 
-void Board::glow(Vector3f colour, int source_card, int target_card, double start_time, double end_time) {
+void Board::glow(Vector3f colour, int source_card, int target_card, double start_time, double end_time, Vector2f target) {
     cout << "ACTUAL LAUNCH() = " << source_card << ' ' << target[source_card] << endl;
 
     Vector2f source(-0.5, 0.0);
-    Vector2f target(0.5, 0.0);
+    //Vector2f target(0.5, 0.0);
 
     GLuint tex = create_texture("assets/glow.png");
 
@@ -565,7 +570,6 @@ int Board::arena(int card1, int card2, double start_time, double end_time) {
     arena_rectangle->setPosition(start_time, 0.0, 0.0);
     arena_rectangle->setSize(start_time, 0.75, 0.35);
     arena_rectangle->setAngle(start_time, 0.0);
-    //arena_rectangle->setTexture(create_texture("assets/colosseum.jpg"));
     arena_rectangle->setTexture(create_texture("assets/tiles.jpg"));
 
     int arena_id = drawables.addElement(arena_rectangle);
@@ -586,7 +590,7 @@ int Board::arena(int card1, int card2, double start_time, double end_time) {
 
     if (card2 == PLAYER0) {
         player.setZ(start_time, 0.95);
-        player.setPosition(start_time);
+        //player.setPosition(start_time);
 
         player.setPosition(end_time, 0.5, 0);
         player.setZ(end_time, 0.95);
@@ -796,7 +800,9 @@ void Board::drawConnection(float ratio, RGB rgb, int i, int j, int k) {
 }
 
 void Board::setPlayerPosition(double time, double z) {
-    player.setPosition(time, 0.95, -0.8);
+//    cout << config.player_column << ' ' << config.player_row << endl;
+    cout << "Computer position: " << config.player_column << ' ' << config.player_row << endl;
+    player.setPosition(time, config.player_column, config.player_row);
     player.setZ(time, z);
     player.setSize(time, 0.125, 0.25);
     player.setAlpha(time, 1.0);
@@ -805,9 +811,10 @@ void Board::setPlayerPosition(double time, double z) {
 }
 
 void Board::setComputerPosition(double time, double z) {
-    computer.setPosition(time, 0.95, 0.8);
+    cout << "Player position: " << config.player_column << ' ' << config.computer_row << endl;
+    computer.setPosition(time, config.player_column, config.computer_row);
     computer.setZ(time, z);
-    computer.setSize(time, 0.1, 0.1);
+    computer.setSize(time, 0.125, 0.25);
     computer.setAlpha(time, 1.0);
     computer.visible = true;
     computer.shadow = true;
@@ -817,7 +824,7 @@ void Board::setAnnotation(int card) {
     std::lock_guard<std::mutex> guard(board_mutex);
     annotation.setTexture(tex[card]);;
     annotation.setPosition(now(), Vector2f(config.annotation_x, config.annotation_y));
-    annotation.setZ(now(), 0.9);
+    annotation.setZ(now(), 0.90);
     annotation.setSize(0.0, 0.5*config.annotation_height, config.annotation_height);
     annotation.setAlpha(0.0, 1.0);
     annotation.shadow = true;
@@ -852,7 +859,9 @@ void Board::setAnnotation(int card) {
         summary << describe(exclusions[card]);
         summary << "\n";
     }
-    setText(word_annotation, summary.str().c_str(), config.annotation_x-0.5*config.annotation_height+0.01, config.annotation_y-config.annotation_height-config.vertical_text_space);
+    setText(word_annotation, summary.str().c_str(),
+            config.annotation_x-0.5*config.annotation_height+0.01,
+            config.annotation_y-config.annotation_height-config.vertical_text_space);
 }
 
 void Board::initBackground() {
@@ -866,20 +875,13 @@ void Board::initBackground() {
 
 void Board::initPlayers() {
     std::lock_guard<std::mutex> guard(board_mutex);
-    //background.setTexture(create_texture("assets/Forest.png"));
     initBackground();
 
     player.setTexture(create_texture(config.player_icon.c_str()));
     setPlayerPosition(now());
 
-    //computer.setTexture(create_texture("assets/computer.png"));
     computer.setTexture(create_texture(config.computer_icon.c_str()));
-    computer.setPosition(0.0, 0.95, 0.8);
-    computer.setZ(0.0, 0.0);
-    computer.setSize(0.0, 0.125, 0.25);
-    computer.setAlpha(0.0, 1.0);
-    computer.visible = true;
-    computer.shadow = true;
+    setComputerPosition(now());
 
     passbutton.setTexture(create_texture("assets/passbutton.png"));
     passbutton.setPosition(0.0, 0.95, 0.1);
@@ -953,7 +955,7 @@ void Board::drawz(float zlo, float zhi, float ratio) {
             }
         }
     }
-    if (zlo <= 0.0 && 0.0 < zhi) {
+    if (zlo <= 0.9 && 0.9 < zhi) {
         if (annotation.visible) {
             ::drawShadow(ratio, -1.1, 0.0, 0.0, 0.0, 0.2, 0.8, 0.35);
             annotation.drawz(zlo, zhi, ratio, config.border_line_width);
@@ -1025,6 +1027,7 @@ int Board::contains(Point point) const {
         return 2000;
     }
     if (player.contains(point)) {
+        cout << "Clicked on player!!!!!!!!!!!!!!!  " << player.getX() << ' ' << player.getY() << endl;
         return 1000;
     }
     if (computer.contains(point)) {
@@ -1063,4 +1066,32 @@ void Board::dump() {
     cout << "hand1: ";
     for (int i = 0; i < hand[1].size(); ++i) cout << hand[1][i] << ' ';
     cout << endl;
+}
+
+BoardConfig::BoardConfig(Json json) {
+    in_play_left = json["in_play_left"].number_value();
+    hand_left = json["hand_left"].number_value();
+    in_play_spacing = json["in_play_spacing"].number_value();
+    hand_spacing = json["hand_spacing"].number_value();
+    offset_for_player = json["offset_for_player"].number_value();
+    annotation_x = json["annotation_x"].number_value();
+    annotation_y = json["annotation_y"].number_value();
+    annotation_height = json["annotation_height"].number_value();
+    player_highlight.r = json["player_highlight"].array_items()[0].number_value();
+    player_highlight.g = json["player_highlight"].array_items()[1].number_value();
+    player_highlight.b = json["player_highlight"].array_items()[2].number_value();
+    computer_highlight.r = json["computer_highlight"].array_items()[0].number_value();
+    computer_highlight.g = json["computer_highlight"].array_items()[1].number_value();
+    computer_highlight.b = json["computer_highlight"].array_items()[2].number_value();
+    border_line_width = json["border_line_width"].number_value();
+    computer_icon = json["computer_icon"].string_value();
+    player_icon = json["player_icon"].string_value();
+    background = json["background"].string_value();
+    vertical_text_space = json["vertical_text_space"].number_value();
+    player_row = json["player_row"].number_value();
+    computer_row = json["computer_row"].number_value();
+    player_column = json["player_column"].number_value();
+    player_stats_column = json["player_stats_column"].number_value();
+    player_stats_row = json["player_stats_row"].number_value();
+    computer_stats_row = json["computer_stats_row"].number_value();
 }

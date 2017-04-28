@@ -1,3 +1,45 @@
+Recall
+Recall
+Recall
+Recall
+Recall
+Recall
+Recall
+Recall
+Recall
+Recall
+Recall
+Recall
+Recall
+Recall
+Recall
+Recall
+Recall
+Recall
+Recall
+Recall
+Recall
+Recall
+Recall
+Recall
+Recall
+Recall
+Burn
+Burn
+Burn
+Burn
+Burn
+Burn
+Burn
+Burn
+Burn
+Burn
+Burn
+Burn
+Burn
+Burn
+Burn
+Burn
 Shooting Stars
 Ambush
 An Evil Blast
@@ -60,6 +102,8 @@ Henge
 Henge
 Henge
 Henge
+Henge
+Henge
 Holy Symbol
 Holy Water
 Hydra
@@ -74,6 +118,8 @@ Loyalty
 Magic Spear
 Make Artifact
 Man O' War
+Mana
+Mana
 Mana
 Mana
 Mana
@@ -164,8 +210,6 @@ Strength
 Sudden Death
 Suspend
 Tempest
-Temple
-Temple
 Temple
 Temple
 Temple
