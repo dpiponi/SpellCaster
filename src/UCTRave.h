@@ -52,6 +52,7 @@ class Node {
 public:
     map<typename Game::Move, shared_ptr<Node>> children;
     Node *parent;
+    bool certain_win;
 private:
 public:
     int ntot;
@@ -84,7 +85,7 @@ public:
         return best_id;
     }
     Node(const UCTParameters &params, Node *p)
-            : parent(p), ntot(0) { }
+            : parent(p), ntot(0), certain_win(false) { }
 
     // XXX inefficient
     bool isThereUntried(const vector<typename Game::Move> &moves) {
