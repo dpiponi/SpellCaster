@@ -149,8 +149,8 @@ public:
 #ifdef BOARD
         if (verbose) {
             int target_player = target-PLAYER0;
-            board->glow(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+3.0, board->positionOfPlayer(target_player));
-            //board->flame(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+5.0);
+            //board->glow(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+3.0, board->positionOfPlayer(target_player));
+            board->claw(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+3.0, 5);
         }
 #endif
     }
@@ -202,6 +202,7 @@ public:
             *board << "Some mana for you";
             int target_player = target_card-PLAYER0;
             board->glow(Vector3f(0.8, 0.75, 0.0), card, target_card, now(), now()+2.0, board->positionOfPlayer(target_player));
+            //board->zzz(Vector3f(0.8, 0.75, 0.0), card, target_card, now(), now()+4.0);
             game->end_message();
             *board << "Plus extra " << count << " astral";
             game->end_message();
@@ -276,6 +277,7 @@ void MonsterDefinition::execute(SpellCaster *game, int card, bool verbose) const
         if (verbose) {
             *board << game->description(card, false) << " ATTACKS PLAYER 0";
             game->end_message();
+            board->claw(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+3.0, attack);
         }
 #endif
         game->damage_player(0, attack, verbose);
@@ -1536,3 +1538,24 @@ int SkeletonLord::computeAttack(SpellCaster *game, int card, int target, bool ve
     }
     return attack;
 }
+
+void SleepBase::animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const {
+#ifdef BOARD
+    if (verbose) {
+        cout << "BBBBBBBBBUUUUUUUUURRRRRRRRRRRRNNNNNNNNNNNN!!!!!!!!!" << endl;
+        board->zzz(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+3.0);
+        // board->flame(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+3.0);
+    }
+#endif
+}
+
+void MonsterDefinition::animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const { }
+#if 0
+#ifdef BOARD
+    if (verbose) {
+        cout << "CLAWWW!!!!!!!!!" << endl;
+        board->claw(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+3.0);
+    }
+#endif
+}
+#endif

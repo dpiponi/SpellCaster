@@ -329,6 +329,119 @@ void Board::flame(Vector3f colour, int source_card, int target_card, double star
     }
 }
 
+void Board::claw(Vector3f colour, int source_card, int target_card, double start_time, double end_time, int n_claws) {
+    cout << "ACTUAL LAUNCH() = " << source_card << ' ' << target[source_card] << endl;
+
+    Vector2f source(-0.5, 0.0);
+    Vector2f target(0.5, 0.0);
+
+    GLuint tex1 = create_texture("assets/claw1.png");
+    GLuint tex2 = create_texture("assets/claw2.png");
+    GLuint tex3 = create_texture("assets/claw3.png");
+    vector<GLuint> tex { tex1, tex2, tex3 };
+
+    vector<int> id;
+    double dt = (end_time-start_time)/20;
+
+    for (int k = 0; k < n_claws; ++k) {
+        shared_ptr<Rectangle> segment = make_shared<Rectangle>();
+        for (int t = 0; t < 20; ++t) {
+
+            double time = start_time+dt*t;
+            int tt = 0.1*min(10, t-k);
+
+            segment->visible = true;
+            segment->setNoHighlight();
+            segment->setTexture(tex[k % 3]);
+            segment->shadow = false;
+
+            segment->setAngle(time, 0.0);
+            float size = tt*0.1;
+            segment->setSize(time, size, size);
+            float amplitude = 0.2*(0.5+0.5*size);
+            Vector2f offset(-0.1+0.03*(-0.5*(n_claws-1)+k), 0.1-0.1*tt);
+            segment->setPosition(time, target+offset);
+            segment->setZ(time, 0.99);
+            segment->setAlpha(time, 1.0);
+
+            {
+                std::lock_guard<std::mutex> guard(board_mutex);
+                cout << "Adding segment element" << endl;
+                id.push_back(drawables.addElement(segment));
+            }
+        }
+    }
+
+    cout << "Waiting" << endl;
+    wait_until(end_time);
+    cout << "Done" << endl;
+
+    {
+        std::lock_guard<std::mutex> guard(board_mutex);
+        for (auto p : id) {
+            drawables.removeElement(p);
+        }
+    }
+}
+
+void Board::zzz(Vector3f colour, int source_card, int target_card, double start_time, double end_time) {
+    cout << "ACTUAL LAUNCH() = " << source_card << ' ' << target[source_card] << endl;
+
+    Vector2f source(-0.5, 0.0);
+    Vector2f target(0.5, 0.0);
+
+    GLuint tex = create_texture("assets/zzz.png");
+
+    vector<int> id;
+    double dt = (end_time-start_time)/20;
+    //static GlowProgram *flame_program = ProgramRegistry::getProgram<GlowProgram>("flame");
+    //segment->setShader(flame_program);
+    //glow_program.use();
+    //flame_program->setColor(colour);
+    for (int k = 0; k < 3; ++k) {
+        shared_ptr<Rectangle> segment = make_shared<Rectangle>();
+        for (int t = 0; t < 20; ++t) {
+            double time = start_time+dt*t;
+
+            segment->visible = true;
+            segment->setNoHighlight();
+            segment->setTexture(tex);
+            segment->shadow = false;
+
+            segment->setAngle(time, 0.0);
+            double tt = t-2*k;
+            float size = max(0.0, 0.125*0.05*tt);
+            segment->setSize(time, size, size);
+            float amplitude = 0.2*(0.5+0.5*size);
+            Vector2f pos(amplitude*cos(8.0*0.05*tt), amplitude*sin(8.0*0.05*tt)+0.4*0.05*tt);
+            segment->setPosition(time, target+pos+Vector2f(0.0, 0.1));
+            segment->setZ(time, 0.99);
+            float s = 0.05*t;
+            float alpha = 2*linstep(0.0, 0.05, s)*linstep(1.0, 0.25, s);
+            cout << "s=" <<s << endl;
+            cout << "alpha=" <<alpha << endl;
+            segment->setAlpha(time, alpha);
+        }
+
+        {
+            std::lock_guard<std::mutex> guard(board_mutex);
+            cout << "Adding segment element" << endl;
+            id.push_back(drawables.addElement(segment));
+        }
+    }
+
+    cout << "Waiting" << endl;
+    wait_until(end_time);
+    cout << "Done" << endl;
+
+    {
+        std::lock_guard<std::mutex> guard(board_mutex);
+        for (auto p : id) {
+            drawables.removeElement(p);
+        }
+    }
+}
+
 void Board::glow(Vector3f colour, int source_card, int target_card, double start_time, double end_time, Vector2f target) {
     cout << "ACTUAL LAUNCH() = " << source_card << ' ' << target[source_card] << endl;
 
@@ -733,6 +846,10 @@ void Board::initTextures(const vector<const Definition *> &player_deck,
     create_texture("assets/flaming rock.png");
     create_texture("assets/miracle.png");
     create_texture("assets/glow.png");
+    create_texture("assets/zzz.png");
+    create_texture("assets/claw1.png");
+    create_texture("assets/claw2.png");
+    create_texture("assets/claw3.png");
 
     cout << "...done" << endl;
 }

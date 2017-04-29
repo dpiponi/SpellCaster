@@ -1,7 +1,43 @@
-<<<<<<< HEAD
-=======
-Shooting Stars
->>>>>>> 98851d5f381beeb18a9a6df4e9eb07e54078ac98
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
 Ambush
 An Evil Blast
 An Ill Wind
@@ -11,10 +47,7 @@ Archers
 Artemis' Bow
 Automaton Army
 Avenging Angel
-<<<<<<< HEAD
-=======
 Banshee
->>>>>>> 98851d5f381beeb18a9a6df4e9eb07e54078ac98
 Bat Colony
 Bite The Hand...
 Blast
@@ -25,6 +58,7 @@ Blue Dragon
 Blue Skies
 Bribe
 Brick Wall
+Burn
 Comet
 Crocodile
 Darkness
@@ -121,11 +155,6 @@ Mana
 Mana
 Mana
 Mana
-Mana
-Mana
-Mana
-Mana
-Mana
 Mana Wheel
 Mephistopheles
 Mimic
@@ -146,6 +175,7 @@ Sacrifice
 Scorpion
 Shard
 Shield
+Shooting Stars
 Sickness
 Skeleton
 Skeleton Lord
@@ -162,6 +192,16 @@ Strength
 Sudden Death
 Suspend
 Tempest
+Temple
+Temple
+Temple
+Temple
+Temple
+Temple
+Temple
+Temple
+Temple
+Temple
 Temple
 Tornado
 Troll

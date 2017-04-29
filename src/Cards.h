@@ -938,7 +938,7 @@ public:
     SpellEater() : MonsterDefinition("Spell Eater", "🌵 ", -1, 1, 1, 1, 1, 1,
                     CardClass::MONSTER,
                     CardClass::PLAYER | CardClass::MONSTER | CardClass::SPELL,
-                    CardProperty::UNDEAD | CardProperty::FEARLESS,
+                    CardProperty::FEARLESS,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::BLESSED | CardProperty::ETHEREAL) { }
     void execute(SpellCaster *game, int c, bool verbose) const;

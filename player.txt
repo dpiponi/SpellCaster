@@ -1,133 +1,3 @@
-Burn
-Burn
-Burn
-Burn
-Burn
-Burn
-Ogre
-Ogre
-Ogre
-Burn
-Burn
-Burn
-Burn
-Burn
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Burn
-Burn
-Burn
-Burn
-Burn
-Burn
-Burn
-Burn
-Burn
-Burn
-Burn
-Burn
-Burn
-Burn
-Burn
-Burn
-Shooting Stars
-Ambush
-An Evil Blast
-An Ill Wind
-Angry Ghost
-Ant Swarm
-Archers
-Artemis' Bow
-Automaton Army
-Avenging Angel
-Banshee
-Bat Colony
-Bite The Hand...
-Blast
-Bless
-Blessed Lion
-Blowfish
-Blue Dragon
-Blue Skies
-Bribe
-Brick Wall
-Comet
-Crocodile
-Darkness
-Daylight
-Death's Door
-Djinn
-Double
-Dragon
-Drain Power
-Dwarf
-Elephant Man
-Ethereal Ring
-Excalibur
-Fear
-Fiery Chariot
-Fighting Manual
-Fire Elemental
-Flight
-Fortress
-Fountain of Youth
-Freeze
-Gelatinous Cube
-Ghoul
-Giant
-Giant Boar
-Giant Lizard
-Goblin
-Golem
-Ground
-Haste
-Henge
-Henge
-Henge
-Henge
-Henge
-Henge
-Henge
-Henge
-Henge
-Henge
-Henge
-Henge
-Henge
-Holy Symbol
-Holy Water
-Hydra
-Improve
-Jester's Wish
-Kraken
-Library
-Lightning
-Link
-Locust Plague
-Loyalty
-Magic Spear
-Make Artifact
-Man O' War
 Mana
 Mana
 Mana
@@ -149,103 +19,80 @@ Mana
 Mana
 Mana
 Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana Wheel
-Mephistopheles
-Mimic
-Misfire
-Neptune's Trident
-Octopus
-Ogre
-Perpetual Machine
-Plague
-Rage
-Rat Swarm
-Recall
-Red Dragon
-Resist Astral Magic
-Resist Worldly Magic
-Resist Astral Magic
-Resist Worldly Magic
-Resist Astral Magic
-Resist Worldly Magic
-Resist Astral Magic
-Resist Worldly Magic
-Resist Astral Magic
-Resist Worldly Magic
-Roc
-Sacrifice
-Scorpion
-Shard
-Shield
-Sickness
-Skeleton
-Skeleton Lord
 Sleep
-Sloth
-Smash Artifact
-Snake
-Spell Eater
-Spider
-Spirit
-Stampede
-Steal
-Strength
-Sudden Death
-Suspend
-Tempest
-Temple
-Temple
-Temple
-Temple
-Temple
-Temple
-Temple
-Temple
-Temple
-Temple
-Temple
-Temple
-Temple
-Temple
-Tornado
-Troll
-Unicorn
-Unspell
-Upgrade Artifact
-Vampire
-Volcano
-Vorpal Bunny
-War Machine
-Weakling
-Web
-Wight
-Worm Demon
-Wraith
-Zombie Horde
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin
+Goblin

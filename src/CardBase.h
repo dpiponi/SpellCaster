@@ -86,6 +86,7 @@ public:
         MonsterDefinition(types ... args) : Definition(args...) { }
     virtual void describe(const SpellCaster *game, ostream &out, int c) const;
     void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const;
 };
 
 class ImmobilisingMonsterDefinition : public MonsterDefinition {
@@ -198,7 +199,8 @@ class SleepBase : public SpellDefinition {
 public:
     template<class ... types>
         SleepBase(types ... args) : SpellDefinition(args...) { }
-    void execute(SpellCaster *game, int c, bool verbose) const;
+    void execute(SpellCaster *game, int c, bool verbose) const override;
+    void animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const override;
 };
 
 class MagicWeapon : public ArtifactDefinition {
