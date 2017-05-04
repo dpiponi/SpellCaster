@@ -78,7 +78,7 @@ const int PASS = -1;
 extern shared_ptr<Board> board;
 #endif
 
-class SpellCaster {
+class SpellCaster : public std::enable_shared_from_this<SpellCaster> {
 public:
     vector<vector<int> > deck;
     vector<vector<int> > hand;
@@ -246,7 +246,7 @@ public:
 #endif
     }
 
-    bool hasProperty(int card, CardProperty property) {
+    bool hasProperty(int card, CardProperty property) const {
         return toBool(properties[card] & property);
     }
 
@@ -353,9 +353,16 @@ public:
         return NON_TERMINAL;
     }
 
-    void doExecution(bool verbose);
-    void doMove(Move m, bool verbose = false);
-    void doPass(bool verbose) {
+    void doExecution(shared_ptr<BoardBase> board, bool verbose);
+    void doMove(shared_ptr<BoardBase> board, Move m, bool verbose);
+    void doMove(Move m, bool verbose = false) {
+        static shared_ptr<BoardBase> board = make_shared<MockBoard>();
+        if (verbose) {
+            cout << "ACTUALLY DOING MOVE!!!" << endl;
+        }
+        doMove(board, m, verbose);
+    }
+    void doPass(shared_ptr<BoardBase> board, bool verbose) {
 #ifdef BOARD
         if (verbose) {
             *board << "PASS";
@@ -363,7 +370,7 @@ public:
         }
 #endif
 
-        doExecution(verbose);
+        doExecution(board, verbose);
         checkConsistency();
     }
 
@@ -411,24 +418,24 @@ public:
     //
     const char *cantCardTarget(int c, int t) const;
 
-    void executeCard(int c, bool verbose) {
+    void executeCard(shared_ptr<BoardBase> board, int c, bool verbose) {
         if (targetNotLegal(c, verbose)) return;
         if (targetNotInPlay(c, verbose)) return;
         if (cardImmobile(c, verbose)) return;
         if (cardCombining(c, verbose)) return;
-        definitions[c]->execute(this, c, verbose);
+        definitions[c]->execute(board, shared_from_this(), c, verbose);
 #ifdef BOARD
         if (verbose) {
-            board->setUpBoard(this, now(), now()+0.5);
+            board->setUpBoard(shared_from_this(), now(), now()+0.5);
         }
 #endif
     }
 
-    void executeInstant(int c, bool verbose);
+    void executeInstant(shared_ptr<BoardBase> board, int c, bool verbose);
 
-    void handleInstant(int c, int card_number, int t, bool verbose);
+    void handleInstant(shared_ptr<BoardBase> board, int c, int card_number, int t, bool verbose);
 
-    void execute(bool verbose);
+    void execute(shared_ptr<BoardBase> board, bool verbose);
 
     int location_in_hand(int c) const {
         return find(in_play.begin(), in_play.end(), c)-in_play.begin();

@@ -59,7 +59,48 @@ public:
     BoardConfig(Json json);
 };
 
-class Board {
+class BoardBase {
+public:
+    virtual void setUpBoard(shared_ptr<const SpellCaster> game, double time0, double time1) = 0;
+    virtual void launch(int source_card, int target_card, double start_time, double end_time) = 0;
+    virtual void glow(Vector3f colour, int source_card, int target_card, double start_time, double end_time, Vector2f target) = 0;
+    virtual void claw(Vector3f colour, int source_card, int target_card, double start_time, double end_time, int attack) = 0;
+    virtual void flame(Vector3f colour, int source_card, int target_card, double start_time, double end_time) = 0;
+    virtual void zzz(Vector3f colour, int source_card, int target_card, double start_time, double end_time) = 0;
+    virtual void expose(int card) = 0;
+    virtual Vector2f positionOfPlayer(int player) const = 0; // Must go XXX
+    virtual void focus(int player, int card, float delay, bool wobble = true) = 0;
+    virtual void publicSetGraveyardPosition(double time, int c) = 0;
+    virtual int arena(int card1, int card2, double start_time, double end_time) = 0;
+    virtual void unArena(int arena_id, int card1, int card2, double time0, double time1) = 0;
+    virtual void publicSetPlayerPosition(double time, double z = 0.0) = 0;
+
+    virtual const BoardBase &operator<<(int x) const = 0;
+    virtual const BoardBase &operator<<(string x) const = 0;
+
+    virtual ~BoardBase() { }
+};
+
+class MockBoard : public BoardBase {
+    void setUpBoard(shared_ptr<const SpellCaster> game, double time0, double time1) override { }
+    void launch(int source_card, int target_card, double start_time, double end_time) override { }
+    void glow(Vector3f colour, int source_card, int target_card, double start_time, double end_time, Vector2f target) override { }
+    void claw(Vector3f colour, int source_card, int target_card, double start_time, double end_time, int attack) override { }
+    void flame(Vector3f colour, int source_card, int target_card, double start_time, double end_time) override { }
+    void zzz(Vector3f colour, int source_card, int target_card, double start_time, double end_time) override { }
+    Vector2f positionOfPlayer(int player) const override { return Vector2f(0.0f, 0.0f); } // Must go XXX
+    void expose(int card) override { }
+    void focus(int player, int card, float delay, bool wobble = true) override { }
+    void publicSetGraveyardPosition(double time, int c) override {}
+    int arena(int card1, int card2, double start_time, double end_time) override { return 0; }
+    void unArena(int arena_id, int card1, int card2, double time0, double time1) override { }
+    void publicSetPlayerPosition(double time, double z = 0.0) override { }
+
+    const MockBoard &operator<<(int x) const override { return *this; }
+    const MockBoard &operator<<(string x) const override { return *this; }
+};
+
+class Board : public BoardBase {
     BoardConfig config;
     mutable std::mutex board_mutex;
     int ncards;
@@ -178,12 +219,12 @@ public:
     void launch3(int source_card);
     void launch4(int source_card, int target_card, double start_time, double end_time);
     void launch2(int source_card);
-    void launch(int source_card, int target_card, double start_time, double end_time);
-    void glow(Vector3f colour, int source_card, int target_card, double start_time, double end_time, Vector2f target);
+    void launch(int source_card, int target_card, double start_time, double end_time) override;
+    void glow(Vector3f colour, int source_card, int target_card, double start_time, double end_time, Vector2f target) override;
     void launch5(int source_card, int target_card, double start_time, double end_time);
-    void flame(Vector3f colour, int source_card, int target_card, double start_time, double end_time);
-    void zzz(Vector3f colour, int source_card, int target_card, double start_time, double end_time);
-    void claw(Vector3f colour, int source_card, int target_card, double start_time, double end_time, int attack);
+    void flame(Vector3f colour, int source_card, int target_card, double start_time, double end_time) override;
+    void zzz(Vector3f colour, int source_card, int target_card, double start_time, double end_time) override;
+    void claw(Vector3f colour, int source_card, int target_card, double start_time, double end_time, int attack) override;
 
     void initBackground();
 
@@ -258,7 +299,7 @@ public:
         cards[card]->setNoHighlight();
     }
 
-    void expose(int card) {
+    void expose(int card) override {
         std::lock_guard<std::mutex> guard(board_mutex);
         cards[card]->setTexture(tex[card]);
     }
@@ -288,19 +329,21 @@ public:
 
     void initPlayers();
 
-    int arena(int card1, int card2, double start_time, double end_time);
-    void unArena(int arena_id, int card1, int card2, double time0, double time1);
+    int arena(int card1, int card2, double start_time, double end_time) override;
+    void unArena(int arena_id, int card1, int card2, double time0, double time1) override;
     void unFocus(int player, int card, float delay);
-    void focus(int player, int card, float delay, bool wobble = true);
+    void focus(int player, int card, float delay, bool wobble = true) override;
 
-    void setUpBoard(const SpellCaster *game, double time0, double time1);
+    void setUpBoard(shared_ptr<const SpellCaster> game, double time0, double time1) override;
 
+#if 0
     void setUpBoard(shared_ptr<const SpellCaster> game, double time0, double time1) {
         setUpBoard(game.get(), time0, time1);
     }
+#endif
 
     template<class C>
-    const Board &operator<<(const C &x) const {
+    const Board &write(const C &x) const {
         std::lock_guard<std::mutex> guard(board_mutex);
         auto non_const = const_cast<Board *>(this);
         if (new_message) {
@@ -310,6 +353,13 @@ public:
         non_const->text_stream << x;
         non_const->setText(non_const->word, text_stream.str().c_str(), -0.9, 0.9);
         return *this;
+    }
+
+    const Board &operator<<(string x) const override {
+        return write(x);
+    }
+    const Board &operator<<(int x) const override {
+        return write(x);
     }
 
     void setNewMessage() const {
@@ -367,17 +417,17 @@ public:
         setHandPosition(time, card, player, position_in_hand, size, z, offsetx, offsety);
     }
 
-    void publicSetPlayerPosition(double time, double z = 0.0) {
+    void publicSetPlayerPosition(double time, double z = 0.0) override {
         std::lock_guard<std::mutex> guard(board_mutex);
         setPlayerPosition(time, z);
     }
 
-    void publicSetGraveyardPosition(double time, int c) {
+    void publicSetGraveyardPosition(double time, int c) override {
         std::lock_guard<std::mutex> guard(board_mutex);
         setGraveyardPosition(time, c);
     }
 
-    Vector2f positionOfPlayer(int player) const {
+    Vector2f positionOfPlayer(int player) const override {
             switch (player) {
             case 0:
                 return Vector2f(config.player_column, config.player_row);

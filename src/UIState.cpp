@@ -46,14 +46,17 @@ static void WaitingForFirstCardReceived(int first_card);
 void WaitingForSecondCard::mouse(Application *app, int button, int action, int mode) {
     Point point = app->getMousePixels();
     int second_card = board->mouse_press(point);
+    cout << "GOT SECOnD CARD" << endl;
 
     if (second_card >= 0) {
         if (second_card == first_card) {
+            cout << "GOT first CARD again" << endl;
             // Unselection
             board->unHighlightAll();
 
 //            int pos = find(game->hand[0].begin(), game->hand[0].end(), first_card)-game->hand[0].begin();
 //            assert(game->hand[0][pos] == first_card);
+            cout << "GOINT TO UNFOCUS!!!" << endl;
             board->unFocus(0, first_card, 0.1);
 
             ui_state = make_shared<WaitingForFirstCard>();
@@ -63,6 +66,7 @@ void WaitingForSecondCard::mouse(Application *app, int button, int action, int m
         if (second_card < 1000 && game->location[second_card] == Location::HAND0) {
             board->unHighlightAll();
 
+            cout << "GOINT TO UNFOCUS!!!" << endl;
             board->unFocus(0, first_card, 0.1);
 
             WaitingForFirstCardReceived(second_card);
@@ -84,7 +88,8 @@ void WaitingForSecondCard::mouse(Application *app, int button, int action, int m
         assert(analysis_game->nextPlayer == 1);
 
         future_player_move = std::async(std::launch::async, [id]() {
-            game->doMove(id, true);
+            cout << "LAUNCHED DO MOVE ASYNC!!!!" << endl;
+            game->doMove(board, id, true);
         });
 
         if (analysis_game->evaluate() == NON_TERMINAL) {
@@ -109,7 +114,7 @@ void playerPasses() {
     assert(analysis_game->nextPlayer == 1);
 
     future_player_move = std::async(std::launch::async, []() {
-        game->doMove(SpellCaster::Move(0, -1, -1), true);
+        game->doMove(board, SpellCaster::Move(0, -1, -1), true);
         game->show();
     });
 
@@ -244,7 +249,7 @@ void WaitingForComputerEvaluationToFinish::idle(Application *) {
             future_best = std::future<Best<SpellCaster>>();
 
             future_computer_move = std::async(std::launch::async, [move]() {
-                game->doMove(move, true);
+                game->doMove(board, move, true);
             });
             cout << "state = State::WAITING_FOR_COMPUTER_MOVE_TO_FINISH" << endl;
             ui_state = make_shared<WaitingForComputerMoveToFinish>();

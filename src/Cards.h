@@ -23,7 +23,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::BLUE_MAGIC_RESISTANT) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 };
 
 const class JestersWish : public SpellDefinition {
@@ -34,7 +34,7 @@ public:
                     CardProperty::INSTANT,
                     CardProperty::NONE, /* requirements */
                     CardProperty::NONE) { }
-    virtual void executeInstant(SpellCaster *game, int c, bool verbose) const;
+    virtual void executeInstant(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } jestersWish;
 
 const class PerpetualMachine : public PerpetualMachineBase {
@@ -65,7 +65,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 };
 
 const class Darkness : public SpellDefinition {
@@ -76,7 +76,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::UNDEAD,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } darkness;
 
 const class BlueSkies : public SpellDefinition {
@@ -87,7 +87,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::FLYING,
                     CardProperty::BLUE_MAGIC_RESISTANT) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } blueSkies;
 
 const class Plague : public SpellDefinition {
@@ -98,7 +98,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::ETHEREAL) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } plague;
 
 #if 0
@@ -110,7 +110,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } offByOne;
 #endif
 
@@ -123,7 +123,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::FLYING | CardProperty::ETHEREAL) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 };
 #endif
 
@@ -135,7 +135,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } ambush;
 
 const class Goblin : public MonsterDefinition {
@@ -216,7 +216,7 @@ public:
                     CardProperty::UNDEAD | CardProperty::FEARLESS,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::BLESSED | CardProperty::ETHEREAL) { }
-    virtual int computeAttack(SpellCaster *game, int card, int target, bool verbose) const override;
+    virtual int computeAttack(shared_ptr<const SpellCaster> game, shared_ptr<BoardBase> board, int card, int target, bool verbose) const override;
 } skeletonLord;
 
 const class AvengingAngel : public MonsterDefinition {
@@ -227,7 +227,7 @@ public:
                     CardProperty::FLYING,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::ETHEREAL) { }
-    virtual int computeAttack(SpellCaster *game, int card, int target, bool verbose) const override;
+    virtual int computeAttack(shared_ptr<const SpellCaster> game, shared_ptr<BoardBase> board, int card, int target, bool verbose) const override;
 } avengingAngel;
 
 const class AngryGhost : public MonsterDefinition {
@@ -280,7 +280,7 @@ public:
                     CardProperty::UNDEAD | CardProperty::FEARLESS,
                     CardProperty::NONE,
                     CardProperty::BLESSED | CardProperty::ETHEREAL) { }
-    void execute(SpellCaster *game, int c, bool verbose) const;
+    void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } vampire;
 
 // Can capture flying with web
@@ -552,7 +552,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
-    void execute(SpellCaster *game, int c, bool verbose) const;
+    void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } weakling;
 
 const class Volcano : public BlastBase {
@@ -593,7 +593,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::UNDEAD, // Can only target undead.
                     CardProperty::NONE) { }
-    void execute(SpellCaster *game, int c, bool verbose) const;
+    void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } holySymbol;
 
 const class Unspell : public DestroyBase {
@@ -694,7 +694,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT) { }
-    void execute(SpellCaster *game, int c, bool verbose) const;
+    void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } sickness;
 
 const class Bribe : public TakeBase {
@@ -735,7 +735,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
-    void execute(SpellCaster *game, int c, bool verbose) const;
+    void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } makeArtifact;
 
 const class Suspend : public SpellDefinition {
@@ -746,7 +746,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::BLUE_MAGIC_RESISTANT) { }
-    void execute(SpellCaster *game, int c, bool verbose) const;
+    void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } suspend;
 
 const class Excalibur : public MagicWeapon {
@@ -767,7 +767,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::BLUE_MAGIC_RESISTANT) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } drainPower;
 
 const class Sacrifice : public SpellDefinition {
@@ -778,7 +778,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::UNDEAD) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } sacrifice;
 
 const class Crocodile : public MonsterDefinition {
@@ -890,7 +890,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::FLYING,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
-    virtual int computeAttack(SpellCaster *game, int card, int target, bool verbose) const override;
+    virtual int computeAttack(shared_ptr<const SpellCaster> game, shared_ptr<BoardBase> board, int card, int target, bool verbose) const override;
 } lightning;
 
 const class Comet : public BlastBase {
@@ -941,7 +941,7 @@ public:
                     CardProperty::FEARLESS,
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::BLESSED | CardProperty::ETHEREAL) { }
-    void execute(SpellCaster *game, int c, bool verbose) const;
+    void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } spellEater;
 
 // Works even with magic resistance
@@ -993,7 +993,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::FLYING) { }
-    void execute(SpellCaster *game, int c, bool verbose) const;
+    void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } mimic;
 
 const class Mephistopheles : public MonsterDefinition {
@@ -1004,7 +1004,7 @@ public:
                     CardProperty::UNDEAD,
                     CardProperty::NONE,
                     CardProperty::BLESSED) { }
-    void execute(SpellCaster *game, int c, bool verbose) const;
+    void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } mephistopheles;
 
 const class VorpalBunny : public MonsterDefinition {
@@ -1015,7 +1015,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::FLYING) { }
-    void execute(SpellCaster *game, int c, bool verbose) const;
+    void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } vorpalBunny;
 
 const class MagicSpear : public MagicWeapon {
@@ -1026,7 +1026,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
                     CardProperty::FLYING) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } magicSpear;
 
 const class NeptunesTrident : public MagicWeapon {
@@ -1047,7 +1047,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::NONE) { }
-    virtual int computeAttack(SpellCaster *game, int card, int target, bool verbose) const;
+    virtual int computeAttack(shared_ptr<const SpellCaster> game, shared_ptr<BoardBase> board, int card, int target, bool verbose) const;
 } artemisBow;
 
 const class ResistAstralMagic : public AntiAstralBase {
@@ -1078,7 +1078,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::FLYING) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } flight;
 
 const class FountainOfYouth : public SpellDefinition {
@@ -1089,7 +1089,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
                     CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::REGENERATING) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } fountainOfYouth;
 
 const class Ground : public SpellDefinition {
@@ -1100,7 +1100,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::FLYING, /* requirements */
                     CardProperty::RED_MAGIC_RESISTANT) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } ground;
 
 const class Rage : public SpellDefinition {
@@ -1111,7 +1111,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } rage;
 
 const class EtherealRing : public SpellDefinition {
@@ -1122,7 +1122,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
                     CardProperty::BLUE_MAGIC_RESISTANT) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } etherealRing;
 
 const class Link : public SpellDefinition {
@@ -1133,7 +1133,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
                     CardProperty::BLUE_MAGIC_RESISTANT) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } _link;
 
 const class Curse : public SpellDefinition {
@@ -1144,7 +1144,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
                     CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::UNDEAD) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } curse;
 
 const class DeathsDoor : public ImminentDeathBase {
@@ -1207,7 +1207,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE, /* requirements */
                     CardProperty::BLUE_MAGIC_RESISTANT) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 } loyalty;
 
 const class Spirit : public MonsterDefinition {
@@ -1258,7 +1258,7 @@ public:
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::FEARLESS,
                     CardProperty::NONE,
                     CardProperty::FLYING) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
 };
 #endif
 

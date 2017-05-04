@@ -477,11 +477,11 @@ SpellCaster::determinise() {
 }
 
 void
-SpellCaster::doExecution(bool verbose) {
+SpellCaster::doExecution(shared_ptr<BoardBase> board, bool verbose) {
     checkConsistency();
 
     // Pass triggers an execution.
-    execute(verbose);
+    execute(board, verbose);
     checkConsistency();
     nextPlayer = 1-nextPlayer; // YYY swap
     passed = false;
@@ -489,7 +489,7 @@ SpellCaster::doExecution(bool verbose) {
 #ifdef BOARD
     if (verbose) {
         // doExecution()
-        board->setUpBoard(this, now(), now()+0.5);
+        board->setUpBoard(shared_from_this(), now(), now()+0.5);
         end_message();
     }
 #endif
@@ -497,7 +497,7 @@ SpellCaster::doExecution(bool verbose) {
     return;
 }
 
-void SpellCaster::handleInstant(int c, int card_number, int t, bool verbose) {
+void SpellCaster::handleInstant(shared_ptr<BoardBase> board, int c, int card_number, int t, bool verbose) {
     exposedTo[0][c] = true;
     exposedTo[1][c] = true;
     mana[nextPlayer] -= cost[c];
@@ -517,7 +517,7 @@ void SpellCaster::handleInstant(int c, int card_number, int t, bool verbose) {
     }
 #endif
 
-    executeInstant(c, verbose);
+    executeInstant(board, c, verbose);
 
     location[c] = Location::GRAVEYARD;
     graveyard.push_back(c);
@@ -527,7 +527,7 @@ void SpellCaster::handleInstant(int c, int card_number, int t, bool verbose) {
         // handleInstant()
         double start_setup = now();
         double end_setup = start_setup+1.0;
-        board->setUpBoard(this, start_setup, end_setup);
+        board->setUpBoard(shared_from_this(), start_setup, end_setup);
         //end_message();
     }
 #endif
@@ -537,7 +537,7 @@ void SpellCaster::handleInstant(int c, int card_number, int t, bool verbose) {
     checkConsistency();
 }
 
-void SpellCaster::executeInstant(int c, bool verbose) {
+void SpellCaster::executeInstant(shared_ptr<BoardBase> board, int c, bool verbose) {
 #ifdef BOARD
     int target_card;
     if (verbose) {
@@ -551,10 +551,10 @@ void SpellCaster::executeInstant(int c, bool verbose) {
         board->focus(owner[c], c, 0.0, false);
     }
 #endif
-    definitions[c]->executeInstant(this, c, verbose);
+    definitions[c]->executeInstant(shared_from_this(), c, verbose);
 #ifdef BOARD
     if (verbose) {
-        definitions[c]->animate(this, board, c, target_card, verbose);
+        definitions[c]->animate(shared_from_this(), board, c, target_card, verbose);
         board->publicSetGraveyardPosition(now()+0.5, c);
     }
 #endif
@@ -575,7 +575,7 @@ void SpellCaster::doDiscard(int verbose, int c, int card_number) {
 #ifdef BOARD
     if (verbose) {
         // doMove(): DISCARD
-        board->setUpBoard(this, now(), now()+0.5);
+        board->setUpBoard(shared_from_this(), now(), now()+0.5);
         end_message();
         *board << description(c, verbose) << " discarded";
         end_message();
@@ -602,7 +602,7 @@ void SpellCaster::doPlay(Move m, int c, int card_number, int verbose) {
 #ifdef BOARD
     if (verbose) {
         // doMove(): move to in_play
-        board->setUpBoard(this, now(), now()+0.5);
+        board->setUpBoard(shared_from_this(), now(), now()+0.5);
         end_message();
     }
 #endif
@@ -617,12 +617,12 @@ void SpellCaster::doPlay(Move m, int c, int card_number, int verbose) {
 // isLegal() should be called before this
 //shared_ptr<const SpellCaster>
 void
-SpellCaster::doMove(Move m, bool verbose) {
+SpellCaster::doMove(shared_ptr<BoardBase> board, Move m, bool verbose) {
     checkConsistency();
     assert(m.target != DISCARD || location[m.card] == Location::HAND0 || location[m.card] == Location::HAND1);
 
     if (m.card == PASS) {
-        doPass(verbose);
+        doPass(board, verbose);
         return;
     }
     int c = m.card;
@@ -634,7 +634,7 @@ SpellCaster::doMove(Move m, bool verbose) {
         return;
     }
     if (hasProperty(c, CardProperty::INSTANT)) {
-        handleInstant(c, card_number, m.target, verbose);
+        handleInstant(board, c, card_number, m.target, verbose);
         return;
     }
     doPlay(m, c, card_number, verbose);
@@ -855,7 +855,7 @@ const char *SpellCaster::cantCardTarget(int c, int t) const {
     return 0;
 }
 
-void SpellCaster::execute(bool verbose) {
+void SpellCaster::execute(shared_ptr<BoardBase> board, bool verbose) {
     checkConsistency();
     while (in_play.size() > 0) {
         int c = in_play.back();
@@ -873,7 +873,7 @@ void SpellCaster::execute(bool verbose) {
             wait_until(start_launch);
             // execute()
             //board->launch(c, target[c], start_launch, end_launch);
-            definitions[c]->animate(this, board, c, target[c], verbose);
+            definitions[c]->animate(shared_from_this(), board, c, target[c], verbose);
             cout << "Should be an unareana soon" << endl;
         }
 #endif
@@ -881,7 +881,7 @@ void SpellCaster::execute(bool verbose) {
         in_play.pop_back();
         location[c] = Location::EXECUTING;
         checkConsistency();
-        executeCard(c, verbose);
+        executeCard(board, c, verbose);
         checkConsistency();
         assert(location[c] != Location::EXECUTING);
 
@@ -896,7 +896,7 @@ void SpellCaster::execute(bool verbose) {
 
             //
             // execute()
-            board->setUpBoard(this, now(), now()+0.5);
+            board->setUpBoard(shared_from_this(), now(), now()+0.5);
             end_message();
         }
 #endif
@@ -984,7 +984,7 @@ void SpellCaster::kill_card(int c, bool verbose) {
 #ifdef BOARD
     if (verbose) {
         // kill_card()
-        board->setUpBoard(this, now(), now()+0.5);
+        board->setUpBoard(shared_from_this(), now(), now()+0.5);
         end_message();
     }
 #endif
@@ -1007,7 +1007,7 @@ void SpellCaster::destroy_card_from(Location loc, int c, bool verbose) {
 #ifdef BOARD
     if (verbose) {
         // destroy_card_from()
-        board->setUpBoard(this, now(), now()+0.5);
+        board->setUpBoard(shared_from_this(), now(), now()+0.5);
         end_message();
     }
 #endif
@@ -1043,7 +1043,7 @@ string SpellCaster::description(int c, bool verbose) const {
     }
     dout << cardColour(c);
 
-    definitions[c]->describe(this, dout, c);
+    definitions[c]->describe(shared_from_this(), dout, c);
 
     if (verbose && target[c] >= 0) {
         dout << " targetting " << description(target[c], false) << cardColour(c);

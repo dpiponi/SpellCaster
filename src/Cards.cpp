@@ -3,10 +3,17 @@
 #include "Cards.h"
 #include "SpellCaster.h"
 
-void Definition::animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const {
+void Definition::animate(shared_ptr<const SpellCaster> game, shared_ptr<BoardBase> board, int card, int target, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
         board->launch(card, target, now(), now()+2.0);
+        Vector3f colour(1.0, 0.0, 1.0);
+        if (game->cost[card].world > game->cost[card].astral) {
+            colour = Vector3f(1.0, 0.0, 0.0);
+        } else if (game->cost[card].world < game->cost[card].astral) {
+            colour = Vector3f(0.0, 0.0, 1.0);
+        }
+        board->glow(colour, card, target, now(), now()+3.0, Vector2f(0.5f, 0.0f));
     }
 #endif
 };
@@ -25,12 +32,12 @@ inline void describe_cost(ostream &out, const Mana &mana) {
 
 // XXX For now
 // Assumes it is targetting card.
-int Definition::computeAttack(SpellCaster *game, int card, int target, bool verbose) const {
+int Definition::computeAttack(shared_ptr<const SpellCaster> game, shared_ptr<BoardBase> board, int card, int target, bool verbose) const {
     return game->attack[card];
 }
 
 void
-MonsterDefinition::describe(const SpellCaster *game,
+MonsterDefinition::describe(shared_ptr<const SpellCaster> game,
                             ostream &out, int c) const {
         out << name << normal << "[" << c << ":cost=";
         describe_cost(out, game->cost[c]);
@@ -38,20 +45,20 @@ MonsterDefinition::describe(const SpellCaster *game,
 }
 
 void
-SpellDefinition::describe(const SpellCaster *game,
+SpellDefinition::describe(shared_ptr<const SpellCaster> game,
                           ostream &out, int c) const {
         out << name << normal << "[" << c << ":cost=";
         describe_cost(out, game->cost[c]);
         out << ",att=" << game->attack[c] << "]";
 }
 
-void ArtifactDefinition::describe(const SpellCaster *game, ostream &out, int c) const {
+void ArtifactDefinition::describe(shared_ptr<const SpellCaster> game, ostream &out, int c) const {
         out << name << normal << "[" << c << ":cost=";
         describe_cost(out, game->cost[c]);
         out << ",att=" << game->attack[c] << "]";
 }
 
-void MagicWeapon::execute(SpellCaster *game, int card, bool verbose) const {
+void MagicWeapon::execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int card, bool verbose) const {
     int target = game->target[card];
 #ifdef BOARD
     if (verbose) {
@@ -60,12 +67,12 @@ void MagicWeapon::execute(SpellCaster *game, int card, bool verbose) const {
         game->end_message();
     }
 #endif
-    int attack = computeAttack(game, card, target, verbose);
+    int attack = computeAttack(game, board, card, target, verbose);
     game->damage_card(target, attack, verbose);
     game->card_end_from(Location::EXECUTING, card, verbose);
 }
 
-void Pop::execute(SpellCaster *game, int c, bool verbose) const {
+void Pop::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
     auto c_location = find(game->in_play.begin(),
                            game->in_play.end(),
                            game->target[c]);
@@ -82,7 +89,7 @@ void Pop::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void Push::execute(SpellCaster *game, int c, bool verbose) const {
+void Push::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
     auto c_location = find(game->in_play.begin(),
                            game->in_play.end(),
                            game->target[c]);
@@ -99,7 +106,7 @@ void Push::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void JestersWish::executeInstant(SpellCaster *game, int c, bool verbose) const {
+void JestersWish::executeInstant(shared_ptr<SpellCaster> game, int c, bool verbose) const {
     int player = game->owner[c];
     if (game->target[c] != PLAYER0+player) {
 #ifdef BOARD
@@ -141,16 +148,16 @@ public:
                     CardProperty::INSTANT,
                     CardProperty::NONE,
                     CardProperty::NONE) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const override { }
-    void executeInstant(SpellCaster *game, int c, bool verbose) const override {
+    virtual void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const override { }
+    void executeInstant(shared_ptr<SpellCaster> game, int c, bool verbose) const override {
         game->mana[game->target[c]-PLAYER0] += Mana {3, 2}; // XXX Should be target no?
     }
-    void animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const override {
+    void animate(shared_ptr<const SpellCaster> game, shared_ptr<BoardBase> board, int card, int target, bool verbose) const override {
 #ifdef BOARD
         if (verbose) {
             int target_player = target-PLAYER0;
-            //board->glow(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+3.0, board->positionOfPlayer(target_player));
-            board->claw(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+3.0, 5);
+            board->glow(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+3.0, board->positionOfPlayer(target_player));
+            //board->claw(Vector3f(1.0, 0.0, 0.0), card, target, now(), now()+3.0, 5);
         }
 #endif
     }
@@ -164,8 +171,8 @@ public:
                     CardProperty::INSTANT,
                     CardProperty::NONE,
                     CardProperty::NONE) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const override { };
-    void executeInstant(SpellCaster *game, int card, bool verbose) const override {
+    virtual void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const override { };
+    void executeInstant(shared_ptr<SpellCaster> game, int card, bool verbose) const override {
         int target_card = game->target[card];
         int target_player = target_card-PLAYER0;
         game->mana[target_player] += Mana {4, 1};
@@ -178,7 +185,7 @@ public:
         }
 #endif
     };
-    void animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const override { }
+    void animate(shared_ptr<const SpellCaster> game, shared_ptr<BoardBase> board, int card, int target, bool verbose) const override { }
 } henge;
 
 const class Temple : public SpellDefinition {
@@ -189,8 +196,8 @@ public:
                     CardProperty::INSTANT,
                     CardProperty::NONE,
                     CardProperty::NONE) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const override { }
-    void executeInstant(SpellCaster *game, int card, bool verbose) const override {
+    virtual void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const override { }
+    void executeInstant(shared_ptr<SpellCaster> game, int card, bool verbose) const override {
         int count = 0;
         for (auto p = game->in_play.begin(); p != game->in_play.end(); ++p) {
             count += game->hasProperty(*p, CardProperty::BLESSED);
@@ -209,7 +216,7 @@ public:
         }
 #endif
     }
-    void animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const override {
+    void animate(shared_ptr<const SpellCaster> game, shared_ptr<BoardBase> board, int card, int target, bool verbose) const override {
 #if 0
 #ifdef BOARD
         if (verbose) {
@@ -221,7 +228,7 @@ public:
     }
 } temple;
 
-void DrainPower::execute(SpellCaster *game, int c, bool verbose) const {
+void DrainPower::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
     int target_c = game->target[c];
     int damage = game->damage_card(target_c, game->attack[c], verbose);
     game->mana[game->owner[c]].world += damage;
@@ -237,7 +244,7 @@ void DrainPower::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void Sacrifice::execute(SpellCaster *game, int c, bool verbose) const {
+void Sacrifice::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
     int target_c = game->target[c];
     if (game->owner[c] == game->owner[target_c]) {
         int damage = game->attack[c];
@@ -261,17 +268,17 @@ void Sacrifice::execute(SpellCaster *game, int c, bool verbose) const {
     }
 }
 
-void BlastBase::execute(SpellCaster *game, int card, bool verbose) const {
+void BlastBase::execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int card, bool verbose) const {
     int target = game->target[card];
-    int attack = computeAttack(game, card, target, verbose);
+    int attack = computeAttack(game, board, card, target, verbose);
     game->damage_card(target, attack, verbose);
     game->card_end_from(Location::EXECUTING, card, verbose);
 }
 
 // Write damage_player()? XXX
-void MonsterDefinition::execute(SpellCaster *game, int card, bool verbose) const {
+void MonsterDefinition::execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int card, bool verbose) const {
     int target = game->target[card];
-    int attack = computeAttack(game, card, target, verbose);
+    int attack = computeAttack(game, board, card, target, verbose);
     if (target == PLAYER0) {
 #ifdef BOARD
         if (verbose) {
@@ -309,7 +316,7 @@ void MonsterDefinition::execute(SpellCaster *game, int card, bool verbose) const
     game->card_end_from(Location::EXECUTING, card, verbose);
 }
 
-void GhoulBase::execute(SpellCaster *game, int c, bool verbose) const {
+void GhoulBase::execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const {
     if (game->target[c] == PLAYER0) {
         game->hp[0] -= game->attack[c];
 #ifdef BOARD
@@ -353,7 +360,7 @@ void GhoulBase::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void SpellEater::execute(SpellCaster *game, int c, bool verbose) const {
+void SpellEater::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
     if (game->target[c] == PLAYER0) {
         game->hp[0] -= game->attack[c];
 #ifdef BOARD
@@ -398,7 +405,7 @@ void SpellEater::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void SummonMonster::describe(const SpellCaster *game, ostream &out, int c) const {
+void SummonMonster::describe(shared_ptr<const SpellCaster> game, ostream &out, int c) const {
     if (toBool(game->card_class[c] & CardClass::MONSTER)) {
         out << name << "[" << c << " (already summoned)" << normal << ",cost=";
         describe_cost(out, game->cost[c]);
@@ -410,7 +417,7 @@ void SummonMonster::describe(const SpellCaster *game, ostream &out, int c) const
     }
 }
 
-void SummonMonster::execute(SpellCaster *game, int c, bool verbose) const {
+void SummonMonster::execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const {
     if (game->card_class[c] == CardClass::SPELL || game->card_class[c] == CardClass::ARTIFACT) {
 #ifdef BOARD
         if (verbose) {
@@ -450,7 +457,7 @@ void SummonMonster::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void HolySymbol::execute(SpellCaster *game, int c, bool verbose) const {
+void HolySymbol::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
     if (game->card_class[game->target[c]] == CardClass::MONSTER && toBool(game->properties[game->target[c]] & CardProperty::UNDEAD)) {
 #ifdef BOARD
         if (verbose) {
@@ -471,7 +478,7 @@ void HolySymbol::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void Vampire::execute(SpellCaster *game, int c, bool verbose) const {
+void Vampire::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
     if (game->target[c] == PLAYER0) {
         game->hp[0] -= game->attack[c];
 #ifdef BOARD
@@ -511,7 +518,7 @@ void Vampire::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void Mimic::execute(SpellCaster *game, int c, bool verbose) const {
+void Mimic::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
     if (game->target[c] == PLAYER0) {
         game->hp[0] -= game->attack[c];
 #ifdef BOARD
@@ -557,7 +564,7 @@ void Mimic::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void MagicSpear::execute(SpellCaster *game, int c, bool verbose) const {
+void MagicSpear::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
     if (game->card_class[game->target[c]] == CardClass::SPELL) {
 #ifdef BOARD
         if (verbose) {
@@ -579,7 +586,7 @@ void MagicSpear::execute(SpellCaster *game, int c, bool verbose) const {
     }
 }
 
-void PoisonMonster::execute(SpellCaster *game, int c, bool verbose) const {
+void PoisonMonster::execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const {
     if (game->target[c] == PLAYER0) {
         game->hp[0] -= game->attack[c];
 #ifdef BOARD
@@ -625,7 +632,7 @@ void PoisonMonster::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void StrengthBase::execute(SpellCaster *game, int c, bool verbose) const {
+void StrengthBase::execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
         *board << game->description(c, false);
@@ -639,7 +646,7 @@ void StrengthBase::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void Weakling::execute(SpellCaster *game, int c, bool verbose) const {
+void Weakling::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
         *board << game->description(c) << " LOWERS STRENGTH OF ";
@@ -651,7 +658,7 @@ void Weakling::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void TakeBase::execute(SpellCaster *game, int c, bool verbose) const {
+void TakeBase::execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
         *board << game->description(c, false);
@@ -665,7 +672,7 @@ void TakeBase::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void ShieldBase::execute(SpellCaster *game, int c, bool verbose) const {
+void ShieldBase::execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
         *board << game->description(c, false) << " INCREASES HP OF "
@@ -679,7 +686,7 @@ void ShieldBase::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void DestroyBase::execute(SpellCaster *game, int c, bool verbose) const {
+void DestroyBase::execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
         *board << game->description(c, false) << " destroyed " << game->description(game->target[c], false);
@@ -690,7 +697,7 @@ void DestroyBase::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void DoubleBase::execute(SpellCaster *game, int c, bool verbose) const {
+void DoubleBase::execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
         *board << game->description(c, false) << " doubled in power " << game->description(game->target[c], false);
@@ -701,7 +708,7 @@ void DoubleBase::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void ReturnBase::execute(SpellCaster *game, int c, bool verbose) const {
+void ReturnBase::execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
         *board << game->description(c) << " RETURNS "
@@ -713,7 +720,7 @@ void ReturnBase::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void Sickness::execute(SpellCaster *game, int c, bool verbose) const {
+void Sickness::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
         *board << game->description(c, false) << " DECREASES HEALTH OF "
@@ -739,7 +746,7 @@ void Sickness::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void MakeArtifact::execute(SpellCaster *game, int c, bool verbose) const {
+void MakeArtifact::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
         *board << game->description(c, false) << " out of ";
@@ -760,10 +767,10 @@ public:
                     CardProperty::INSTANT,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT) { }
-    void animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const override { }
+    void animate(shared_ptr<const SpellCaster> game, shared_ptr<BoardBase> board, int card, int target, bool verbose) const override { }
 
     // Exactly like TakeBase except you need to own target.
-    void executeInstant(SpellCaster *game, int c, bool verbose) const override {
+    void executeInstant(shared_ptr<SpellCaster> game, int c, bool verbose) const override {
         int target = game->target[c];
         if (game->owner[c] == game->owner[target]) {
 #ifdef BOARD
@@ -792,7 +799,7 @@ public:
     }
 } recall;
 
-void Mephistopheles::execute(SpellCaster *game, int c, bool verbose) const {
+void Mephistopheles::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
     if (game->target[c] == PLAYER0) {
         game->hp[0] -= game->attack[c];
 #ifdef BOARD
@@ -841,7 +848,7 @@ void Mephistopheles::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void VorpalBunny::execute(SpellCaster *game, int c, bool verbose) const {
+void VorpalBunny::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
     if (game->target[c] == PLAYER0) {
         game->hp[0] -= game->attack[c];
 #ifdef BOARD
@@ -900,7 +907,7 @@ void VorpalBunny::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void AntiAstralBase::execute(SpellCaster *game, int c, bool verbose) const {
+void AntiAstralBase::execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
         *board << game->description(c, false) << " giving astral magic-resistance to "
@@ -912,7 +919,7 @@ void AntiAstralBase::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void AntiWorldlyBase::execute(SpellCaster *game, int c, bool verbose) const {
+void AntiWorldlyBase::execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
         *board << game->description(c, false) << " giving worldly magic-resistance to "
@@ -924,7 +931,7 @@ void AntiWorldlyBase::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void Curse::execute(SpellCaster *game, int c, bool verbose) const {
+void Curse::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
         *board << game->description(c, false) << " cursing "
@@ -936,7 +943,7 @@ void Curse::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void ImminentDeathBase::execute(SpellCaster *game, int c, bool verbose) const {
+void ImminentDeathBase::execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
         *board << game->description(c, false) << " causing imminent death for "
@@ -948,7 +955,7 @@ void ImminentDeathBase::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void SleepBase::execute(SpellCaster *game, int c, bool verbose) const {
+void SleepBase::execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const {
     if (game->cardhp[game->target[c]] > game->attack[c]) {
 #ifdef BOARD
         if (verbose) {
@@ -972,7 +979,7 @@ void SleepBase::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void Loyalty::execute(SpellCaster *game, int c, bool verbose) const {
+void Loyalty::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
     Mana current_cost = game->cost[game->target[c]];
     Mana new_cost = max(current_cost-Mana{game->attack[c], game->attack[c]}, Mana{0, 0});
     game->cost[game->target[c]] = new_cost;
@@ -988,7 +995,7 @@ void Loyalty::execute(SpellCaster *game, int c, bool verbose) const {
 }
 
 #if 0
-void OffByOne::execute(SpellCaster *game, int c, bool verbose) const {
+void OffByOne::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
     int target_card = game->target[c];
     // Safe to assume target_card not a player.
     int targets_target = game->target[target_card];
@@ -1040,7 +1047,7 @@ void OffByOne::execute(SpellCaster *game, int c, bool verbose) const {
 }
 #endif
 
-void Darkness::execute(SpellCaster *game, int c, bool verbose) const {
+void Darkness::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
         *board << game->description(c, false) << " makes darkness fall on "
@@ -1064,7 +1071,7 @@ void Darkness::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void BlueSkies::execute(SpellCaster *game, int c, bool verbose) const {
+void BlueSkies::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
         *board << game->description(c, false) << " clears skies for " 
@@ -1089,7 +1096,7 @@ void BlueSkies::execute(SpellCaster *game, int c, bool verbose) const {
 }
 
 // Plague doesn't kill. Do I want that?
-void Plague::execute(SpellCaster *game, int c, bool verbose) const {
+void Plague::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
         *board << game->description(c, false) << " causes plague on "
@@ -1116,12 +1123,12 @@ void Plague::execute(SpellCaster *game, int c, bool verbose) const {
 }
 
 #if 0
-void Henge::execute(SpellCaster *game, int c, bool verbose) const {
+void Henge::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 #endif
 
-void PerpetualMachineBase::execute(SpellCaster *game, int c, bool verbose) const {
+void PerpetualMachineBase::execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const {
     int bonus = game->attack[c];
     int player_number = game->target[c]-PLAYER0;
     game->mana[player_number] += Mana{bonus, bonus};
@@ -1135,7 +1142,7 @@ void PerpetualMachineBase::execute(SpellCaster *game, int c, bool verbose) const
 }
 
 #if 0
-void ARollingStone::execute(SpellCaster *game, int c, bool verbose) const {
+void ARollingStone::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
     int target_card = game->target[c];
     auto target_location = find(game->in_play.begin(),
                                 game->in_play.end(),
@@ -1160,7 +1167,7 @@ void ARollingStone::execute(SpellCaster *game, int c, bool verbose) const {
 #endif
 
 // XXX Use this somewhere!
-void FollowThroughBase::execute(SpellCaster *game, int c, bool verbose) const {
+void FollowThroughBase::execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
         *board << game->description(c, false) << " damages "
@@ -1196,7 +1203,7 @@ void FollowThroughBase::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void ImmobilisingMonsterDefinition::execute(SpellCaster *game, int c, bool verbose) const {
+void ImmobilisingMonsterDefinition::execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const {
     if (game->target[c] == PLAYER0) {
         game->hp[0] -= game->attack[c];
 #ifdef BOARD
@@ -1230,7 +1237,7 @@ void ImmobilisingMonsterDefinition::execute(SpellCaster *game, int c, bool verbo
 }
 
 // Damage done goes to owner as mana
-void VampiricMonster::execute(SpellCaster *game, int c, bool verbose) const {
+void VampiricMonster::execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const {
     if (game->target[c] == PLAYER0) {
         game->hp[0] -= game->attack[c];
 #ifdef BOARD
@@ -1272,7 +1279,7 @@ void dump_cards() {
 #endif
 }
 
-void Ambush::execute(SpellCaster *game, int c, bool verbose) const {
+void Ambush::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
     int target_card = game->target[c];
     // Safe to assume target_card not a player.
     int targets_target = game->target[target_card];
@@ -1329,7 +1336,7 @@ void Ambush::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void Link::execute(SpellCaster *game, int c, bool verbose) const {
+void Link::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
         *board << game->description(c, false) << " linking "
@@ -1342,7 +1349,7 @@ void Link::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void ShardBase::execute(SpellCaster *game, int c, bool verbose) const {
+void ShardBase::execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const {
     int total_damage = game->attack[c];
     int target_card = game->target[c];
     int damage = game->damage_card(target_card, game->attack[c], verbose);
@@ -1357,7 +1364,7 @@ void ShardBase::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void EtherealRing::execute(SpellCaster *game, int c, bool verbose) const {
+void EtherealRing::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
         *board << game->description(c, false) << " making "
@@ -1370,7 +1377,7 @@ void EtherealRing::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void Rage::execute(SpellCaster *game, int c, bool verbose) const {
+void Rage::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
     int target_card = game->target[c];
 #ifdef BOARD
     if (verbose) {
@@ -1385,7 +1392,7 @@ void Rage::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void Flight::execute(SpellCaster *game, int c, bool verbose) const {
+void Flight::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
         *board << game->description(c, false) << " bestows flight on "
@@ -1398,7 +1405,7 @@ void Flight::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void FountainOfYouth::execute(SpellCaster *game, int c, bool verbose) const {
+void FountainOfYouth::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
         *board << game->description(c, false) << " bestows regeneration on "
@@ -1410,7 +1417,7 @@ void FountainOfYouth::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void Ground::execute(SpellCaster *game, int c, bool verbose) const {
+void Ground::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
         *board << game->description(c, false) << " grounds "
@@ -1423,7 +1430,7 @@ void Ground::execute(SpellCaster *game, int c, bool verbose) const {
     game->card_end_from(Location::EXECUTING, c, verbose);
 }
 
-void Suspend::execute(SpellCaster *game, int c, bool verbose) const {
+void Suspend::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
     if (game->owner[c] == game->owner[game->target[c]]) {
 #ifdef BOARD
         if (verbose) {
@@ -1446,7 +1453,7 @@ void Suspend::execute(SpellCaster *game, int c, bool verbose) const {
 }
 
 #if 0
-void SpellEater::execute(SpellCaster *game, int c, bool verbose) const {
+void SpellEater::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
     int card_target = game->target[c];
     if (game->card_class[c] == CardClass::SPELL) {
         if (verbose) {
@@ -1486,7 +1493,7 @@ void SpellEater::execute(SpellCaster *game, int c, bool verbose) const {
 }
 #endif
 
-int ArtemisBow::computeAttack(SpellCaster *game, int card, int target, bool verbose) const {
+int ArtemisBow::computeAttack(shared_ptr<const SpellCaster> game, shared_ptr<BoardBase> board, int card, int target, bool verbose) const {
     int attack = game->attack[card];
     if (toBool(game->properties[target] & CardProperty::FLYING)) {
         ++attack;
@@ -1500,14 +1507,14 @@ int ArtemisBow::computeAttack(SpellCaster *game, int card, int target, bool verb
     return attack;
 }
 
-int AvengingAngel::computeAttack(SpellCaster *game, int card, int target, bool verbose) const {
+int AvengingAngel::computeAttack(shared_ptr<const SpellCaster> game, shared_ptr<BoardBase> board, int card, int target, bool verbose) const {
     if (target == PLAYER0 || target == PLAYER1) {
         return game->attack[card];
     }
     return game->attack[target];
 }
 
-int Lightning::computeAttack(SpellCaster *game, int card, int target, bool verbose) const {
+int Lightning::computeAttack(shared_ptr<const SpellCaster> game, shared_ptr<BoardBase> board, int card, int target, bool verbose) const {
     int attack = game->attack[card];
     if (toBool(game->properties[target] & CardProperty::AQUATIC)) {
         ++attack;
@@ -1521,7 +1528,7 @@ int Lightning::computeAttack(SpellCaster *game, int card, int target, bool verbo
     return attack;
 }
 
-int SkeletonLord::computeAttack(SpellCaster *game, int card, int target, bool verbose) const {
+int SkeletonLord::computeAttack(shared_ptr<const SpellCaster> game, shared_ptr<BoardBase> board, int card, int target, bool verbose) const {
     int attack = game->attack[card];
     int count = 0;
     for (auto p = game->in_play.begin(); p != game->in_play.end(); ++p) {
@@ -1539,7 +1546,7 @@ int SkeletonLord::computeAttack(SpellCaster *game, int card, int target, bool ve
     return attack;
 }
 
-void SleepBase::animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const {
+void SleepBase::animate(shared_ptr<const SpellCaster> game, shared_ptr<BoardBase> board, int card, int target, bool verbose) const {
 #ifdef BOARD
     if (verbose) {
         cout << "BBBBBBBBBUUUUUUUUURRRRRRRRRRRRNNNNNNNNNNNN!!!!!!!!!" << endl;
@@ -1549,7 +1556,7 @@ void SleepBase::animate(SpellCaster *game, shared_ptr<Board> board, int card, in
 #endif
 }
 
-void MonsterDefinition::animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const { }
+void MonsterDefinition::animate(shared_ptr<const SpellCaster> game, shared_ptr<BoardBase> board, int card, int target, bool verbose) const { }
 #if 0
 #ifdef BOARD
     if (verbose) {

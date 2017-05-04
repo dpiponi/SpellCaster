@@ -624,7 +624,7 @@ void Board::launch2(int source_card) {
 }
 #endif
 
-void Board::setUpBoard(const SpellCaster *game, double time0, double time1) {
+void Board::setUpBoard(shared_ptr<const SpellCaster> game, double time0, double time1) {
     std::lock_guard<std::mutex> guard(board_mutex);
     for (int i = 0; i < 2; ++i) {
         hp[i] = game->hp[i];
@@ -761,6 +761,7 @@ void Board::unArena(int arena_id, int card1, int card2, double time0, double tim
 
 void Board::unFocus(int player, int card, float delay) {
     std::lock_guard<std::mutex> guard(board_mutex);
+    cout << "UNFOCUS!!!!!" << endl;
     int focus = find(hand[0].begin(), hand[0].end(), card)-hand[0].begin();
     //assert(game->hand[0][focus] == card);
 

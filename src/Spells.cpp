@@ -54,7 +54,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE,
                     CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT | CardProperty::FIRE_RESISTANT) { }
-    void animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const override {
+    void animate(shared_ptr<const SpellCaster> game, shared_ptr<BoardBase> board, int card, int target, bool verbose) const override {
 #ifdef BOARD
         if (verbose) {
             cout << "BBBBBBBBBUUUUUUUUURRRRRRRRRRRRNNNNNNNNNNNN!!!!!!!!!" << endl;

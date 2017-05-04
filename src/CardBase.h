@@ -22,6 +22,7 @@ using std::endl;
 class SpellCaster;
 class Definition;
 class Board;
+class BoardBase;
 
 class CardRegistry {
 public:
@@ -72,11 +73,11 @@ public:
            CardRegistry::registerCard(name, this);
         };
     virtual int key () const { return 0; }
-    virtual void describe(const SpellCaster *game, ostream &out, int c) const = 0;
-    virtual void execute(SpellCaster *game, int c, bool verbose) const { };// = 0;
-    virtual void executeInstant(SpellCaster *game, int c, bool verbose) const  { }
-    virtual int computeAttack(SpellCaster *game, int card, int target, bool verbose) const;
-    virtual void animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const;
+    virtual void describe(shared_ptr<const SpellCaster> game, ostream &out, int c) const = 0;
+    virtual void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const { };// = 0;
+    virtual void executeInstant(shared_ptr<SpellCaster> game, int c, bool verbose) const  { }
+    virtual int computeAttack(shared_ptr<const SpellCaster> game, shared_ptr<BoardBase> board, int card, int target, bool verbose) const;
+    virtual void animate(shared_ptr<const SpellCaster> game, shared_ptr<BoardBase> board, int card, int target, bool verbose) const;
 };
 
 
@@ -84,165 +85,165 @@ class MonsterDefinition : public Definition {
 public:
     template<class ... types>
         MonsterDefinition(types ... args) : Definition(args...) { }
-    virtual void describe(const SpellCaster *game, ostream &out, int c) const;
-    void execute(SpellCaster *game, int c, bool verbose) const;
-    virtual void animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const;
+    virtual void describe(shared_ptr<const SpellCaster> game, ostream &out, int c) const;
+    void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const;
+    virtual void animate(shared_ptr<const SpellCaster> game, shared_ptr<BoardBase> board, int card, int target, bool verbose) const;
 };
 
 class ImmobilisingMonsterDefinition : public MonsterDefinition {
 public:
     template<class ... types>
         ImmobilisingMonsterDefinition(types ... args) : MonsterDefinition(args...) { }
-    void execute(SpellCaster *game, int c, bool verbose) const;
+    void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const;
 };
 
 class GhoulBase : public MonsterDefinition {
 public:
     template<class ... types>
         GhoulBase(types ... args) : MonsterDefinition(args...) { }
-    void execute(SpellCaster *game, int c, bool verbose) const;
+    void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const;
 };
 
 class VampiricMonster: public MonsterDefinition {
 public:
     template<class ... types>
         VampiricMonster(types ... args) : MonsterDefinition(args...) { }
-    void execute(SpellCaster *game, int c, bool verbose) const;
+    void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const;
 };
 
 class SummonMonster : public MonsterDefinition {
 public:
     template<class ... types>
         SummonMonster(types ... args) : MonsterDefinition(args...) { }
-    virtual void describe(const SpellCaster *game, ostream &out, int c) const;
-    void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void describe(shared_ptr<const SpellCaster> game, ostream &out, int c) const;
+    void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const;
 };
 
 class SpellDefinition : public Definition {
 public:
     template<class ... types>
         SpellDefinition(types ... args) : Definition(args...) { }
-    virtual void describe(const SpellCaster *game, ostream &out, int c) const;
+    virtual void describe(shared_ptr<const SpellCaster> game, ostream &out, int c) const;
 };
 
 class ArtifactDefinition : public Definition {
 public:
     template<class ... types>
         ArtifactDefinition(types ... args) : Definition(args...) { }
-    virtual void describe(const SpellCaster *game, ostream &out, int c) const;
+    virtual void describe(shared_ptr<const SpellCaster> game, ostream &out, int c) const;
 };
 
 class PoisonMonster : public MonsterDefinition {
 public:
     template<class ... types>
         PoisonMonster(types ... args) : MonsterDefinition(args...) { }
-    void execute(SpellCaster *game, int c, bool verbose) const;
+    void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const;
 };
 
 class BlastBase : public SpellDefinition {
 public:
     template<class ... types>
         BlastBase(types ... args) : SpellDefinition(args...) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const;
 };
 
 class FollowThroughBase : public SpellDefinition {
 public:
     template<class ... types>
         FollowThroughBase(types ... args) : SpellDefinition(args...) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const;
 };
 
 class DestroyBase : public SpellDefinition {
 public:
     template<class ... types>
         DestroyBase(types ... args) : SpellDefinition(args...) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const;
 };
 
 class ShieldBase : public SpellDefinition {
 public:
     template<class ... types>
         ShieldBase(types ... args) : SpellDefinition(args...) { }
-    void execute(SpellCaster *game, int c, bool verbose) const;
+    void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const;
 };
 
 class ReturnBase : public SpellDefinition {
 public:
     template<class ... types>
         ReturnBase(types ... args) : SpellDefinition(args...) { }
-    void execute(SpellCaster *game, int c, bool verbose) const;
+    void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const;
 };
 
 class TakeBase : public SpellDefinition {
 public:
     template<class ... types>
         TakeBase(types ... args) : SpellDefinition(args...) { }
-    void execute(SpellCaster *game, int c, bool verbose) const;
+    void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const;
 };
 
 class AntiAstralBase : public SpellDefinition {
 public:
     template<class ... types>
         AntiAstralBase(types ... args) : SpellDefinition(args...) { }
-    void execute(SpellCaster *game, int c, bool verbose) const;
+    void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const;
 };
 
 class AntiWorldlyBase : public SpellDefinition {
 public:
     template<class ... types>
         AntiWorldlyBase(types ... args) : SpellDefinition(args...) { }
-    void execute(SpellCaster *game, int c, bool verbose) const;
+    void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const;
 };
 
 class SleepBase : public SpellDefinition {
 public:
     template<class ... types>
         SleepBase(types ... args) : SpellDefinition(args...) { }
-    void execute(SpellCaster *game, int c, bool verbose) const override;
-    void animate(SpellCaster *game, shared_ptr<Board> board, int card, int target, bool verbose) const override;
+    void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const override;
+    void animate(shared_ptr<const SpellCaster> game, shared_ptr<BoardBase> board, int card, int target, bool verbose) const override;
 };
 
 class MagicWeapon : public ArtifactDefinition {
 public:
     template<class ... types>
         MagicWeapon(types ... args) : ArtifactDefinition(args...) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const;
 };
 
 class StrengthBase : public SpellDefinition {
 public:
     template<class ... types>
         StrengthBase(types ... args) : SpellDefinition(args...) { }
-    void execute(SpellCaster *game, int c, bool verbose) const;
+    void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const;
 };
 
 class DoubleBase : public SpellDefinition {
 public:
     template<class ... types>
     DoubleBase(types ... args) : SpellDefinition(args...) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const;
 };
 
 class ShardBase : public SpellDefinition {
 public:
     template<class ... types>
     ShardBase(types ... args) : SpellDefinition(args...) { }
-    virtual void execute(SpellCaster *game, int c, bool verbose) const;
+    virtual void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int c, bool verbose) const;
 };
 
 class PerpetualMachineBase : public ArtifactDefinition {
 public:
     template<class ... types>
     PerpetualMachineBase(types ... args) : ArtifactDefinition(args...) { }
-    virtual void execute(SpellCaster *game, int card, bool verbose) const;
+    virtual void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int card, bool verbose) const;
 };
 
 class ImminentDeathBase : public ArtifactDefinition {
 public:
     template<class ... types>
     ImminentDeathBase(types ... args) : ArtifactDefinition(args...) { }
-    virtual void execute(SpellCaster *game, int card, bool verbose) const;
+    virtual void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int card, bool verbose) const;
 };
 
 #endif
