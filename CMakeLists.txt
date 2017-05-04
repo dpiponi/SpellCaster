@@ -28,6 +28,8 @@ set(SC_SOURCE_FILES src/Board.cpp
 
 set(TUNE_SOURCE_FILES src/SpellCaster.cpp
                       src/Cards.cpp
+                      src/Spells.cpp
+                      src/Artifacts.cpp
                       src/UCTRave.cpp
                       src/tune.cpp
                       json11/json11.cpp)
@@ -41,7 +43,7 @@ set_property(TARGET sc PROPERTY CXX_STANDARD 14)
 target_compile_features(sc PRIVATE cxx_range_for)
 target_compile_features(sc PRIVATE cxx_strong_enums)
 target_compile_features(sc PRIVATE cxx_uniform_initialization)
-target_compile_definitions(sc PRIVATE BOARD)
+# target_compile_definitions(sc PRIVATE BOARD)
 
 set_property(TARGET tune PROPERTY CXX_STANDARD 14)
 target_compile_features(tune PRIVATE cxx_range_for)

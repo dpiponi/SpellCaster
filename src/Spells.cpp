@@ -63,3 +63,57 @@ public:
 #endif
     }
 } fire;
+
+const class Haste : public SpellDefinition {
+public:
+    Haste() : SpellDefinition("Haste", "⬇️️ ", 0, 0, 2, 1, 1, 1,
+                    CardClass::SPELL,
+                    CardClass::MONSTER | CardClass::SPELL | CardClass::ARTIFACT,
+                    CardProperty::NONE,
+                    CardProperty::NONE,
+                    CardProperty::BLUE_MAGIC_RESISTANT) { }
+
+    void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
+        auto c_location = find(game->in_play.begin(),
+                               game->in_play.end(),
+                               game->target[c]);
+        assert(c_location != game->in_play.end());
+        game->in_play.erase(c_location);
+        game->in_play.push_back(game->target[c]);
+#ifdef BOARD
+        if (verbose) {
+            *board << game->description(game->target[c], false);
+            *board << " POPPED to top of stack";
+            game->end_message();
+        }
+#endif
+        game->card_end_from(Location::EXECUTING, c, verbose);
+    }
+} haste;
+
+const class Sloth : public SpellDefinition {
+public:
+    Sloth() : SpellDefinition("Sloth", "⬆️️ ", 0, 1, 1, 1, 1, 1,
+                    CardClass::SPELL,
+                    CardClass::MONSTER,
+                    CardProperty::NONE,
+                    CardProperty::NONE,
+                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
+
+    void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
+        auto c_location = find(game->in_play.begin(),
+                               game->in_play.end(),
+                               game->target[c]);
+        assert(c_location != game->in_play.end());
+        game->in_play.erase(c_location);
+        game->in_play.insert(game->in_play.begin(), game->target[c]);
+#ifdef BOARD
+        if (verbose) {
+            *board << game->description(game->target[c], false);
+            *board << " PUSHED to bottom of stack";
+            game->end_message();
+        }
+#endif
+        game->card_end_from(Location::EXECUTING, c, verbose);
+    }
+} sloth;

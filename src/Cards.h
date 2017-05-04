@@ -15,17 +15,6 @@ inline bool isCard(int c) {
     return c >= 0 && c < 1000;
 }
 
-class Pop : public SpellDefinition {
-public:
-    Pop() : SpellDefinition("Haste", "⬇️️ ", 0, 0, 2, 1, 1, 1,
-                    CardClass::SPELL,
-                    CardClass::MONSTER | CardClass::SPELL | CardClass::ARTIFACT,
-                    CardProperty::NONE,
-                    CardProperty::NONE,
-                    CardProperty::BLUE_MAGIC_RESISTANT) { }
-    virtual void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
-};
-
 const class JestersWish : public SpellDefinition {
 public:
     JestersWish() : SpellDefinition("Jester's Wish", "🃏 ", 0, 0, 3, 1, 1, 1,
@@ -56,17 +45,6 @@ public:
                     CardProperty::NONE,
                     CardProperty::NONE) { }
 } manaWheel;
-
-class Push : public SpellDefinition {
-public:
-    Push() : SpellDefinition("Sloth", "⬆️️ ", 0, 1, 1, 1, 1, 1,
-                    CardClass::SPELL,
-                    CardClass::MONSTER,
-                    CardProperty::NONE,
-                    CardProperty::NONE,
-                    CardProperty::RED_MAGIC_RESISTANT | CardProperty::BLUE_MAGIC_RESISTANT) { }
-    virtual void execute(shared_ptr<SpellCaster> game, int c, bool verbose) const;
-};
 
 const class Darkness : public SpellDefinition {
 public:

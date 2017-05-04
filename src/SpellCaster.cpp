@@ -78,7 +78,7 @@ read_deck(const map<string, const Definition *> &database,
             deck.push_back(p->second);
             ++i;
         } else {
-            cout << "Failed to find " << line << endl;
+            cout << "Failed to find '" << line << '\'' << endl;
         }
     }
     return deck;

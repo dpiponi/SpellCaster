@@ -27,8 +27,10 @@ class BoardBase;
 class CardRegistry {
 public:
     static map<string, const Definition *> *getRegistry() {
-        cout << "Creating card registry" << endl;
         static map<string, const Definition *> *registry = new map<string, const Definition *>;
+        if (registry->size() == 0) {
+            cout << "Created card registry" << endl;
+        }
         return registry;
     }
     static void registerCard(string name, const Definition *definition) {

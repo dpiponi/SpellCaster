@@ -443,8 +443,6 @@ void Board::zzz(Vector3f colour, int source_card, int target_card, double start_
 }
 
 void Board::glow(Vector3f colour, int source_card, int target_card, double start_time, double end_time, Vector2f target) {
-    cout << "ACTUAL LAUNCH() = " << source_card << ' ' << target[source_card] << endl;
-
     Vector2f source(-0.5, 0.0);
     //Vector2f target(0.5, 0.0);
 

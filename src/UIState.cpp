@@ -46,7 +46,7 @@ static void WaitingForFirstCardReceived(int first_card);
 void WaitingForSecondCard::mouse(Application *app, int button, int action, int mode) {
     Point point = app->getMousePixels();
     int second_card = board->mouse_press(point);
-    cout << "GOT SECOnD CARD" << endl;
+    cout << "Got second card" << endl;
 
     if (second_card >= 0) {
         if (second_card == first_card) {
@@ -80,6 +80,7 @@ void WaitingForSecondCard::mouse(Application *app, int button, int action, int m
             return;
         }
 
+        cout << "Doing an actual play" << endl;
         cout << first_card << " THEN " << second_card << endl;
 
         auto analysis_game = make_shared<SpellCaster>(*game);

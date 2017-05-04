@@ -38,7 +38,7 @@ public:
                     CardProperty::NONE,
                     CardProperty::FLYING | CardProperty::ETHEREAL) { }
 
-    void execute(shared_ptr<SpellCaster> game, int card, bool verbose) const {
+    void execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> game, int card, bool verbose) const {
         int target = game->target[card];
         int attack = computeAttack(game, board, card, target, verbose);
         if (game->basehp[target] < attack) {

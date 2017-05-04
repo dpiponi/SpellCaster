@@ -72,40 +72,6 @@ void MagicWeapon::execute(shared_ptr<BoardBase> board, shared_ptr<SpellCaster> g
     game->card_end_from(Location::EXECUTING, card, verbose);
 }
 
-void Pop::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
-    auto c_location = find(game->in_play.begin(),
-                           game->in_play.end(),
-                           game->target[c]);
-    assert(c_location != game->in_play.end());
-    game->in_play.erase(c_location);
-    game->in_play.push_back(game->target[c]);
-#ifdef BOARD
-    if (verbose) {
-        *board << game->description(game->target[c], false);
-        *board << " POPPED to top of stack";
-        game->end_message();
-    }
-#endif
-    game->card_end_from(Location::EXECUTING, c, verbose);
-}
-
-void Push::execute(shared_ptr<SpellCaster> game, int c, bool verbose) const {
-    auto c_location = find(game->in_play.begin(),
-                           game->in_play.end(),
-                           game->target[c]);
-    assert(c_location != game->in_play.end());
-    game->in_play.erase(c_location);
-    game->in_play.insert(game->in_play.begin(), game->target[c]);
-#ifdef BOARD
-    if (verbose) {
-        *board << game->description(game->target[c], false);
-        *board << " PUSHED to bottom of stack";
-        game->end_message();
-    }
-#endif
-    game->card_end_from(Location::EXECUTING, c, verbose);
-}
-
 void JestersWish::executeInstant(shared_ptr<SpellCaster> game, int c, bool verbose) const {
     int player = game->owner[c];
     if (game->target[c] != PLAYER0+player) {
