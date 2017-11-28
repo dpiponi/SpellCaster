@@ -58,7 +58,7 @@ struct BoardConfig {
     float computer_stats_row;
     float player_stats_column;
 public:
-    BoardConfig() { } // XXX SHouldn't ever be used
+    BoardConfig() { } // XXX Shouldn't ever be used
     BoardConfig(Json json);
 };
 

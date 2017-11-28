@@ -1,46 +1,43 @@
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Recall
-Burn
-Burn
-Burn
-Burn
-Burn
-Burn
-Burn
-Burn
-Burn
-Burn
-Burn
-Burn
-Burn
-Burn
-Burn
-Burn
-Shooting Stars
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
+Sleep
 Ambush
 An Evil Blast
 An Ill Wind
@@ -61,6 +58,7 @@ Blue Dragon
 Blue Skies
 Bribe
 Brick Wall
+Burn
 Comet
 Crocodile
 Darkness
@@ -91,8 +89,6 @@ Goblin
 Golem
 Ground
 Haste
-Henge
-Henge
 Henge
 Henge
 Henge
@@ -159,13 +155,6 @@ Mana
 Mana
 Mana
 Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
-Mana
 Mana Wheel
 Mephistopheles
 Mimic
@@ -181,19 +170,12 @@ Recall
 Red Dragon
 Resist Astral Magic
 Resist Worldly Magic
-Resist Astral Magic
-Resist Worldly Magic
-Resist Astral Magic
-Resist Worldly Magic
-Resist Astral Magic
-Resist Worldly Magic
-Resist Astral Magic
-Resist Worldly Magic
 Roc
 Sacrifice
 Scorpion
 Shard
 Shield
+Shooting Stars
 Sickness
 Skeleton
 Skeleton Lord
@@ -210,9 +192,6 @@ Strength
 Sudden Death
 Suspend
 Tempest
-Temple
-Temple
-Temple
 Temple
 Temple
 Temple
