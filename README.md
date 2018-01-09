@@ -3,8 +3,16 @@ SpellCaster - a trading card game
 
 ![SpellCaster screenshot](assets/screenshot.png?raw=true "SpellCaster Screenshot")
 
-Don't look in here yet.
-=======
+Status
+======
+I don't have a set of rules that satisifes both these conditions:
+1. they're fun to play
+2. Monte Carlo tree search works well
+
+I think I can do one or the other.
+Monte Carlo Tree Search seemed to play really well when the rules were much simpler.
+As a result, I'm putting this on hold until I feel inspired again.
+
 =================================
 
 Introduction
